@@ -1,14 +1,23 @@
 export function getCurrentShopId(): string {
   if (typeof window !== "undefined") {
-    return localStorage.getItem("dukaan_shop_id") || "";
+    const raw = localStorage.getItem("dukaan_shop_id");
+    if (!raw || raw === "undefined" || raw === "null" || raw === "none" || raw.trim() === "") {
+      try {
+        localStorage.removeItem("dukaan_shop_id");
+      } catch {
+        // ignore storage error
+      }
+      return "";
+    }
+    return raw.trim();
   }
   return "";
 }
 
 export function setCurrentShopId(id: string): void {
   if (typeof window !== "undefined") {
-    if (id) {
-      localStorage.setItem("dukaan_shop_id", id);
+    if (id && id !== "undefined" && id !== "null" && id !== "none" && id.trim()) {
+      localStorage.setItem("dukaan_shop_id", id.trim());
     } else {
       localStorage.removeItem("dukaan_shop_id");
       localStorage.removeItem("dukaan_shop_data");

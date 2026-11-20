@@ -2,11 +2,13 @@ import base64
 import json
 import logging
 from contextlib import asynccontextmanager
+from contextvars import ContextVar
 from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
+from typing import Any
 from uuid import UUID
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Query, WebSocket, WebSocketDisconnect
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -60,6 +62,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+current_shop_context: ContextVar[str | None] = ContextVar("current_shop_context", default=None)
+
+
+@app.middleware("http")
+async def shop_context_middleware(request: Request, call_next):
+    raw_header = request.headers.get("x-shop-id") or request.query_params.get("shop_id")
+    if raw_header and raw_header.strip() and raw_header.strip().lower() not in ("undefined", "null", "none"):
+        token = current_shop_context.set(raw_header.strip())
+    else:
+        token = current_shop_context.set(None)
+    try:
+        response = await call_next(request)
+        return response
+    finally:
+        current_shop_context.reset(token)
+
 app.include_router(auth_router)
 app.include_router(scans_router)
 app.include_router(features_router)
@@ -67,20 +85,60 @@ app.include_router(features_router)
 MAX_UTTERANCE_BYTES = 16000 * 2 * 30  # 30 seconds of 16 kHz mono PCM16
 
 
+def safe_uuid_str(val: Any) -> str | None:
+    if not val:
+        return None
+    s = str(val).strip()
+    if "?" in s:
+        s = s.split("?")[0].strip()
+    if "&" in s:
+        s = s.split("&")[0].strip()
+    if not s or s.lower() in ("undefined", "null", "none"):
+        return None
+    try:
+        return str(UUID(s))
+    except (ValueError, TypeError):
+        return None
+
+
 async def get_current_shop_id(
-    shop_id: str | None = None,
-    x_shop_id: str | None = Header(None, alias="X-Shop-Id"),
-    s: AsyncSession = Depends(get_session),
+    shop_id: Any = None,
+    s: AsyncSession | None = None,
+    x_shop_id: str | None = None,
 ) -> str:
-    """Resolve shop_id safely: provided param -> X-Shop-Id header -> config -> first DB shop."""
-    candidate = shop_id or x_shop_id
-    if candidate and candidate.strip():
-        return candidate.strip()
-    if settings.default_shop_id and settings.default_shop_id.strip():
-        return settings.default_shop_id.strip()
-    row = (await s.execute(text("select id from shops order by created_at asc limit 1"))).scalar()
-    if row:
-        return str(row)
+    """Resolve shop_id safely: provided param -> X-Shop-Id header/ctx -> config -> first DB shop."""
+    # Handle cases where s was passed positionally or shop_id was an AsyncSession
+    if isinstance(shop_id, AsyncSession):
+        s, shop_id = shop_id, None
+    if isinstance(s, str):
+        x_shop_id, s = s, None
+
+    # Check explicit argument
+    valid_sid = safe_uuid_str(shop_id) or safe_uuid_str(x_shop_id)
+    if valid_sid:
+        return valid_sid
+
+    # Check request context (from header X-Shop-Id or query param)
+    ctx_val = safe_uuid_str(current_shop_context.get())
+    if ctx_val:
+        return ctx_val
+
+    # Check environment/config default_shop_id
+    def_sid = safe_uuid_str(settings.default_shop_id)
+    if def_sid:
+        return def_sid
+
+    # Fallback to first shop in DB
+    if s and isinstance(s, AsyncSession):
+        try:
+            row = (await s.execute(text("select id from shops order by created_at asc limit 1"))).scalar()
+            if row:
+                row_sid = safe_uuid_str(row)
+                if row_sid:
+                    return row_sid
+        except Exception:
+            pass
+
     return "00000000-0000-0000-0000-000000000001"
 
 
@@ -605,7 +663,7 @@ async def ws_voice_endpoint(
 ):
     """WebSocket voice Khata session streaming 16kHz PCM audio."""
     await ws.accept()
-    resolved_shop = shop_id or settings.default_shop_id
+    resolved_shop = safe_uuid_str(shop_id) or safe_uuid_str(settings.default_shop_id) or "00000000-0000-0000-0000-000000000001"
     sess = VoiceSession(resolved_shop, language)
     buf = bytearray()
 

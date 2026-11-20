@@ -16,20 +16,55 @@ log = logging.getLogger("dukaan.auth")
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
+def safe_uuid_val(val: Any) -> uuid.UUID:
+    if isinstance(val, uuid.UUID):
+        return val
+    if val:
+        s_val = str(val).strip()
+        if "?" in s_val:
+            s_val = s_val.split("?")[0].strip()
+        if "&" in s_val:
+            s_val = s_val.split("&")[0].strip()
+        if s_val and s_val.lower() not in ("undefined", "null", "none"):
+            try:
+                return uuid.UUID(s_val)
+            except (ValueError, TypeError):
+                pass
+    def_id = settings.default_shop_id or "00000000-0000-0000-0000-000000000001"
+    try:
+        return uuid.UUID(def_id)
+    except Exception:
+        return uuid.UUID("00000000-0000-0000-0000-000000000001")
+
+
 async def resolve_shop_id(
     shop_id: str | None = None,
     x_shop_id: str | None = Header(None, alias="X-Shop-Id"),
     s: AsyncSession = Depends(get_session),
 ) -> str:
-    """Helper to resolve shop ID from query or X-Shop-Id header."""
+    """Helper to resolve shop ID safely from query or X-Shop-Id header."""
     candidate = shop_id or x_shop_id
-    if candidate and candidate.strip():
-        return candidate.strip()
+    if candidate:
+        s_cand = str(candidate).strip()
+        if s_cand and s_cand.lower() not in ("undefined", "null", "none"):
+            try:
+                return str(uuid.UUID(s_cand))
+            except (ValueError, TypeError):
+                pass
+
     if settings.default_shop_id and settings.default_shop_id.strip():
-        return settings.default_shop_id.strip()
-    row = (await s.execute(text("SELECT id FROM shops ORDER BY created_at ASC LIMIT 1"))).scalar()
-    if row:
-        return str(row)
+        try:
+            return str(uuid.UUID(settings.default_shop_id.strip()))
+        except (ValueError, TypeError):
+            pass
+
+    try:
+        row = (await s.execute(text("SELECT id FROM shops ORDER BY created_at ASC LIMIT 1"))).scalar()
+        if row:
+            return str(uuid.UUID(str(row)))
+    except Exception:
+        pass
+
     return "00000000-0000-0000-0000-000000000001"
 
 
@@ -67,7 +102,7 @@ async def login_dukaandar(body: ShopLoginIn, s: AsyncSession = Depends(get_sessi
     shop_row = None
 
     if body.shop_id:
-        shop_row = await s.get(Shop, body.shop_id)
+        shop_row = await s.get(Shop, safe_uuid_val(body.shop_id))
         if not shop_row:
             raise HTTPException(404, "Shop not found. Please verify shop ID or select from available dukaans.")
 
@@ -94,7 +129,7 @@ async def login_dukaandar(body: ShopLoginIn, s: AsyncSession = Depends(get_sessi
     else:
         # Fallback to default shop (e.g. Manjunath)
         def_id = settings.default_shop_id or "00000000-0000-0000-0000-000000000001"
-        shop_row = await s.get(Shop, uuid.UUID(def_id))
+        shop_row = await s.get(Shop, safe_uuid_val(def_id))
 
     if not shop_row:
         raise HTTPException(404, "Dukaan account not found.")
@@ -205,7 +240,9 @@ async def get_my_shop(
     s: AsyncSession = Depends(get_session),
 ):
     """Retrieve profile of the currently logged-in dukaandar."""
-    shop = await s.get(Shop, uuid.UUID(sid))
+    shop = await s.get(Shop, safe_uuid_val(sid))
+    if not shop:
+        shop = await s.get(Shop, safe_uuid_val(settings.default_shop_id))
     if not shop:
         raise HTTPException(404, "Current shop not found")
     return shop

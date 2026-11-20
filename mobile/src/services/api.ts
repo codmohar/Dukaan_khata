@@ -6,11 +6,18 @@ import { API_URL, SUPABASE_KEY, SUPABASE_URL } from "../config";
 let currentMobileShopId = "";
 
 export function setMobileShopId(id: string) {
-  currentMobileShopId = id;
+  if (id && id !== "undefined" && id !== "null" && id !== "none" && id.trim()) {
+    currentMobileShopId = id.trim();
+  } else {
+    currentMobileShopId = "";
+  }
 }
 
 export function getMobileShopId(): string {
-  return currentMobileShopId;
+  if (!currentMobileShopId || currentMobileShopId === "undefined" || currentMobileShopId === "null" || currentMobileShopId === "none") {
+    return "";
+  }
+  return currentMobileShopId.trim();
 }
 
 export type Shop = {

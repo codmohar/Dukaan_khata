@@ -317,7 +317,7 @@ async def try_fast_path(
             async with SessionLocal() as s_lookup:
                 last_d_row = (await s_lookup.execute(
                     sa_text("SELECT id FROM transactions WHERE shop_id = :sid AND status = 'draft' ORDER BY created_at DESC LIMIT 1"),
-                    {"sid": uuid.UUID(shop_id)}
+                    {"sid": tools.to_uuid(shop_id)}
                 )).scalar()
                 if last_d_row:
                     active_draft_id = str(last_d_row)

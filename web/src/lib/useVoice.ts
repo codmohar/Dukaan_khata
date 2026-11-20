@@ -122,7 +122,7 @@ export function useVoice(language: string) {
       if (closed) return;
       setStatus("connecting");
       try {
-        const s = new WebSocket(`${getWsUrl()}?language=${language}`);
+        const s = new WebSocket(getWsUrl(language));
         ws.current = s;
 
         s.onopen = () => {

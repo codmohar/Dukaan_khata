@@ -24,6 +24,27 @@ from ..services import reconciliation as reconciliation_service
 from ..services import rules as rules_service
 from ..services import timeline as timeline_service
 
+
+def to_uuid(val: Any, default: str | None = None) -> uuid.UUID:
+    if isinstance(val, uuid.UUID):
+        return val
+    if val:
+        s = str(val).strip()
+        if "?" in s:
+            s = s.split("?")[0].strip()
+        if "&" in s:
+            s = s.split("&")[0].strip()
+        if s and s.lower() not in ("undefined", "null", "none"):
+            try:
+                return uuid.UUID(s)
+            except (ValueError, TypeError):
+                pass
+    def_id = default or "00000000-0000-0000-0000-000000000001"
+    try:
+        return uuid.UUID(def_id)
+    except Exception:
+        return uuid.UUID("00000000-0000-0000-0000-000000000001")
+
 # Common Indian relationship & honorific terms stripped before customer matching
 HONORIFICS_PATTERN = re.compile(
     r"\b(anna|akka|bhaiya|bhayya|bhai|didi|sir|madam|maam|uncle|aunty|auntie|"
@@ -126,7 +147,7 @@ async def search_customers(s: AsyncSession, shop_id: str, name: str) -> dict:
     raw_query = (name or "").strip()
     clean_name = normalize_customer_query(raw_query)
     latin_name = transliterate_indic_to_latin(clean_name)
-    shop_uuid = uuid.UUID(shop_id)
+    shop_uuid = to_uuid(shop_id)
 
     try:
         rows = (
@@ -234,7 +255,7 @@ async def create_customer(
         return {"error": "Customer name is required"}
     c = Customer(
         id=uuid.uuid4(),
-        shop_id=uuid.UUID(shop_id),
+        shop_id=to_uuid(shop_id),
         name=clean_name,
         phone=phone.strip() if phone else None,
         landmark=landmark.strip() if landmark else None,
@@ -287,8 +308,8 @@ async def create_draft(
     if amt <= Decimal("0") or amt > Decimal("10000000"):
         return {"error": "amount must be greater than 0 and less than 1 crore"}
 
-    cust = await s.get(Customer, uuid.UUID(customer_id))
-    if not cust or str(cust.shop_id) != shop_id:
+    cust = await s.get(Customer, to_uuid(customer_id))
+    if not cust or str(cust.shop_id) != str(to_uuid(shop_id)):
         return {"error": "customer not found in this shop"}
 
     member_obj = None
@@ -355,7 +376,7 @@ async def create_draft(
 
     t = Transaction(
         id=uuid.uuid4(),
-        shop_id=uuid.UUID(shop_id),
+        shop_id=to_uuid(shop_id),
         customer_id=cust.id,
         member_id=member_obj.id if member_obj else None,
         item_note=item_note or note,
@@ -454,8 +475,8 @@ async def confirm_draft(
     transcript_snippet: str | None = None,
 ) -> dict:
     """Commit a draft to confirmed status, atomically update customer balance, and auto-fulfil promises."""
-    t = await s.get(Transaction, uuid.UUID(draft_id))
-    if not t or str(t.shop_id) != shop_id:
+    t = await s.get(Transaction, to_uuid(draft_id))
+    if not t or str(t.shop_id) != str(to_uuid(shop_id)):
         return {"error": "draft not found"}
     if t.status != "draft":
         return {"error": f"draft is already {t.status}"}
@@ -521,8 +542,8 @@ async def confirm_draft(
 
 async def cancel_draft(s: AsyncSession, shop_id: str, draft_id: str) -> dict:
     """Discard an unconfirmed draft."""
-    t = await s.get(Transaction, uuid.UUID(draft_id))
-    if not t or str(t.shop_id) != shop_id:
+    t = await s.get(Transaction, to_uuid(draft_id))
+    if not t or str(t.shop_id) != str(to_uuid(shop_id)):
         return {"error": "draft not found"}
     if t.status != "draft":
         return {"error": f"draft is already {t.status}"}
@@ -577,7 +598,7 @@ async def undo_last_transaction(
             "message": "Read back this confirmed entry and ask the shopkeeper to confirm deletion before calling undo_last_transaction with confirmed_undo=true.",
         }
 
-    t = await s.get(Transaction, uuid.UUID(tid))
+    t = await s.get(Transaction, to_uuid(tid))
     if t:
         t.status = "cancelled"
         await s.commit()
@@ -643,7 +664,7 @@ async def prepare_reminder(s: AsyncSession, shop_id: str, customer_id: str) -> d
             "message": "No pending dues for this customer.",
         }
 
-    shop = await s.get(Shop, uuid.UUID(shop_id))
+    shop = await s.get(Shop, to_uuid(shop_id))
     shop_name = shop.name if shop else "Kirana Store"
     digits = re.sub(r"\D", "", bal_info.get("phone") or "")
     if len(digits) == 10:
@@ -662,8 +683,8 @@ async def prepare_reminder(s: AsyncSession, shop_id: str, customer_id: str) -> d
     # Persist reminder record to reminders table
     try:
         rem = Reminder(
-            shop_id=uuid.UUID(shop_id),
-            customer_id=uuid.UUID(customer_id),
+            shop_id=to_uuid(shop_id),
+            customer_id=to_uuid(customer_id),
             amount=Decimal(str(bal)),
             message=reminder_text,
             status="pending",
@@ -687,7 +708,7 @@ async def prepare_reminder(s: AsyncSession, shop_id: str, customer_id: str) -> d
 async def get_shop_summary(s: AsyncSession, shop_id: str) -> dict:
     """Query shop overview: total dues, today's credit/payments/UPI/cash, top debtors, and current date."""
     try:
-        sid = uuid.UUID(shop_id)
+        sid = to_uuid(shop_id)
         tot_row = (
             await s.execute(
                 text(
@@ -787,9 +808,9 @@ async def update_customer(
 ) -> dict:
     """Update existing customer details like phone number, landmark, or name."""
     try:
-        cid = uuid.UUID(customer_id)
+        cid = to_uuid(customer_id)
         cust = await s.get(Customer, cid)
-        if not cust or str(cust.shop_id) != shop_id:
+        if not cust or str(cust.shop_id) != str(to_uuid(shop_id)):
             return {"error": "customer not found in this shop"}
         if phone:
             cust.phone = phone.strip()

@@ -4,6 +4,7 @@ Implements the multi-stage voice ledger agent with strict function calling,
 disambiguation handling, and confirmation guardrails.
 """
 import logging
+import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Tuple
 from zoneinfo import ZoneInfo
@@ -24,7 +25,20 @@ class VoiceSession:
     """Session state per WebSocket connection or conversational interaction."""
 
     def __init__(self, shop_id: str, language: str = "kn-IN", llm_provider: BaseLLMProvider | None = None):
-        self.shop_id = shop_id
+        clean_sid = None
+        if shop_id:
+            s_val = str(shop_id).strip()
+            if s_val and s_val.lower() not in ("undefined", "null", "none"):
+                try:
+                    clean_sid = str(uuid.UUID(s_val))
+                except Exception:
+                    pass
+        if not clean_sid:
+            try:
+                clean_sid = str(uuid.UUID(str(settings.default_shop_id).strip()))
+            except Exception:
+                clean_sid = "00000000-0000-0000-0000-000000000001"
+        self.shop_id = clean_sid
         self.language = language
         self.llm = llm_provider or get_llm_provider()
         self.history: List[Dict[str, Any]] = []
