@@ -348,6 +348,18 @@ export function useVoice(language: string) {
       }
 
       const src = ctx.createMediaStreamSource(stream);
+
+      // Hardware Audio Pre-Filtering: Isolate human vocal frequencies (120Hz - 3600Hz)
+      // High-pass filter strips low-end motor rumble, fan hum, and compressor vibration
+      const highpass = ctx.createBiquadFilter();
+      highpass.type = "highpass";
+      highpass.frequency.setValueAtTime(120, ctx.currentTime);
+
+      // Low-pass filter strips high-end hiss, ambient radio treble, and static
+      const lowpass = ctx.createBiquadFilter();
+      lowpass.type = "lowpass";
+      lowpass.frequency.setValueAtTime(3600, ctx.currentTime);
+
       const node = ctx.createScriptProcessor(2048, 1, 1);
 
       // ~400ms circular pre-roll buffer to preserve beginning of words
@@ -445,7 +457,9 @@ export function useVoice(language: string) {
         }
       };
 
-      src.connect(node);
+      src.connect(highpass);
+      highpass.connect(lowpass);
+      lowpass.connect(node);
       node.connect(ctx.destination);
       rec.current = { ctx, stream, node, src };
       setMicActive(true);

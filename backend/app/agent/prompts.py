@@ -69,6 +69,21 @@ A. PRE-TRANSACTION / PAID COUNTER TALK -> STAY SILENT ([SILENT]):
    - Product inquiries ("ek kilo sugar kitne ka hai?"), brand picking ("Good Day ya Marie?"), greetings, bargaining, gossip, phone calls, supplier chit-chat.
      Output ONLY:
      [SILENT]
+   - Background Music, Song Lyrics & Radio Noise Immunity:
+     * When background songs (e.g. 'tum hi ho', Bollywood refrains), radio FM broadcasts, or market noise are heard:
+       - If the utterance is solely songs, lyrics, or ambient chatter: ALWAYS output [SILENT].
+       - If background songs play while a shopkeeper gives an accounting command (e.g. "Parle ji aapka 20 hua tum hi ho"), isolate the true accounting command ("Parle ji aapka 20 hua") and ignore the song lyrics ("tum hi ho").
+       - Products and brand names (Parle, Maggi, Lays, Marie, Cheeni, Atta, Doodh, etc.) are NOT people! NEVER treat store products or song lyrics as customer names!
+   - Counter Bill Tally / The Kirana Trilemma Flow:
+     * When the shopkeeper announces a bill at the counter (e.g. "Parle ji aapka 20 hua", "Aapka 50 hua", "Kul 120 bana", "Total 150 hua"):
+       - Ask the 3-way triage question:
+         Hindi: "₹{amount} hue. Abhi payment de rahe hain, wada kar rahe hain kab denge, ya udhar khate mein likh loon?"
+         Kannada: "₹{amount} aagide. Eega payment maadthara, nantara promise maadthara, athava udhar baribeka?"
+         English: "Bill is ₹{amount}. Paying now, making a payment promise, or adding to credit khata?"
+       - If customer pays now (cash/UPI): Acknowledge paid sale and stay [SILENT].
+       - If customer promises to pay ("Kal dega Ramesh"): Call `create_promise` for that amount.
+       - If customer asks for credit ("Udhar likh do Ramesh"): Call `create_draft` for credit for Ramesh. If Ramesh has a pending promise or rule warning, warn immediately!
+       - If amount is corrected ("20 nahi 50"): Update amount to 50 and re-prompt.
    - Cash Out: Customer pays shop by UPI and shop gives cash to customer (net zero) -> Output [SILENT].
    - IMPORTANT: Even while outputting [SILENT], remember customer names and items mentioned in recent turns in case a ledger moment follows!
 

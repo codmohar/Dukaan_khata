@@ -55,6 +55,8 @@ class VoiceSession:
         self.active_payment_mode: str | None = None
         self.active_disambiguation: List[Dict[str, Any]] | None = None
         self.pending_undo_tid: str | None = None
+        self.pending_bill_amount: float | None = None
+        self.pending_bill_item: str | None = None
         self.greeting_given: bool = False
 
     async def transcribe(self, pcm: bytes) -> str:

@@ -31,6 +31,108 @@ from .indian_numbers import extract_indian_amount
 
 log = logging.getLogger("dukaan.agent.fast")
 
+# Comprehensive set of Indian Kirana products, brands, groceries, and packaged items
+# Products and brand names must NEVER be mistaken for customer names!
+KIRANA_ITEMS = {
+    # Biscuits, Snacks & Packaged Foods
+    "parle", "parle-g", "parleg", "maggi", "lays", "kurkure", "marie", "mariegold", "goodday", "britannia",
+    "oreo", "monaco", "krackjack", "bourbon", "chips", "namkeen", "biscuit", "packet", "wafers", "mixture",
+    "toast", "rusk", "bhujia", "sev", "chivda", "peanuts", "sing", "chana", "papad",
+    # Chocolates & Confectionery
+    "5star", "dairymilk", "kitkat", "munch", "perk", "eclairs", "chocolate", "toffee", "mithai", "ladoo",
+    # Kitchen Staples, Grains, Pulses & Groceries
+    "cheeni", "sugar", "atta", "aata", "tel", "oil", "doodh", "milk", "bread", "chawal", "rice", "dal",
+    "daal", "masala", "mirchi", "haldi", "namak", "salt", "poha", "rava", "sooji", "suji", "maida",
+    "besan", "ghee", "butter", "dahi", "curd", "paneer", "chai", "tea", "coffee", "patti",
+    "egg", "anda", "onion", "pyaz", "alu", "aloo", "potato", "tamatar", "tomato", "adrak", "lahsun",
+    # Kannada Staples
+    "akki", "akkii", "bele", "sakre", "haalu", "thuppa", "enne", "uppu", "kaapi", "chaha", "mosaru",
+    "baalehannu", "bannana", "savukku", "avalakki", "godhi", "hesarubele", "togaribele",
+    # Personal Care, Hygiene & Cleaning
+    "soap", "sabun", "shampoo", "brush", "paste", "colgate", "pepsodent", "closeup", "sensodyne",
+    "surf", "tide", "rin", "vim", "harpic", "detergent", "dettol", "lifebuoy", "lux", "santoor", "godrej",
+    "shaving", "blade", "cream", "lotion", "powder", "handwash", "sanitizer",
+    # Tobacco, Matchbox & Pooja Items
+    "cigarette", "bidi", "beedi", "gutkha", "vimal", "kamal", "matchbox", "maachis", "agarbatti",
+    "dhoop", "kapoor", "supari", "paan",
+    # Indic Devanagari items
+    "पारले", "मैगी", "लेज", "कुरकुरे", "बिस्कुट", "चीनी", "आटा", "तेल", "दूध", "चावल", "दाल", "मसाला", "साबुन", "नमक", "चाय", "ब्रेड", "घी",
+    # Indic Kannada items
+    "ಅಕ್ಕಿ", "ಬೇಳೆ", "ಸಕ್ಕರೆ", "ಹಾಲು", "ತುಪ್ಪ", "ಎಣ್ಣೆ", "ಉಪ್ಪು", "ಕಾಫಿ", "ಚಹಾ", "ಮೊಸರು", "ಬಿಸ್ಕತ್", "ಸೋಪು"
+}
+
+def _extract_kirana_item(text: str) -> Optional[str]:
+    """Detect if any kirana product or brand is mentioned in the utterance."""
+    lower = text.lower()
+    for item in [
+        "parle-g", "parle", "parleg", "पारले", "maggi", "मैगी", "lays", "लेज", "kurkure", "कुरकुरे",
+        "goodday", "marie", "mariegold", "oreo", "5star", "dairymilk", "kitkat", "munch",
+        "cheeni", "sugar", "चीनी", "sakre", "ಸಕ್ಕರೆ", "doodh", "milk", "दूध", "haalu", "ಹಾಲು",
+        "atta", "aata", "आटा", "tel", "oil", "तेल", "enne", "ಎಣ್ಣೆ", "chawal", "rice", "चावल", "akki", "ಅಕ್ಕಿ",
+        "dal", "daal", "दाल", "bele", "ಬೇಳೆ", "biscuit", "बिस्कुट", "soap", "sabun", "साबुन", "soop", "ಸೋಪು",
+        "bread", "ब्रेड", "ghee", "घी", "thuppa", "ತುಪ್ಪ", "tea", "chai", "चाय", "chaha", "coffee", "kaapi", "ಕಾಫಿ"
+    ]:
+        if re.search(r"\b" + re.escape(item) + r"\b", lower):
+            if item in ("parle", "parle-g", "parleg", "पारले"):
+                return "Parle-G"
+            elif item in ("maggi", "मैगी"):
+                return "Maggi"
+            elif item in ("lays", "लेज"):
+                return "Lays"
+            elif item in ("kurkure", "कुरकुरे"):
+                return "Kurkure"
+            elif item in ("goodday", "marie", "mariegold", "oreo", "biscuit", "बिस्कुट"):
+                return "Biscuit"
+            elif item in ("cheeni", "sugar", "चीनी", "sakre", "ಸಕ್ಕರೆ"):
+                return "Cheeni"
+            elif item in ("doodh", "milk", "दूध", "haalu", "ಹಾಲು"):
+                return "Doodh"
+            elif item in ("atta", "aata", "आटा"):
+                return "Atta"
+            elif item in ("tel", "oil", "तेल", "enne", "ಎಣ್ಣೆ"):
+                return "Tel"
+            elif item in ("chawal", "rice", "चावल", "akki", "ಅಕ್ಕಿ"):
+                return "Chawal"
+            elif item in ("dal", "daal", "दाल", "bele", "ಬೇಳೆ"):
+                return "Dal"
+            elif item in ("soap", "sabun", "साबुन", "soop", "ಸೋಪು"):
+                return "Sabun"
+            return item.capitalize()
+    return None
+
+# Background music, song lyrics, radio FM, and ambient background chatter patterns
+SONG_AND_NOISE_PATTERNS = [
+    # Famous Bollywood & regional song refrains and lyrics
+    re.compile(r"\b(?:tum\s*hi\s*ho|channa\s*mereya|dil\s*diya\s*gallan|tera\s*ban\s*jaunga|kesariya|bekhayali|deva\s*deva|apna\s*bana\s*le|lut\s*gaye|chaleya|jhoome\s*jo|senorita|raatan\s*lambiyan|pasoori|o\s*bedardeya|kalank|dheere\s*dheere|luka\s*chuppi|gerua|shayad|tere\s*hawaale|zindagi\s*do\s*pal|hasi\s*ban\s*gaye|muskurane\s*ki\s*wajah|tujh\s*mein\s*rab|jeene\s*laga\s*hoon|pehli\s*nazar\s*mein|suraj\s*hua\s*maddham|kabira|illahi|subhanallah|samjhawan|galliyan|ae\s*dil\s*hai\s*mushkil|agar\s*tum\s*saath\s*ho|kyunki\s*tum\s*hi\s*ho|ab\s*tum\s*hi\s*ho|zindagi\s*ab\s*tum\s*hi\s*ho|meri\s*aashiqui|humdard|sun\s*raha\s*hai|teri\s*galliyan)\b", re.I),
+    # Kannada / South Indian song phrases
+    re.compile(r"\b(?:singara\s*siriye|belakina\s*kavithe|nenapirali|sanju\s*weds\s*geetha|kannada\s*haadu|geethe|haadugalu|chinna\s*chinna\s*aasa|rowdy\s*baby|butta\s*bomma|saranga\s*dariya|jimikki\s*kammal|enjoy\s*enjaami)\b", re.I),
+    # Radio, FM, DJ, and music player announcements
+    re.compile(r"\b(?:radio\s*mirchi|red\s*fm|radio\s*city|big\s*fm|superhit\s*gaana|gana\s*bajao|gaana\s*lagao|music\s*play|song\s*chalao|dj\s*remix|bhajan|aarti|kirtan)\b", re.I),
+    # Ambient non-accounting gossip, cricket scores, tea/weather talk
+    re.compile(r"\b(?:kya\s*haal\s*chaal|kaise\s*ho|kya\s*chal\s*raha|match\s*kaun\s*jeeta|score\s*kya\s*hua|aaj\s*baarish|bahut\s*garmi|chai\s*piyenge|chai\s*banao|chai\s*lao|auto\s*auto|gaadi\s*roko|phone\s*aaya|call\s*kat\s*gaya|aur\s*batao|sab\s*badhiya)\b", re.I),
+]
+
+def clean_ambient_noise_and_songs(text: str) -> Tuple[str, bool]:
+    """Isolate genuine shop accounting commands by stripping background song lyrics,
+    radio chatter, and ambient gossip. Returns (cleaned_text, noise_detected)."""
+    cleaned = text
+    noise_detected = False
+    for pat in SONG_AND_NOISE_PATTERNS:
+        if pat.search(cleaned):
+            noise_detected = True
+            cleaned = pat.sub(" ", cleaned)
+
+    cleaned = re.sub(r"\s+", " ", cleaned).strip()
+    return cleaned, noise_detected
+
+# Counter Bill Total / Trilemma Pattern (e.g. "Parle ji aapka 20 hua", "Aapka 50 hua", "Kul 120 bana", "Total 150 hua", "80 aaythu")
+BILL_TOTAL_PATTERN = re.compile(
+    r"\b(?:aapka|apka|kul|total|bill|itna\s*hua|itna\s*bana|itna\s*aaythu|hua|hue|bana|hoya|aaythu|aagide|aaitu)\b|"
+    r"(?:आपका|कुल|टोटल|बिल|हुआ|हुए|बना)|"
+    r"(?:ಆಯ್ತು|ಆಗಿದೆ|ಒಟ್ಟು|ಬಿಲ್)",
+    re.I,
+)
+
 # Shop floor chatter keywords: product requests, casual greetings, customer boasting
 CHATTER_PATTERNS = [
     re.compile(r"\b(?:biscuit|packet|cheeni|sugar|atta|tel|oil|dal|doodh|milk|bread|soap|sabun|chawal|rice)\b", re.I),
@@ -284,6 +386,9 @@ STOPWORDS = {
     "aaye", "gaya", "gayi", "gaye", "hua", "hui", "hue", "khata", "ledger", "entry",
     "record", "karna", "sab", "clear", "ella", "ellaa", "maadi", "chukta", "barabar",
     "kal", "naale", "parso", "naadiddu", "today", "tomorrow", "yesterday", "dega", "degi", "denge", "dunga", "wada", "kodtini", "kodtane", "kodtare",
+    "aapka", "apka", "kul", "total", "bill", "bana", "itna", "hoya", "aaythu", "aagide", "aaitu", "tum", "hi", "ho",
+    "nahi", "nahin", "alla", "beda", "nako", "no", "mat", "cancel", "hatao",
+    "bariyiri", "bari", "bariyiro", "haakri", "haakiro",
     # 14 languages markers & postpositions
     "kitta", "irundhu", "ku", "roobai", "vanginen", "kuduthen", "podunga", "ezhudhu",
     "nunchi", "ki", "rupayalu", "techukunnanu", "ichanu", "rayandi", "ochindi",
@@ -314,7 +419,7 @@ class FastPathResult:
 
 
 def _extract_name_tokens(text: str) -> List[str]:
-    """Cleanly extract customer name tokens: strips punctuation, numbers, honorifics, and attached postpositions while preserving Indic scripts."""
+    """Cleanly extract customer name tokens: strips punctuation, numbers, honorifics, kirana items/brands, and attached postpositions while preserving Indic scripts."""
     cleaned_punct = re.sub(r"[\u0964\u0965.,?!;:\"'()\[\]{}\-—_]", " ", text)
     words = re.sub(r"[^\w\s\u0900-\u097F\u0C80-\u0CFF]", " ", cleaned_punct).split()
     tokens = []
@@ -322,8 +427,15 @@ def _extract_name_tokens(text: str) -> List[str]:
         w = raw.strip()
         lower = w.lower()
 
-        # Skip stopwords, honorifics, and numbers
-        if lower in STOPWORDS or lower in HONORIFICS or w.isdigit() or len(w) <= 1:
+        # Skip stopwords, honorifics, kirana products/brands, and numbers
+        if (
+            lower in STOPWORDS
+            or lower in HONORIFICS
+            or lower in KIRANA_ITEMS
+            or any(item in lower for item in ("parle", "maggi", "lays", "kurkure", "biscuit", "sugar", "cheeni", "atta", "doodh", "milk", "chawal", "rice", "dal", "soap", "sabun"))
+            or w.isdigit()
+            or len(w) <= 1
+        ):
             continue
 
         # Strip attached postpositions/suffixes (e.g. Rameshge -> Ramesh, Lakshmige -> Lakshmi, Rameshne -> Ramesh)
@@ -334,7 +446,13 @@ def _extract_name_tokens(text: str) -> List[str]:
                     cleaned = cleaned[:-len(suf)]
                     break
 
-        if cleaned.lower() not in STOPWORDS and cleaned.lower() not in HONORIFICS and len(cleaned) > 1:
+        if (
+            cleaned.lower() not in STOPWORDS
+            and cleaned.lower() not in HONORIFICS
+            and cleaned.lower() not in KIRANA_ITEMS
+            and not any(item in cleaned.lower() for item in ("parle", "maggi", "lays", "kurkure", "biscuit", "sugar", "cheeni", "atta", "doodh", "milk", "chawal", "rice", "dal", "soap", "sabun"))
+            and len(cleaned) > 1
+        ):
             tokens.append(cleaned)
 
     return tokens
@@ -366,6 +484,24 @@ def _pick_best_match(matches: List[Dict[str, Any]], query_name: str) -> Tuple[Op
     return None, matches
 
 
+def extract_corrected_amount(text: str) -> Optional[float]:
+    """If utterance has correction like '20 nahi 50' or '50 likho 20 nahi' or 'alla 50', extract the intended target amount."""
+    lower = text.lower()
+    match_corr = re.search(r"(\d+(?:\.\d+)?)\s*(?:nahi|nahin|alla|not)\s*(\d+(?:\.\d+)?)", lower)
+    if match_corr:
+        return float(match_corr.group(2))
+
+    match_corr_rev = re.search(r"(\d+(?:\.\d+)?)\s*(?:likho|likh|bardu|karo|bana|hua|aaythu)\s*[,]?\s*(\d+(?:\.\d+)?)\s*(?:nahi|nahin|alla|not)", lower)
+    if match_corr_rev:
+        return float(match_corr_rev.group(1))
+
+    match_after_nahi = re.search(r"(?:nahi|nahin|alla|not)\s*[,]?\s*(\d+(?:\.\d+)?)", lower)
+    if match_after_nahi:
+        return float(match_after_nahi.group(1))
+
+    return None
+
+
 async def try_fast_path(
     session_or_shop_id: Any,
     user_text: str,
@@ -373,9 +509,16 @@ async def try_fast_path(
     last_draft_id: Optional[str] = None,
 ) -> FastPathResult:
     """Attempt deterministic, instantaneous execution of Kirana voice turns with multi-turn memory."""
-    text = (user_text or "").strip()
-    if not text:
+    raw_text = (user_text or "").strip()
+    if not raw_text:
         return FastPathResult(handled=True, reply="[SILENT]")
+
+    # Strip background song lyrics, radio announcements, and non-accounting chatter
+    cleaned_text, had_song_or_noise = clean_ambient_noise_and_songs(raw_text)
+    if not cleaned_text:
+        return FastPathResult(handled=True, reply="[SILENT]")
+
+    text = cleaned_text
 
     # Resolve session attributes whether passed as VoiceSession or legacy parameters
     sess = session_or_shop_id if hasattr(session_or_shop_id, "shop_id") else None
@@ -397,8 +540,10 @@ async def try_fast_path(
             log.warning("Fast engine draft fallback lookup error: %s", ex)
 
     lower = text.lower()
-    amount = extract_indian_amount(text)
+    corrected_amt = extract_corrected_amount(text)
+    amount = corrected_amt or extract_indian_amount(text)
     name_tokens = _extract_name_tokens(text)
+    detected_item = _extract_kirana_item(text)
     payment_mode = _detect_payment_mode(text)
     is_loan = bool(LOAN_DIRECTION_PATTERN.search(text))
     is_credit = bool(CREDIT_PATTERN.search(text)) or is_loan
@@ -406,6 +551,170 @@ async def try_fast_path(
     is_return = bool(RETURN_PATTERN.search(text))
     is_discount = bool(DISCOUNT_PATTERN.search(text))
     is_advance = bool(ADVANCE_PATTERN.search(text))
+    is_promise_rec = bool(PROMISE_RECORD_PATTERN.search(text))
+    is_promise_query = bool(PROMISE_QUERY_PATTERN.search(text))
+    is_bill_total = bool(BILL_TOTAL_PATTERN.search(text)) or bool(detected_item and amount and not (is_credit or is_payment))
+
+    # Anti-Hallucination Guard: If background song or radio chatter was heard and no explicit ledger command or bill is present:
+    if had_song_or_noise and not (is_credit or is_payment or is_bill_total or is_promise_rec or is_promise_query or (amount and name_tokens)):
+        return FastPathResult(handled=True, reply="[SILENT]")
+
+    # ---------------------------------------------------------
+    # 0A. MULTI-TURN COUNTER FLOW: PENDING BILL CORRECTION (e.g. "20 nahi 50" / "alla 50")
+    # ---------------------------------------------------------
+    if sess and getattr(sess, "pending_bill_amount", None) and (corrected_amt or (amount and not name_tokens and (CANCEL_PATTERN.search(text) or any(w in lower for w in ["nahi", "alla", "kar", "hua", "bana", "rakho", "sudhar", "change"])))):
+        target_amt = corrected_amt or amount
+        sess.pending_bill_amount = target_amt
+        item_str = f" ({sess.pending_bill_item})" if getattr(sess, "pending_bill_item", None) else ""
+        if lang.startswith("kn"):
+            msg = f"Tiddupaadi maadlaagide: ₹{target_amt:,.0f}{item_str} aagide. Eega payment maadthara, nantara promise maadthara, athava udhar baribeka?"
+        elif lang.startswith("hi"):
+            msg = f"Sudhaar diya: ₹{target_amt:,.0f}{item_str} hue. Abhi payment de rahe hain, wada kar rahe hain kab denge, ya udhar khate mein likh loon?"
+        else:
+            msg = f"Updated: ₹{target_amt:,.0f}{item_str}. Paying now, making a payment promise, or adding to credit khata?"
+        return FastPathResult(handled=True, reply=msg)
+
+    # ---------------------------------------------------------
+    # 0B. MULTI-TURN COUNTER FLOW: PENDING BILL PAID IN CASH / UPI (Paid Sale -> Ambient [SILENT])
+    # ---------------------------------------------------------
+    if sess and getattr(sess, "pending_bill_amount", None) and (PAID_SALE_PATTERN.search(text) or any(w in lower for w in ["abhi de", "cash", "phonepe", "gpay", "paytm", "online", "ye lo", "diya", "de diya", "kotru", "kottu", "le lo"])):
+        sess.pending_bill_amount = None
+        sess.pending_bill_item = None
+        return FastPathResult(handled=True, reply="[SILENT]")
+
+    # ---------------------------------------------------------
+    # 0C. MULTI-TURN COUNTER FLOW: PENDING BILL ASSIGNED TO CREDIT KHATA (e.g. "Udhar likh do Ramesh" / "Ramesh ke naam udhar")
+    # ---------------------------------------------------------
+    if sess and getattr(sess, "pending_bill_amount", None) and is_credit and name_tokens:
+        bill_amt = sess.pending_bill_amount
+        bill_item = getattr(sess, "pending_bill_item", None)
+        sess.pending_bill_amount = None
+        sess.pending_bill_item = None
+
+        cust_name = " ".join(t.capitalize() for t in name_tokens[:2])
+        async with SessionLocal() as s:
+            search_res = await tools.search_customers(s, shop_id, cust_name)
+            matches = search_res.get("matches", [])
+            best, ambig = _pick_best_match(matches, cust_name)
+            if not best and not ambig:
+                new_c = await tools.create_customer(s, shop_id, name=cust_name)
+                target_cid = new_c["customer_id"]
+                c_display = cust_name
+                cur_bal = 0.0
+            elif best:
+                target_cid = best["customer_id"]
+                c_display = best["name"]
+                cur_bal = float(best.get("balance", 0))
+            else:
+                sess.active_disambiguation = ambig
+                sess.active_amount = bill_amt
+                sess.active_tx_type = "credit"
+                items = [f"{i}. {m['name']} ({m.get('landmark') or 'main'})" for i, m in enumerate(ambig[:3], 1)]
+                msg = f"{cust_name} naam ke multiple customers hain: {' | '.join(items)}. Kiske naam ₹{bill_amt:,.0f} likhun?"
+                return FastPathResult(handled=True, reply=msg)
+
+            note_str = f"Bill: {bill_item}" if bill_item else "Counter bill"
+            draft_res = await tools.create_draft(
+                s,
+                shop_id,
+                customer_id=target_cid,
+                type="credit",
+                amount=bill_amt,
+                note=note_str,
+                transcript=raw_text,
+                language=lang,
+            )
+            sess.last_draft_id = draft_res.get("draft_id")
+            proj_bal = cur_bal + bill_amt
+
+            draft_events = [{**draft_res, "tx_type": "credit", "type": "draft"}]
+            if draft_res.get("pending_promise"):
+                p_info = draft_res["pending_promise"]
+                draft_events.append({
+                    "type": "promise_card",
+                    "alert": True,
+                    "entity_name": c_display,
+                    "customer_name": c_display,
+                    "amount": p_info.get("promised_amount"),
+                    "expected_date": p_info.get("expected_date"),
+                    "description": p_info.get("description"),
+                    "status": p_info.get("status"),
+                    "new_amount": bill_amt,
+                    "draft_id": draft_res.get("draft_id"),
+                })
+
+            if draft_res.get("rule_warnings") and draft_res.get("pending_promise"):
+                msg = f"{_format_promise_warning_msg(draft_res, c_display, bill_amt, lang)} {_format_rule_warning_msg(draft_res, c_display, bill_amt, lang)}"
+            elif draft_res.get("pending_promise"):
+                msg = _format_promise_warning_msg(draft_res, c_display, bill_amt, lang)
+            elif draft_res.get("rule_warnings"):
+                msg = _format_rule_warning_msg(draft_res, c_display, bill_amt, lang)
+            elif lang.startswith("kn"):
+                msg = f"{c_display} avarige ₹{bill_amt:,.0f} udhar draft aagide (naya baaki ₹{proj_bal:,.0f}). Confirm maadla?"
+            else:
+                msg = f"{c_display} ke naam ₹{bill_amt:,.0f} udhar draft ban gaya hai (naya balance ₹{proj_bal:,.0f}). Confirm karein?"
+
+            return FastPathResult(handled=True, reply=msg, events=draft_events)
+
+    # ---------------------------------------------------------
+    # 0D. MULTI-TURN COUNTER FLOW: PENDING BILL ASSIGNED TO PAYMENT PROMISE (e.g. "Kal dega Ramesh" / "Naale kodtini Ramesh")
+    # ---------------------------------------------------------
+    if sess and getattr(sess, "pending_bill_amount", None) and is_promise_rec:
+        bill_amt = sess.pending_bill_amount
+        sess.pending_bill_amount = None
+        sess.pending_bill_item = None
+        cust_name = " ".join(t.capitalize() for t in name_tokens[:2]) if name_tokens else (sess.active_customer_name or "Customer")
+        exp_date = _parse_relative_promise_date(text)
+        async with SessionLocal() as s:
+            p_res = await tools.create_promise(
+                s,
+                shop_id,
+                entity_name=cust_name,
+                promise_type="PAYMENT_PROMISE",
+                description=f"Counter bill payment promise of ₹{bill_amt:,.0f}",
+                expected_date=exp_date.isoformat(),
+                promised_amount=bill_amt,
+                transcript=raw_text,
+            )
+            date_str = exp_date.isoformat()
+            if lang.startswith("kn"):
+                msg = f"{cust_name} avaru ₹{bill_amt:,.0f} koduvudagi promise record aagide ({date_str})."
+            elif lang.startswith("hi"):
+                msg = f"{cust_name} ji ka ₹{bill_amt:,.0f} dene ka wada ({date_str}) record kar liya hai."
+            else:
+                msg = f"Payment promise of ₹{bill_amt:,.0f} from {cust_name} recorded for {date_str}."
+            return FastPathResult(
+                handled=True,
+                reply=msg,
+                events=[{
+                    "type": "promise_card",
+                    "entity_name": cust_name,
+                    "amount": bill_amt,
+                    "expected_date": date_str,
+                    "description": f"Counter bill payment promise of ₹{bill_amt:,.0f}",
+                    "status": "PENDING",
+                    "promise_id": p_res.get("promise_id"),
+                }],
+            )
+
+    # ---------------------------------------------------------
+    # 0E. INITIAL COUNTER BILL TOTAL / THE KIRANA TRILEMMA TRIGGER
+    # (e.g. "Parle ji aapka 20 hua", "Aapka 50 hua", "Kul 120 bana", "Total 150 hua")
+    # ---------------------------------------------------------
+    if amount and is_bill_total and not name_tokens and not (is_credit or is_payment or is_return or is_discount or is_advance):
+        if sess:
+            sess.pending_bill_amount = amount
+            sess.pending_bill_item = detected_item
+
+        item_str = f" ({detected_item})" if detected_item else ""
+        if lang.startswith("kn"):
+            msg = f"₹{amount:,.0f}{item_str} aagide. Eega payment maadthara, nantara promise maadthara, athava udhar baribeka?"
+        elif lang.startswith("hi"):
+            msg = f"₹{amount:,.0f}{item_str} hue. Abhi payment de rahe hain, wada kar rahe hain kab denge, ya udhar khate mein likh loon?"
+        else:
+            msg = f"Bill is ₹{amount:,.0f}{item_str}. Paying now, making a payment promise, or adding to credit khata?"
+
+        return FastPathResult(handled=True, reply=msg)
 
     # ---------------------------------------------------------
     # 1. AMBIENT SHOP CHATTER FILTER (< 0.1ms)
