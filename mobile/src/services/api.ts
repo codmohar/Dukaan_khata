@@ -4,6 +4,19 @@ import { useEffect, useRef } from "react";
 import { API_URL, SUPABASE_KEY, SUPABASE_URL } from "../config";
 
 let currentMobileShopId = "";
+let customBaseUrl = "";
+
+export function setCustomBaseUrl(url: string) {
+  if (url && url.trim()) {
+    customBaseUrl = url.trim().replace(/\/+$/, "");
+  } else {
+    customBaseUrl = "";
+  }
+}
+
+export function getBaseApiUrl(): string {
+  return customBaseUrl || API_URL;
+}
 
 export function setMobileShopId(id: string) {
   if (id && id !== "undefined" && id !== "null" && id !== "none" && id.trim()) {
@@ -63,7 +76,7 @@ const get = async <T,>(path: string): Promise<T> => {
     "Content-Type": "application/json",
     ...(sid ? { "X-Shop-Id": sid } : {}),
   };
-  const r = await fetch(API_URL + path, { headers });
+  const r = await fetch(getBaseApiUrl() + path, { headers });
   if (!r.ok) {
     const errorText = await r.text();
     throw new Error(errorText || r.statusText);
@@ -77,7 +90,7 @@ const post = async <T,>(path: string, body?: any): Promise<T> => {
     "Content-Type": "application/json",
     ...(sid ? { "X-Shop-Id": sid } : {}),
   };
-  const r = await fetch(API_URL + path, {
+  const r = await fetch(getBaseApiUrl() + path, {
     method: "POST",
     headers,
     body: body ? JSON.stringify(body) : undefined,
@@ -110,7 +123,7 @@ export const api = {
       "Content-Type": "application/json",
       ...(sid ? { "X-Shop-Id": sid } : {}),
     };
-    const r = await fetch(`${API_URL}/customers/${id}`, {
+    const r = await fetch(`${getBaseApiUrl()}/customers/${id}`, {
       method: "PUT",
       headers,
       body: JSON.stringify(body),
@@ -126,7 +139,7 @@ export const api = {
       "Content-Type": "application/json",
       ...(sid ? { "X-Shop-Id": sid } : {}),
     };
-    const r = await fetch(`${API_URL}/transactions/${id}/${action}`, {
+    const r = await fetch(`${getBaseApiUrl()}/transactions/${id}/${action}`, {
       method: "POST",
       headers,
     });

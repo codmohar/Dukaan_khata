@@ -9,7 +9,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { api, setMobileShopId, Shop } from "../services/api";
+import { api, getBaseApiUrl, setCustomBaseUrl, setMobileShopId, Shop } from "../services/api";
 import { C } from "../theme";
 
 const LANGS = [
@@ -41,6 +41,8 @@ export default function AuthScreen({
 
   const [busy, setBusy] = useState(false);
   const [loadingShops, setLoadingShops] = useState(true);
+  const [showServerConfig, setShowServerConfig] = useState(false);
+  const [customUrlInput, setCustomUrlInput] = useState(getBaseApiUrl());
 
   useEffect(() => {
     loadShops();
@@ -320,6 +322,42 @@ export default function AuthScreen({
           </View>
         )}
       </View>
+
+      {/* Server Connection Options for Physical Mobile Devices */}
+      <Pressable
+        style={{ marginTop: 14, alignItems: "center" }}
+        onPress={() => setShowServerConfig(!showServerConfig)}
+      >
+        <Text style={{ fontSize: 11, color: C.muted }}>
+          ⚙️ Server: {getBaseApiUrl()} {showServerConfig ? "▲" : "▼"}
+        </Text>
+      </Pressable>
+
+      {showServerConfig && (
+        <View style={{ marginTop: 8, padding: 12, backgroundColor: "#fff", borderRadius: 16, borderWidth: 1, borderColor: C.border }}>
+          <Text style={{ fontSize: 11, fontWeight: "700", color: C.text, marginBottom: 4 }}>
+            Server Address (LAN IP or HTTPS Tunnel):
+          </Text>
+          <TextInput
+            value={customUrlInput}
+            onChangeText={setCustomUrlInput}
+            placeholder="e.g. https://...app.lhr.life or http://192.168.1.5:8000"
+            placeholderTextColor={C.muted}
+            autoCapitalize="none"
+            style={[s.input, { fontSize: 12, paddingVertical: 6 }]}
+          />
+          <Pressable
+            style={[s.mainBtn, { marginTop: 8, paddingVertical: 8, backgroundColor: "#0284c7" }]}
+            onPress={() => {
+              setCustomBaseUrl(customUrlInput);
+              loadShops();
+              Alert.alert("Server Updated", `Connecting to ${customUrlInput}`);
+            }}
+          >
+            <Text style={s.mainBtnTxt}>Connect to Server</Text>
+          </Pressable>
+        </View>
+      )}
     </ScrollView>
   );
 }

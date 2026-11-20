@@ -27,8 +27,9 @@ export function setCurrentShopId(id: string): void {
 
 export function getApiUrl(): string {
   if (typeof window !== "undefined" && window.location) {
-    // Same-origin unified proxy when accessed via HTTPS tunnel or port 4000
-    if (window.location.protocol === "https:" || window.location.port === "4000") {
+    // Same-origin unified proxy when accessed via HTTPS tunnel, Nginx (port 80), or port 4000
+    const port = window.location.port;
+    if (window.location.protocol === "https:" || port === "4000" || port === "80" || port === "") {
       return `${window.location.origin}/api`;
     }
     const envUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -44,7 +45,8 @@ export function getWsUrl(lang?: string): string {
   const sid = getCurrentShopId();
   let base = "";
   if (typeof window !== "undefined" && window.location) {
-    if (window.location.protocol === "https:" || window.location.port === "4000") {
+    const port = window.location.port;
+    if (window.location.protocol === "https:" || port === "4000" || port === "80" || port === "") {
       const wsProto = window.location.protocol === "https:" ? "wss:" : "ws:";
       base = `${wsProto}//${window.location.host}/ws/voice`;
     }

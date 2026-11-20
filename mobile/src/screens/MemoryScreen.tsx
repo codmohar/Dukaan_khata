@@ -9,8 +9,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { API_URL } from "../config";
-import { inr, when } from "../services/api";
+import { inr, when, getBaseApiUrl } from "../services/api";
 import { C } from "../theme";
 
 export default function MemoryScreen() {
@@ -27,9 +26,9 @@ export default function MemoryScreen() {
   const load = async () => {
     try {
       const [pRes, rRes, recRes] = await Promise.all([
-        fetch(`${API_URL}/promises`).then((r) => r.json()).catch(() => []),
-        fetch(`${API_URL}/rules`).then((r) => r.json()).catch(() => []),
-        fetch(`${API_URL}/reconciliation`).then((r) => r.json()).catch(() => []),
+        fetch(`${getBaseApiUrl()}/promises`).then((r) => r.json()).catch(() => []),
+        fetch(`${getBaseApiUrl()}/rules`).then((r) => r.json()).catch(() => []),
+        fetch(`${getBaseApiUrl()}/reconciliation`).then((r) => r.json()).catch(() => []),
       ]);
       setPromises(pRes);
       setRules(rRes);
@@ -57,7 +56,7 @@ export default function MemoryScreen() {
       return;
     }
     try {
-      const res = await fetch(`${API_URL}/memory/search?q=${encodeURIComponent(q)}`).then((r) => r.json());
+      const res = await fetch(`${getBaseApiUrl()}/memory/search?q=${encodeURIComponent(q)}`).then((r) => r.json());
       setSearchResults(res.results || []);
     } catch {
       setErr("Search failed");
@@ -66,7 +65,7 @@ export default function MemoryScreen() {
 
   const toggleRule = async (ruleId: string, current: boolean) => {
     try {
-      await fetch(`${API_URL}/rules/${ruleId}`, {
+      await fetch(`${getBaseApiUrl()}/rules/${ruleId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ is_active: !current }),
