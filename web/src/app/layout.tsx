@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 import PwaRegistrar from "@/components/PwaRegistrar";
+import AuthGate from "@/components/AuthGate";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -32,10 +33,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className="min-h-screen bg-slate-50 text-slate-900 antialiased">
         <PwaRegistrar />
-        <Sidebar />
-        <main className="mx-auto max-w-6xl p-3 pb-24 lg:ml-60 lg:p-8 lg:pb-8">
-          {children}
-        </main>
+        <AuthGate>
+          <Sidebar />
+          <main className="mx-auto max-w-6xl p-3 pb-28 lg:ml-60 lg:p-8 lg:pb-8">
+            {children}
+          </main>
+        </AuthGate>
       </body>
     </html>
   );

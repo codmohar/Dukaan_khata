@@ -1,6 +1,7 @@
 import { Audio } from "expo-av";
 import * as FileSystem from "expo-file-system";
 import { WS_URL } from "../config";
+import { getMobileShopId } from "./api";
 
 export type Draft = {
   draft_id: string;
@@ -67,7 +68,11 @@ export class VoiceClient {
     if (this.disposed) return;
     this.h.onStatus("connecting");
     try {
-      const ws = new WebSocket(`${WS_URL}?language=${this.language}`);
+      const sid = getMobileShopId();
+      const wsUrl = sid
+        ? `${WS_URL}?language=${this.language}&shop_id=${sid}`
+        : `${WS_URL}?language=${this.language}`;
+      const ws = new WebSocket(wsUrl);
       this.ws = ws;
       ws.onopen = () => {
         this.h.onStatus("idle");

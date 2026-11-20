@@ -72,6 +72,7 @@ async def init_db():
                     "alter table transactions add column if not exists due_date date",
                     "alter table transactions add column if not exists backdated_to date",
                     "alter table transactions add column if not exists items jsonb",
+                    "alter table shops add column if not exists pin text default '1234'",
                     "alter table shops drop constraint if exists shops_language_check",
                     "alter table shops add constraint shops_language_check check (language in ('kn-IN', 'hi-IN', 'en-IN', 'ta-IN', 'te-IN', 'mr-IN', 'bn-IN', 'gu-IN'))",
                     # Migration 003: Scan Book (scans, scan_lines, transactions.source & scan_id)

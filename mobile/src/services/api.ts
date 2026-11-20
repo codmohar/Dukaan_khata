@@ -3,6 +3,25 @@ import { createClient } from "@supabase/supabase-js";
 import { useEffect, useRef } from "react";
 import { API_URL, SUPABASE_KEY, SUPABASE_URL } from "../config";
 
+let currentMobileShopId = "";
+
+export function setMobileShopId(id: string) {
+  currentMobileShopId = id;
+}
+
+export function getMobileShopId(): string {
+  return currentMobileShopId;
+}
+
+export type Shop = {
+  id: string;
+  name: string;
+  owner_name?: string | null;
+  phone?: string | null;
+  language: string;
+  pin?: string | null;
+};
+
 export type Customer = {
   id: string;
   name: string;
@@ -32,8 +51,29 @@ export type Stats = {
 };
 
 const get = async <T,>(path: string): Promise<T> => {
+  const sid = getMobileShopId();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(sid ? { "X-Shop-Id": sid } : {}),
+  };
+  const r = await fetch(API_URL + path, { headers });
+  if (!r.ok) {
+    const errorText = await r.text();
+    throw new Error(errorText || r.statusText);
+  }
+  return r.json();
+};
+
+const post = async <T,>(path: string, body?: any): Promise<T> => {
+  const sid = getMobileShopId();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(sid ? { "X-Shop-Id": sid } : {}),
+  };
   const r = await fetch(API_URL + path, {
-    headers: { "Content-Type": "application/json" },
+    method: "POST",
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
   });
   if (!r.ok) {
     const errorText = await r.text();
@@ -43,12 +83,29 @@ const get = async <T,>(path: string): Promise<T> => {
 };
 
 export const api = {
-  shop: () => get<{ name: string; owner_name?: string }>("/shop"),
+  getShops: () => get<Shop[]>("/auth/shops"),
+  login: (body: { phone?: string; pin?: string; shop_id?: string }) =>
+    post<{ token: string; shop: Shop; message: string }>("/auth/login", body).then((res) => {
+      setMobileShopId(res.token);
+      return res;
+    }),
+  registerShop: (body: { name: string; owner_name: string; phone: string; language?: string; pin?: string }) =>
+    post<{ token: string; shop: Shop; message: string }>("/auth/register", body).then((res) => {
+      setMobileShopId(res.token);
+      return res;
+    }),
+  authMe: () => get<Shop>("/auth/me"),
+  shop: () => get<Shop>("/shop"),
   customers: () => get<Customer[]>("/customers"),
   updateCustomer: async (id: string, body: { name?: string; phone?: string; landmark?: string }) => {
+    const sid = getMobileShopId();
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      ...(sid ? { "X-Shop-Id": sid } : {}),
+    };
     const r = await fetch(`${API_URL}/customers/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(body),
     });
     if (!r.ok) throw new Error(await r.text());
@@ -57,9 +114,14 @@ export const api = {
   txns: () => get<Txn[]>("/transactions?limit=50"),
   stats: () => get<Stats>("/dashboard/stats"),
   finalize: async (id: string, action: "confirm" | "cancel") => {
+    const sid = getMobileShopId();
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      ...(sid ? { "X-Shop-Id": sid } : {}),
+    };
     const r = await fetch(`${API_URL}/transactions/${id}/${action}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
     });
     if (!r.ok) throw new Error(await r.text());
     return r.json();

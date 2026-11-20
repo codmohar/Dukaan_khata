@@ -6,7 +6,7 @@ from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
 from uuid import UUID
 
-from fastapi import Depends, FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnect
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,6 +16,7 @@ from .agent.pipeline import VoiceSession
 from .config import settings
 from .db import get_session, init_db
 from .models import Customer, Shop, Transaction
+from .routers.auth import router as auth_router
 from .routers.features import router as features_router
 from .routers.scans import router as scans_router
 from .schemas import (
@@ -59,19 +60,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth_router)
 app.include_router(scans_router)
 app.include_router(features_router)
 
 MAX_UTTERANCE_BYTES = 16000 * 2 * 30  # 30 seconds of 16 kHz mono PCM16
 
 
-async def get_current_shop_id(shop_id: str | None = None, s: AsyncSession = Depends(get_session)) -> str:
-    """Resolve shop_id safely: provided param -> config -> first DB shop."""
-    if shop_id:
-        return shop_id
+async def get_current_shop_id(
+    shop_id: str | None = None,
+    x_shop_id: str | None = Header(None, alias="X-Shop-Id"),
+    s: AsyncSession = Depends(get_session),
+) -> str:
+    """Resolve shop_id safely: provided param -> X-Shop-Id header -> config -> first DB shop."""
+    candidate = shop_id or x_shop_id
+    if candidate and candidate.strip():
+        return candidate.strip()
     if settings.default_shop_id and settings.default_shop_id.strip():
         return settings.default_shop_id.strip()
-    row = (await s.execute(text("select id from shops limit 1"))).scalar()
+    row = (await s.execute(text("select id from shops order by created_at asc limit 1"))).scalar()
     if row:
         return str(row)
     return "00000000-0000-0000-0000-000000000001"

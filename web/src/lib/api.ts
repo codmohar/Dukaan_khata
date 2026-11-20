@@ -1,3 +1,21 @@
+export function getCurrentShopId(): string {
+  if (typeof window !== "undefined") {
+    return localStorage.getItem("dukaan_shop_id") || "";
+  }
+  return "";
+}
+
+export function setCurrentShopId(id: string): void {
+  if (typeof window !== "undefined") {
+    if (id) {
+      localStorage.setItem("dukaan_shop_id", id);
+    } else {
+      localStorage.removeItem("dukaan_shop_id");
+      localStorage.removeItem("dukaan_shop_data");
+    }
+  }
+}
+
 export function getApiUrl(): string {
   if (typeof window !== "undefined" && window.location) {
     // Same-origin unified proxy when accessed via HTTPS tunnel or port 4000
@@ -13,14 +31,23 @@ export function getApiUrl(): string {
   return process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 }
 
-export function getWsUrl(): string {
+export function getWsUrl(lang?: string): string {
+  const sid = getCurrentShopId();
+  let base = "";
   if (typeof window !== "undefined" && window.location) {
     if (window.location.protocol === "https:" || window.location.port === "4000") {
       const wsProto = window.location.protocol === "https:" ? "wss:" : "ws:";
-      return `${wsProto}//${window.location.host}/ws/voice`;
+      base = `${wsProto}//${window.location.host}/ws/voice`;
     }
   }
-  return getApiUrl().replace(/^http/, "ws") + "/ws/voice";
+  if (!base) {
+    base = getApiUrl().replace(/^http/, "ws") + "/ws/voice";
+  }
+  const params = new URLSearchParams();
+  if (lang) params.set("language", lang);
+  if (sid) params.set("shop_id", sid);
+  const q = params.toString();
+  return q ? `${base}?${q}` : base;
 }
 
 export const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -162,6 +189,7 @@ export type Shop = {
   owner_name?: string | null;
   phone?: string | null;
   language: string;
+  pin?: string | null;
 };
 
 export type ReportsSummary = {
@@ -173,12 +201,16 @@ export type ReportsSummary = {
 };
 
 async function call<T>(path: string, init?: RequestInit): Promise<T> {
+  const sid = getCurrentShopId();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(sid ? { "X-Shop-Id": sid } : {}),
+    ...((init?.headers as Record<string, string>) || {}),
+  };
+
   const r = await fetch(getApiUrl() + path, {
     ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...(init?.headers || {}),
-    },
+    headers,
   });
   if (!r.ok) {
     const errorText = await r.text();
@@ -199,6 +231,32 @@ let shopPromise: Promise<Shop> | null = null;
 
 export const api = {
   health: () => call<{ ok: boolean; database?: boolean; default_shop_id?: string }>("/health"),
+  // Virtual Dukaan Authentication & Multi-Tenancy
+  getShops: () => call<Shop[]>("/auth/shops"),
+  login: (body: { phone?: string; pin?: string; shop_id?: string }) =>
+    call<{ token: string; shop: Shop; message: string }>("/auth/login", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }).then((res) => {
+      setCurrentShopId(res.token);
+      shopCache = res.shop;
+      return res;
+    }),
+  registerShop: (body: { name: string; owner_name: string; phone: string; language?: string; pin?: string }) =>
+    call<{ token: string; shop: Shop; message: string }>("/auth/register", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }).then((res) => {
+      setCurrentShopId(res.token);
+      shopCache = res.shop;
+      return res;
+    }),
+  authMe: () => call<Shop>("/auth/me"),
+  logout: () => {
+    setCurrentShopId("");
+    shopCache = null;
+    shopPromise = null;
+  },
   shop: () => {
     if (shopCache) return Promise.resolve(shopCache);
     if (!shopPromise) {
@@ -329,7 +387,12 @@ export type ScanData = {
 
 async function scanCall<T>(path: string, init?: RequestInit): Promise<T> {
   const base = getApiUrl();
-  const r = await fetch(base + path, init);
+  const sid = getCurrentShopId();
+  const headers = {
+    ...(sid ? { "X-Shop-Id": sid } : {}),
+    ...(init?.headers || {}),
+  };
+  const r = await fetch(base + path, { ...init, headers });
   if (!r.ok) {
     const b = await r.json().catch(() => null);
     const d = b?.detail;

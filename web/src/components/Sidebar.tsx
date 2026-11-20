@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { api, Shop } from "@/lib/api";
+import { useAuth } from "@/components/AuthGate";
 
 const NAV = [
   { href: "/", label: "Dashboard", icon: "🏠" },
@@ -17,12 +18,17 @@ const NAV = [
 
 export default function Sidebar() {
   const path = usePathname();
+  const { shop: authShop, logout } = useAuth();
   const [shop, setShop] = useState<Shop | null>(null);
   const [navigatingTo, setNavigatingTo] = useState<string | null>(null);
 
   useEffect(() => {
-    api.shop().then(setShop).catch(() => {});
-  }, []);
+    if (authShop) {
+      setShop(authShop);
+    } else {
+      api.shop().then(setShop).catch(() => {});
+    }
+  }, [authShop]);
 
   useEffect(() => {
     setNavigatingTo(null);
@@ -62,18 +68,27 @@ export default function Sidebar() {
 
       {/* Desktop / tablet Sidebar */}
       <aside className="fixed inset-y-0 left-0 hidden w-60 flex-col bg-slate-950 p-4 text-slate-200 border-r border-slate-800 lg:flex z-30">
-        <div className="mb-6 flex items-center gap-3 px-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600 text-xl font-black text-white shadow-lg shadow-emerald-900/50">
-            {shop?.name ? shop.name.charAt(0).toUpperCase() : "D"}
-          </div>
-          <div className="overflow-hidden">
-            <div className="text-base font-extrabold tracking-tight text-white truncate">
-              {shop?.name || "DukaanAI"}
+        <div className="mb-5 flex items-center justify-between rounded-2xl bg-slate-900/80 p-2.5 border border-slate-800/80">
+          <div className="flex items-center gap-2.5 overflow-hidden">
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-lg font-black text-white shadow-lg shadow-emerald-900/50">
+              {shop?.name ? shop.name.charAt(0).toUpperCase() : "D"}
             </div>
-            <p className="text-[11px] font-medium text-emerald-400 truncate">
-              {shop?.owner_name ? `Prop: ${shop.owner_name}` : "Voice Digital Khata"}
-            </p>
+            <div className="overflow-hidden">
+              <div className="text-sm font-extrabold tracking-tight text-white truncate max-w-[110px]" title={shop?.name}>
+                {shop?.name || "DukaanAI"}
+              </div>
+              <p className="text-[10px] font-medium text-emerald-400 truncate max-w-[110px]" title={shop?.owner_name || ""}>
+                {shop?.owner_name ? `Prop: ${shop.owner_name}` : "Voice Digital Khata"}
+              </p>
+            </div>
           </div>
+          <button
+            onClick={logout}
+            title="Switch Dukaan or Logout"
+            className="flex-shrink-0 rounded-lg p-1.5 text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition"
+          >
+            🔄
+          </button>
         </div>
 
         <div className="mb-4 px-2">
@@ -120,6 +135,30 @@ export default function Sidebar() {
           </p>
         </div>
       </aside>
+
+      {/* Mobile top app bar with shop name and switch button */}
+      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-slate-200 bg-white/95 px-3.5 py-2 backdrop-blur-md lg:hidden shadow-sm">
+        <div className="flex items-center gap-2.5 overflow-hidden">
+          <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-xs font-black text-white shadow-sm">
+            {shop?.name ? shop.name.charAt(0).toUpperCase() : "D"}
+          </div>
+          <div className="overflow-hidden">
+            <span className="font-bold text-xs text-slate-900 truncate block max-w-[180px]">
+              {shop?.name || "DukaanAI"}
+            </span>
+            <span className="text-[10px] text-slate-500 truncate block">
+              {shop?.owner_name ? `Prop: ${shop.owner_name}` : "Kirana Store"}
+            </span>
+          </div>
+        </div>
+        <button
+          onClick={logout}
+          className="flex items-center gap-1 rounded-lg bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-700 border border-slate-200 active:scale-95 transition hover:bg-slate-200"
+        >
+          <span>🔄</span>
+          <span>Switch</span>
+        </button>
+      </header>
 
       {/* Mobile browser bottom navigation bar */}
       <nav className="fixed inset-x-0 bottom-0 z-40 flex items-center overflow-x-auto no-scrollbar scroll-smooth border-t border-slate-800 bg-slate-950/95 px-2 py-1.5 backdrop-blur-md lg:hidden pb-[max(0.5rem,env(safe-area-inset-bottom,0px))]">

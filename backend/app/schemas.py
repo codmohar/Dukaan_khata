@@ -87,6 +87,27 @@ class ShopOut(BaseModel):
     owner_name: str | None = None
     phone: str | None = None
     language: str
+    pin: str | None = None
+
+
+class ShopRegisterIn(BaseModel):
+    name: str = Field(..., min_length=2, description="Virtual Dukaan name, e.g. Ramesh Kirana")
+    owner_name: str = Field(..., min_length=2, description="Dukaandar's name, e.g. Ramesh")
+    phone: str = Field(..., min_length=10, max_length=15, description="10-digit mobile number")
+    language: str = Field("kn-IN", description="Preferred language, e.g. kn-IN, hi-IN, en-IN")
+    pin: str = Field("1234", min_length=4, max_length=6, description="4 to 6 digit security PIN")
+
+
+class ShopLoginIn(BaseModel):
+    phone: str | None = None
+    pin: str | None = None
+    shop_id: UUID | None = None
+
+
+class AuthResponse(BaseModel):
+    token: str
+    shop: ShopOut
+    message: str = "Success"
 
 
 class ShopUpdate(BaseModel):
@@ -94,6 +115,7 @@ class ShopUpdate(BaseModel):
     owner_name: str | None = None
     phone: str | None = None
     language: str | None = None
+    pin: str | None = None
 
 
 class FinalizeDraftIn(BaseModel):

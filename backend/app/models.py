@@ -22,6 +22,7 @@ class Shop(Base):
     owner_name: Mapped[str | None] = mapped_column(Text, nullable=True, default="Manjunath Gowda")
     phone: Mapped[str | None] = mapped_column(Text, nullable=True, default="+91 98450 00000")
     language: Mapped[str] = mapped_column(Text, default="kn-IN")
+    pin: Mapped[str | None] = mapped_column(Text, nullable=True, default="1234")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
