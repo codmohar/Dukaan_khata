@@ -122,24 +122,33 @@ export default function Sidebar() {
       </aside>
 
       {/* Mobile browser bottom navigation bar */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 flex justify-around border-t border-slate-800 bg-slate-950/95 py-2 backdrop-blur-md lg:hidden">
-        {NAV.map((n) => {
-          const isAct = active(n.href);
-          return (
-            <Link
-              key={n.href}
-              href={n.href}
-              prefetch={true}
-              onClick={() => startNav(n.href, n.label)}
-              className={`flex flex-col items-center px-2 py-1 text-[11px] font-medium transition active:scale-95 ${
-                isAct ? "text-emerald-400" : "text-slate-400 hover:text-slate-200"
-              }`}
-            >
-              <span className="text-xl mb-0.5">{n.icon}</span>
-              <span>{n.label.split(" ")[0]}</span>
-            </Link>
-          );
-        })}
+      <nav className="fixed inset-x-0 bottom-0 z-40 flex items-center overflow-x-auto no-scrollbar scroll-smooth border-t border-slate-800 bg-slate-950/95 px-2 py-1.5 backdrop-blur-md lg:hidden pb-[max(0.5rem,env(safe-area-inset-bottom,0px))]">
+        <div className="flex w-full items-center justify-between min-w-max sm:min-w-0 sm:justify-around gap-1">
+          {NAV.map((n) => {
+            const isAct = active(n.href);
+            const isVoice = n.href === "/voice";
+            return (
+              <Link
+                key={n.href}
+                href={n.href}
+                prefetch={true}
+                onClick={() => startNav(n.href, n.label)}
+                className={`flex flex-col items-center justify-center min-w-[54px] px-2 py-1 text-[11px] font-medium transition active:scale-95 ${
+                  isVoice
+                    ? isAct
+                      ? "text-emerald-400 font-bold"
+                      : "text-emerald-500 font-semibold"
+                    : isAct
+                    ? "text-emerald-400 font-bold"
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                <span className={`text-xl mb-0.5 ${isVoice ? "scale-110 drop-shadow" : ""}`}>{n.icon}</span>
+                <span className="truncate max-w-[64px]">{n.label.split(" ")[0]}</span>
+              </Link>
+            );
+          })}
+        </div>
       </nav>
     </>
   );

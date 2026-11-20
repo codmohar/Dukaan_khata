@@ -96,6 +96,10 @@ class ShopUpdate(BaseModel):
     language: str | None = None
 
 
+class FinalizeDraftIn(BaseModel):
+    override_warnings: bool = False
+
+
 class DraftActionResponse(BaseModel):
     status: str
     draft_id: str | None = None

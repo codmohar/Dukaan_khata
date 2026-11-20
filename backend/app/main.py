@@ -24,12 +24,14 @@ from .schemas import (
     CustomerUpdate,
     DashboardStats,
     DraftActionResponse,
+    FinalizeDraftIn,
     ShopOut,
     ShopUpdate,
     TransactionIn,
     TransactionOut,
     VoiceTurnResponse,
 )
+from .services import rules as rules_service
 from .services import speech
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -394,12 +396,19 @@ async def get_transaction(tid: UUID, s: AsyncSession = Depends(get_session)):
 
 
 @app.post("/transactions/{tid}/{action}", response_model=DraftActionResponse)
-async def finalize_transaction(tid: UUID, action: str, s: AsyncSession = Depends(get_session)):
+async def finalize_transaction(
+    tid: UUID,
+    action: str,
+    body: FinalizeDraftIn | None = None,
+    s: AsyncSession = Depends(get_session),
+):
     if action not in ("confirm", "cancel"):
         raise HTTPException(400, "Action must be 'confirm' or 'cancel'")
     sid = await get_current_shop_id(None, s)
 
     if action == "confirm":
+        if body and body.override_warnings:
+            await rules_service.override_rule_warnings(s, sid, str(tid))
         out = await tools.confirm_draft(s, sid, str(tid))
         if "error" in out:
             raise HTTPException(400, out["error"])

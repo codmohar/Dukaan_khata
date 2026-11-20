@@ -12,6 +12,10 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./supabase/migrations/001_init_schema.sql:/docker-entrypoint-initdb.d/001_init_schema.sql:ro
+      - ./supabase/migrations/002_kirana_money_flows.sql:/docker-entrypoint-initdb.d/002_kirana_money_flows.sql:ro
+      - ./supabase/migrations/003_extended_languages_and_reminders.sql:/docker-entrypoint-initdb.d/003_extended_languages_and_reminders.sql:ro
+      - ./supabase/migrations/003_scans.sql:/docker-entrypoint-initdb.d/003_scans.sql:ro
+      - ./supabase/migrations/004_advanced_features.sql:/docker-entrypoint-initdb.d/004_advanced_features.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d dukaan"]
       interval: 5s
@@ -40,6 +44,19 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: dukaan-web
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      - backend
 
 volumes:
   pgdata:

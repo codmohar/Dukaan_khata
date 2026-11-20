@@ -1,257 +1,320 @@
-# DukaanAI: Production Multi-Platform Voice Khata
+# DukaanAI: Enterprise Voice Digital Khata for Indian Retailers
 
-An always-listening, multilingual, voice-first digital ledger (*khata*) built for Indian kirana shopkeepers.
+An always-listening, multilingual, voice-first digital ledger (*khata*) and shopkeeper intelligence system built specifically for Indian kirana shopkeepers.
 
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688.svg)](https://fastapi.tiangolo.com)
 [![Next.js](https://img.shields.io/badge/Frontend-Next.js%2014-black.svg)](https://nextjs.org)
 [![React Native](https://img.shields.io/badge/Mobile-React%20Native%20Expo-61DAFB.svg)](https://reactnative.dev)
-[![Supabase](https://img.shields.io/badge/Database-Supabase%20PostgreSQL-3ECF8E.svg)](https://supabase.com)
-[![Gemini](https://img.shields.io/badge/LLM-Gemini%202.5%20Flash-4285F4.svg)](https://ai.google.dev)
-[![Gnani AI](https://img.shields.io/badge/Speech-Gnani%20Prisma%20v3.0%20%2F%20Sarvam-blue.svg)](https://gnani.ai)
+[![Supabase](https://img.shields.io/badge/Database-PostgreSQL%20%2B%20pg__trgm-3ECF8E.svg)](https://supabase.com)
+[![Gemini](https://img.shields.io/badge/LLM-Gemini%20Flash--Lite%202.5-4285F4.svg)](https://ai.google.dev)
+[![Sarvam AI](https://img.shields.io/badge/Speech-Sarvam%20%2F%20Gnani%20v3.0-blue.svg)](https://sarvam.ai)
+[![Tests](https://img.shields.io/badge/Tests-32%20Passed%20(100%25)-brightgreen.svg)]()
 
 ---
 
-## 1. System Architecture & Workflow
+## 1. System Architecture & High-Level Workflow
 
 ```mermaid
 flowchart TD
-    subgraph MobileApp["📱 Installable Mobile App (Expo)"]
-        WW["Picovoice Porcupine ('Hey Dukaan')"]
-        BGS["Android Foreground Service (Screen Locked)"]
-        MIC1["16kHz PCM Audio Streamer"]
+    subgraph MobileDevice["📱 Mobile Devices & Counter Terminals"]
+        PWA["Responsive PWA\n(Web Audio VAD + Safe Areas)"]
+        EXPO["React Native Expo App\n(Background Audio Service)"]
+        REV["Port 4000 Reverse Proxy\n(proxy.js + Cloudflare Tunnel)"]
     end
 
-    subgraph WebApp["💻 Counter Desktop / Tablet (Next.js 14)"]
-        MIC2["Browser Web Audio API"]
-        DASH["Real-Time Dashboard & Ledgers"]
-    end
-
-    subgraph Backend["🚀 FastAPI Voice AI Orchestrator"]
+    subgraph Backend["🚀 FastAPI Voice & Rules Engine (Port 8000)"]
         WS["/ws/voice WebSocket"]
-        VAD["Voice Activity Detector & Framer"]
-        STT["Gnani Prisma v3.0 STT\n(Sarvam 'saarika' Fallback)"]
-        AGENT["Gemini 2.5 Flash LLM Agent\n(Strict Function Calling)"]
-        TTS["Gnani Timbre v3.0 TTS\n(Sarvam 'bulbul' Fallback)"]
+        REST["REST API Endpoints"]
+        FAST["Deterministic Fast Engine\n(Regex + Number Normalizer)"]
+        LLM["Gemini Flash-Lite Agent\n(Tools & System Guardrails)"]
+        RULES["Dukaan Rules Engine\n(New Customer, Caps, Time Cutoff)"]
+        RECON["Daily Reconciliation Engine\n(Cash & UPI Audit)"]
+        VISION["Gemini Vision Engine\n(Khata Book OCR Digitizer)"]
+        SPEECH["Sarvam AI / Gnani Prisma\n(Multilingual STT & TTS)"]
     end
 
-    subgraph Database["🗄️ Supabase PostgreSQL Cloud"]
-        TRGM["pg_trgm Fuzzy Customer Matching"]
-        TBL["shops, customers, transactions"]
-        VIEW["customer_balances view"]
-        RT["Supabase Realtime Engine (Pub/Sub)"]
+    subgraph Database["🗄️ PostgreSQL / Supabase"]
+        SHOPS["shops"]
+        CUST["customers (atomic row locking)"]
+        TX["transactions (drafts & confirmed)"]
+        HOUSE["household_members"]
+        PROM["promises & promises_effective view"]
+        SHRULE["shop_rules"]
+        DRECON["daily_reconciliations"]
+        VBAL["customer_balances view"]
     end
 
-    WW -->|Wake Event| MIC1
-    BGS -.->|Keeps Mic Alive| WW
-    MIC1 -->|WebSocket 16kHz PCM| WS
-    MIC2 -->|WebSocket 16kHz PCM| WS
-
-    WS --> VAD --> STT --> AGENT
-    AGENT <-->|search_customers / create_draft / confirm_draft| TBL
-    AGENT --> TTS --> WS
-    WS -->|Live Audio WAV + Draft Card| MobileApp
-    WS -->|Live Audio WAV + Draft Card| WebApp
-
-    TBL --> VIEW
-    TBL -.->|Postgres Changes| RT
-    RT ==>|Live Push Updates| DASH
+    PWA -->|HTTP & WS| REV
+    EXPO -->|HTTP & WS| REV
+    REV -->|/api/* & /ws/*| WS
+    REV -->|UI Routes| PWA
+    WS --> FAST
+    FAST -->|Fast Path Match| RULES
+    FAST -.->|Complex Path| LLM
+    LLM --> RULES
+    RULES --> CUST
+    RULES --> TX
+    RULES --> PROM
+    RULES --> HOUSE
+    WS --> SPEECH
+    SPEECH --> PWA
+    SPEECH --> EXPO
 ```
 
-### Core Workflow:
-1. **Wake & Capture:** Shopkeeper says *"Hey Dukaan"* (or taps the mic), and speaks in Kannada, Hindi, English, or code-mixed speech (e.g. *"Ramesh ge 340 rupayi udhar bardu"*).
-2. **Entity Extraction:** AI agent transliterates the name to Latin script, queries `pg_trgm` fuzzy similarity indexes on the customer table, extracts transaction amount and type (*credit* or *payment*).
-3. **Disambiguation:** If multiple customers share the same name (e.g., *Ramesh Kumar (Bus Stand)* vs *Ramesh Gowda (Temple)*), DukaanAI asks for clarification with identifying landmarks.
-4. **Guardrail Enforced Confirmation:** The agent creates an unconfirmed draft transaction, reads back the customer name, amount, and type aloud, and asks: *"Confirm?"*. The agent **never commits a draft in the same turn**; it waits for the shopkeeper's explicit affirmation in a subsequent turn before committing.
-5. **Real-Time Sync:** Once committed, the transaction is saved to PostgreSQL, customer balance updates, and Supabase Realtime immediately updates both the mobile app and web counter without manual refresh.
+### Core Operational Invariants:
+1. **Never Commit in the Same Turn:** Spoken credit/payment orders are always drafted first. The assistant reads back the name, amount, items, and any shop policy warnings aloud and asks for explicit confirmation before committing.
+2. **Explicit Policy Warnings Spoken Aloud:** When an active shop rule is triggered (e.g., *"Naye customer ko 1000 se zyada udhar matt do"*), the voice engine speaks the exact rule text to the shopkeeper and blocks auto-commit until the shopkeeper explicitly commands *"Continue anyway"*.
+3. **Strict Row-Level Locking:** Every draft confirmation executes `SELECT ... FOR UPDATE` on the customer record, ensuring exact atomic balance updates under concurrent transactions.
+4. **Automatic Promise Settlement:** Confirming a payment automatically fulfills corresponding pending payment promises for that customer.
+5. **Real-Time Cross-Device Synchronization:** Supabase Realtime / WebSocket events instantly synchronize mobile devices and counter screens with zero manual refreshes.
 
 ---
 
-## 2. Monorepo Structure
+## 2. Advanced Feature Architecture
+
+### 1. Household Khata (`household_members`)
+- Links family members (wife, son, brother, etc.) to a primary customer's balance.
+- Spoken commands like *"Ramesh ke ladke ko 150 ka tel do"* resolve the member under the parent customer khata.
+- Hard invariant: Member credit cannot cross customer boundaries; ambiguous members across families prompt disambiguation.
+
+### 2. Dukaan Rules Policy Engine (`shop_rules`)
+- Configurable shop policies: `NEW_CUSTOMER_CAP`, `BALANCE_CAP`, `TIME_CUTOFF`, `DISALLOW_MEMBER_CREDIT`.
+- Evaluated deterministically before drafts are created.
+- Warning banner and audible TTS alert spoken to the shopkeeper.
+- Supports vocal and button overrides (*"Continue anyway"*).
+
+### 3. Promise Memory (`promises`)
+- Tracks spoken commitments: payment promises (*"Kal 500 de dunga"*), goods reservations (*"2 packet atta kal aayega"*), and supplier deliveries.
+- `promises_effective` view flags past promises as `OVERDUE` automatically.
+- Confirming payments auto-settles matching pending promises.
+
+### 4. Shopkeeper Memory Recall
+- Ambient conversational lookup tool (`recall_shopkeeper_memory`).
+- Answers questions like: *"Ramesh ne kab bola tha paise dene ko?"* or *"Kal ka hisaab batao"*.
+- Strict multi-tenant cross-shop isolation: queries never leak customer records across distinct `shop_id`s.
+
+### 5. Smart Dispute Timeline
+- Chronological transaction audit trail for customer balance verification.
+- Calculates step-by-step running balance with transcript snippets and timestamps in Indian Standard Time (`Asia/Kolkata`).
+- Flags any discrepancy between ledger sum and physical customer balance column.
+
+### 6. Daily Reconciliation (`daily_reconciliations`)
+- Evening cash & UPI reconciliation wizard.
+- Compares recorded ledger payments against actual drawer cash and UPI app statements.
+- Categorizes status: `MATCHED` or `NEEDS_INVESTIGATION`.
+- Pinpoints unconfirmed drafts, duplicate transactions within 15 minutes, or walk-in non-khata cash differences without altering past confirmed records.
+
+### 7. Book Scan (OCR Ledger Digitization)
+- Takes photos of physical paper khata registers or supplier invoices.
+- Gemini 2.5 Flash Vision extracts ledger lines with confidence scores and fuzzy customer candidate matching.
+- Safe 2-step verification: shopkeeper inspects scanned rows before approving them into the digital ledger.
+
+---
+
+## 3. Monorepo Structure
 
 ```text
 dukaan-ai/
-├── docker-compose.yml          # Multi-container stack (Postgres + pg_trgm + Backend)
+├── docker-compose.yml              # Complete multi-service production stack
+├── proxy.js                        # Unified reverse proxy (Port 4000)
+├── tunnel_runner.ps1               # Persistent auto-reconnecting Cloudflare tunnel
+├── pytest.ini                      # Python test configuration
 ├── supabase/
 │   └── migrations/
-│       └── 001_init_schema.sql # Complete DB schema, pg_trgm, RLS, & seed data
-├── backend/                    # Python 3.11+ FastAPI + Voice AI Orchestrator
+│       ├── 001_init_schema.sql     # Base tables, views & pg_trgm indices
+│       ├── 002_kirana_money_flows.sql # Payment modes & adjustment reasons
+│       ├── 003_extended_languages_and_reminders.sql # 13 Indian languages
+│       ├── 003_scans.sql           # Vision scan tables & duplicates tracking
+│       └── 004_advanced_features.sql # Household, rules, promises, reconciliations
+├── backend/                        # FastAPI High-Performance Backend
 │   ├── Dockerfile
 │   ├── requirements.txt
-│   ├── .env.example
-│   └── app/
-│       ├── main.py             # REST API routes + /ws/voice WebSocket
-│       ├── config.py           # Configuration & fallback environment loader
-│       ├── db.py               # Async engine pool (PgBouncer statement_cache_size=0)
-│       ├── models.py           # SQLAlchemy declarative models
-│       ├── schemas.py          # Pydantic v2 schemas
-│       ├── agent/
-│       │   ├── pipeline.py     # Pipecat-compatible STT -> LLM -> Tools -> TTS pipeline
-│       │   ├── llm_provider.py # Unified LLMProvider interface (Gemini 2.5 Flash + Mock)
-│       │   ├── tools.py        # Database tools with pg_trgm fuzzy search
-│       │   └── prompts.py      # Multilingual system prompts & guardrails
-│       └── services/
-│           ├── speech.py       # Speech router & PCM-to-WAV converter
-│           ├── stt_gnani.py    # Gnani Prisma v3.0 STT wrapper with Sarvam fallback
-│           └── tts_gnani.py    # Gnani Timbre v3.0 TTS wrapper with Sarvam fallback
-├── web/                        # Next.js 14 (App Router) Counter Dashboard
+│   ├── app/
+│   │   ├── main.py                 # REST routes & WebSocket handler
+│   │   ├── config.py               # Robust multi-path settings loader
+│   │   ├── db.py                   # Async SQLAlchemy connection engine
+│   │   ├── models.py               # Declarative database entities
+│   │   ├── schemas.py              # Pydantic v2 validation models
+│   │   ├── agent/
+│   │   │   ├── fast_engine.py      # Sub-100ms deterministic regex & number parser
+│   │   │   ├── indian_numbers.py   # Indian spoken numerical system (dedh, dhai, sava...)
+│   │   │   ├── llm_provider.py     # Gemini Flash-Lite LLM client
+│   │   │   ├── pipeline.py         # Voice session state machine
+│   │   │   ├── prompts.py          # Multilingual system instructions
+│   │   │   └── tools.py            # Complete database toolset
+│   │   ├── routers/
+│   │   │   ├── features.py         # Household, Rules, Promises, Reconciliation routes
+│   │   │   └── scans.py            # Book Scan OCR routes
+│   │   └── services/
+│   │       ├── household.py        # Household member service
+│   │       ├── memory.py           # Conversational memory recall
+│   │       ├── promises.py         # Promise tracking & auto-fulfilment
+│   │       ├── reconciliation.py   # Cash/UPI daily reconciliation
+│   │       ├── rules.py            # Dukaan Rules policy validation
+│   │       ├── speech.py           # PCM-to-WAV conversion & provider router
+│   │       ├── stt_gnani.py        # Speech-to-text service
+│   │       ├── timeline.py         # Running balance dispute resolver
+│   │       ├── tts_gnani.py        # Text-to-speech service
+│   │       └── vision.py           # Gemini Vision image analysis
+│   └── tests/
+│       ├── test_advanced_features.py # 24 advanced feature verification tests
+│       └── test_scans.py           # 8 OCR scan tests
+├── web/                            # Next.js 14 Mobile-First Web Application
+│   ├── Dockerfile                  # Multi-stage production container
 │   ├── package.json
-│   ├── .env.example
+│   ├── public/                     # PWA manifest, service worker, icons
 │   └── src/
 │       ├── app/
-│       │   ├── layout.tsx      # Dark high-contrast counter sidebar layout
-│       │   ├── page.tsx        # Dashboard (5 key stat cards + 7-day chart + drafts)
-│       │   ├── voice/page.tsx  # Voice Khata (interactive mic + transcript + draft card)
-│       │   ├── customers/page.tsx # Customer CRUD + ledger history + WhatsApp reminders
-│       │   ├── transactions/page.tsx # Filterable ledger table + manual entry modal + CSV
-│       │   ├── reports/page.tsx # Analytics, debtor ranking chart & WhatsApp recovery
-│       │   └── settings/page.tsx # Shop profile, language selector, connectivity status
+│       │   ├── layout.tsx          # Mobile viewport, notch cover, safe areas
+│       │   ├── globals.css         # Touch manipulation, no-scrollbar utilities
+│       │   ├── page.tsx            # Dashboard with Reconciliation trigger
+│       │   ├── voice/page.tsx      # Voice Khata with colored cards & warning banners
+│       │   ├── customers/page.tsx  # Customer directory
+│       │   ├── customers/[id]/page.tsx # Customer detail, Household pills & Timeline tab
+│       │   ├── memory/page.tsx     # Memory, Promises, Rules & Reconciliation UI
+│       │   ├── scan/page.tsx       # Camera & OCR verification
+│       │   ├── transactions/page.tsx # Ledger history & CSV export
+│       │   └── settings/page.tsx   # Language selector & connectivity status
 │       ├── components/
-│       │   ├── Sidebar.tsx     # Desktop sidebar + mobile browser bottom navigation
-│       │   └── ui.tsx          # High-contrast UI components, badges, modals
+│       │   ├── Sidebar.tsx         # Responsive desktop sidebar & mobile bottom bar
+│       │   ├── ui.tsx              # Touch-friendly buttons, badges, modals
+│       │   └── PwaRegistrar.tsx    # Service worker lifecycle manager
 │       └── lib/
-│           ├── api.ts          # Typed REST API & WhatsApp link generator
-│           ├── supabase.ts     # Supabase Realtime subscription hook
-│           └── useVoice.ts     # Web Audio API 16kHz PCM streaming hook
-└── mobile/                     # React Native (Expo) Installable Mobile App
-    ├── app.json                # Permissions for background audio & mic
+│           ├── api.ts              # Unified REST client & WhatsApp link builder
+│           ├── supabase.ts         # Realtime subscription hook
+│           └── useVoice.ts         # Web Audio streaming & VAD hook
+└── mobile/                         # React Native (Expo) Dedicated Mobile App
+    ├── app.json                    # Permissions for background mic & audio
     ├── package.json
-    ├── .env.example
-    ├── plugins/
-    │   └── withWakeWord.js     # Android config plugin for background actions
     └── src/
-        ├── App.tsx             # Tab navigation between Voice & Khata
-        ├── config.ts           # Mobile configuration
-        ├── theme.ts            # High-contrast color tokens
-        ├── services/
-        │   ├── api.ts          # REST client + Supabase Realtime subscription
-        │   ├── voiceSocket.ts  # 16kHz PCM audio streamer & WAV player
-        │   └── wakeWordService.ts # Picovoice Porcupine + Android foreground service
-        └── screens/
-            ├── HomeVoiceScreen.tsx # Giant mic button, 'Hey Dukaan' switch, live draft card
-            └── QuickLedgerScreen.tsx # Debtors summary, search, and recent entries
+        ├── App.tsx                 # Screen preservation tab navigator
+        ├── config.ts               # Mobile API and WebSocket endpoints
+        ├── screens/
+        │   ├── HomeVoiceScreen.tsx # Voice Khata screen with rule warnings
+        │   ├── MemoryScreen.tsx    # Promise memory & rule browser
+        │   ├── QuickLedgerScreen.tsx # Debtors summary & search
+        │   └── ScanScreen.tsx      # Mobile camera document scanner
+        └── services/
+            ├── api.ts              # Mobile HTTP client
+            └── voiceSocket.ts      # WebSocket 16kHz PCM streamer & player
 ```
 
 ---
 
-## 3. Quickstart & Setup Guide
+## 4. Mobile-First Architecture & PWA Readiness
 
-### Option A: Run Full Stack with Docker Compose
-Run the entire backend and PostgreSQL database with `pg_trgm` and seeds in one command:
+DukaanAI is engineered from the ground up to operate as a primary mobile application:
+1. **Viewport Optimization:** `viewportFit: "cover"`, `maximum-scale=1`, and `user-scalable=no` ensure the layout locks cleanly to native device dimensions without zooming artifacts.
+2. **Safe-Area Insets:** Dynamic CSS padding (`env(safe-area-inset-bottom)`) guarantees navigation buttons never overlap with Android navigation bars or iOS home indicator bars.
+3. **Fast Touch Interaction:** `touch-action: manipulation;` and min-height 44px tap targets eliminate the 300ms mobile tap delay.
+4. **Smooth Mobile Navigation:** The bottom navigation bar supports horizontal scrolling with smooth touch deceleration on narrow screens (e.g., 360px Android devices).
+5. **Offline & PWA Installation:** Built-in `manifest.json`, high-resolution icons (192px, 512px, Apple Touch), and service worker (`sw.js`) allow full homescreen installation with standalone display mode.
+
+---
+
+## 5. Environment Variables Reference
+
+### Backend (`backend/.env`)
+| Variable | Description | Default / Example |
+| :--- | :--- | :--- |
+| `DATABASE_URL` | PostgreSQL connection string (asyncpg) | `postgresql+asyncpg://postgres:postgres@localhost:5432/dukaan` |
+| `DEFAULT_SHOP_ID` | Default shop tenant UUID | `00000000-0000-0000-0000-000000000001` |
+| `GEMINI_API_KEY` | Google Gemini API Key | `AIzaSy...` |
+| `GEMINI_MODEL` | Gemini Model version | `gemini-3.1-flash-lite` or `gemini-2.5-flash` |
+| `SPEECH_PROVIDER` | Speech provider (`sarvam`, `gnani`, or `mock`) | `sarvam` |
+| `SARVAM_API_KEY` | Sarvam AI API Key | `...` |
+| `GNANI_API_KEY` | Gnani AI API Key | `...` |
+| `CORS_ORIGINS` | Allowed origins | `http://localhost:3000,http://127.0.0.1:3000,*` |
+| `PORT` | Backend listening port | `8000` |
+
+### Web Frontend (`web/.env.local`)
+| Variable | Description | Default / Example |
+| :--- | :--- | :--- |
+| `NEXT_PUBLIC_API_URL` | Backend HTTP API base URL | `http://localhost:8000` (or `http://localhost:4000/api`) |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase Cloud URL (for live pub/sub) | `https://your-project.supabase.co` |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase Anonymous Client Key | `eyJhbGci...` |
+
+### Mobile App (`mobile/.env`)
+| Variable | Description | Default / Example |
+| :--- | :--- | :--- |
+| `EXPO_PUBLIC_API_URL` | Backend URL accessible from phone | `http://192.168.1.X:8000` or Cloudflare Tunnel URL |
+| `EXPO_PUBLIC_SUPABASE_URL` | Supabase Cloud URL | `https://your-project.supabase.co` |
+| `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Supabase Anonymous Key | `eyJhbGci...` |
+| `EXPO_PUBLIC_PICOVOICE_KEY` | Porcupine wake-word access key | `...` |
+
+---
+
+## 6. Quickstart & Deployment Instructions
+
+### 1. Run Everything with Docker Compose
 ```bash
 cd dukaan-ai
 docker compose up --build
 ```
-- FastAPI Backend: `http://localhost:8000`
-- Interactive API Docs (Swagger): `http://localhost:8000/docs`
-- PostgreSQL Database: `localhost:5432`
+This spins up:
+- PostgreSQL with `pg_trgm` and automatic forward migrations (`001` through `004`) on port 5432.
+- FastAPI Backend on port 8000.
+- Next.js Web App on port 3000.
+
+### 2. Run Manually for Local Development
+
+#### Start Backend:
+```bash
+cd backend
+python -m venv venv
+venv\Scripts\activate  # Windows: venv\Scripts\activate, Linux/macOS: source venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+#### Start Web Frontend:
+```bash
+cd web
+npm install
+npm run dev
+```
+
+#### Start Mobile App (Expo):
+```bash
+cd mobile
+npm install
+npx expo start
+```
+
+### 3. Unified Proxy & Cloudflare Tunnel
+To run both frontend and backend through a single HTTPS port accessible anywhere on mobile:
+```bash
+# Start unified reverse proxy (maps /api and /ws to 8000, and other traffic to 3000):
+node proxy.js
+
+# Start persistent auto-reconnecting tunnel:
+powershell -ExecutionPolicy Bypass -File tunnel_runner.ps1
+```
 
 ---
 
-### Option B: Step-by-Step Manual Setup
+## 7. Verification & Testing
 
-#### Step 1: Database Setup (Supabase or PostgreSQL)
-1. In your [Supabase Dashboard](https://supabase.com) (or local PostgreSQL), open the **SQL Editor**.
-2. Run the migration file:
-   `supabase/migrations/001_init_schema.sql`
-3. This creates:
-   - Extensions: `pg_trgm` and `pgcrypto`
-   - Tables: `shops`, `customers`, `transactions`
-   - Realtime Publication: `transactions` and `customers` added to `supabase_realtime`
-   - Seed data: Default shop (`00000000-0000-0000-0000-000000000001`), demo customers (including duplicate name for disambiguation test: *Ramesh Kumar* and *Ramesh Gowda*), and initial transactions.
+Run the automated test suites:
+```bash
+cd dukaan-ai
 
-#### Step 2: Backend Setup
-1. Navigate to `backend`:
-   ```bash
-   cd backend
-   cp .env.example .env
-   ```
-2. Configure `.env`:
-   ```env
-   DATABASE_URL=postgresql+asyncpg://postgres:postgrespassword@localhost:5432/dukaan
-   DEFAULT_SHOP_ID=00000000-0000-0000-0000-000000000001
-   GEMINI_API_KEY=your_gemini_api_key
-   GEMINI_MODEL=gemini-2.5-flash
-   SPEECH_PROVIDER=sarvam
-   SARVAM_API_KEY=your_sarvam_key
-   ```
-3. Install dependencies and start:
-   ```bash
-   pip install -r requirements.txt
-   uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-   ```
+# Advanced Features Test Suite (24 tests):
+python -m pytest backend/tests/test_advanced_features.py -v
 
-#### Step 3: Web Dashboard Setup
-1. Navigate to `web`:
-   ```bash
-   cd ../web
-   cp .env.example .env.local
-   ```
-2. Configure `.env.local`:
-   ```env
-   NEXT_PUBLIC_API_URL=http://localhost:8000
-   # Optional: For instant real-time sync across devices:
-   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-   ```
-3. Install packages and start development server:
-   ```bash
-   npm install
-   npm run dev
-   ```
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+# Book Scan Vision OCR Test Suite (8 tests):
+python -m pytest backend/tests/test_scans.py -v
 
-#### Step 4: Mobile App (React Native Expo)
-1. Navigate to `mobile`:
-   ```bash
-   cd ../mobile
-   cp .env.example .env
-   ```
-2. In `.env`, set `EXPO_PUBLIC_API_URL` to your computer's local Wi-Fi IP (e.g. `http://192.168.1.50:8000`):
-   ```env
-   EXPO_PUBLIC_API_URL=http://192.168.1.50:8000
-   EXPO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-   EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-   EXPO_PUBLIC_PICOVOICE_KEY=your_picovoice_access_key
-   ```
-3. (Optional for Wake-Word): Download your trained `hey_dukaan_android.ppn` file from [console.picovoice.ai](https://console.picovoice.ai) and place it in `mobile/assets/wake/hey_dukaan_android.ppn`.
-4. Run on Android or iOS development build:
-   ```bash
-   npm install
-   npx expo prebuild
-   npx expo run:android
-   ```
+# Web TypeScript verification:
+cd web && npx tsc --noEmit
+
+# Mobile TypeScript verification:
+cd mobile && npx tsc --noEmit
+```
+
+**Status:** All 32 automated tests pass with 100% success rate.
 
 ---
 
-## 4. Regional Kirana Speech Vocabulary & Testing Prompts
-
-| Intent | Kannada (ಕನ್ನಡ) | Hindi (हिन्दी) | English |
-| :--- | :--- | :--- | :--- |
-| **Record Credit (Udhar)** | *"Ramesh ge 340 rupayi udhar bardu"* | *"Ramesh ka 340 rupaye udhar likho"* | *"Add 340 rupees credit for Ramesh"* |
-| **Record Payment (Jama)** | *"Suresh 200 rupayi kotta, jama maadi"* | *"Suresh ne 200 rupaye diye, jama karo"* | *"Suresh paid 200 rupees, record payment"* |
-| **Disambiguation Query** | *"Ramesh ge 500 udhar"* *(AI: Which Ramesh? Bus stand or temple?)* | *"Ramesh ka 500 udhar"* *(AI: Kaunsa Ramesh?)* | *"500 credit for Ramesh"* |
-| **Check Balance** | *"Anita balance eshtu?"* | *"Anita ka kitna baaki hai?"* | *"What is Anita's outstanding balance?"* |
-| **Explicit Confirmation** | *"Houdu, confirm maadi"* | *"Haan, theek hai"* | *"Yes, confirm"* |
-| **Cancel Draft** | *"Beda, cancel maadi"* | *"Nahi, cancel karo"* | *"No, cancel this"* |
-
----
-
-## 5. REST & WebSocket Protocols
-
-### WebSocket `/ws/voice?language=kn-IN`
-- **Client to Server:**
-  - Raw binary audio frames: 16 kHz mono PCM16
-  - `{"type": "end_utterance"}`: triggers speech-to-text transcription and agent turn
-  - `{"type": "text", "text": "..."}`: typed input without audio
-  - `{"type": "reset"}`: resets conversation history
-- **Server to Client:**
-  - `{"type": "transcript", "text": "..."}`: echoes recognized speech
-  - `{"type": "draft", "draft_id": "...", "customer": "...", "type": "credit", "amount": 340}`
-  - `{"type": "confirmed", "draft_id": "...", "new_balance": 990}`
-  - `{"type": "reply", "text": "..."}`: textual readback
-  - `{"type": "audio", "format": "wav", "data": "<base64_wav>"}`: spoken audio response
-
----
-
-## 6. License
+## 8. License
 MIT License. Built for Indian Kirana Shopkeepers.
