@@ -54,7 +54,7 @@ export type Status =
   | "speaking"
   | "offline";
 
-const SILENCE_MS = 2500; // 2.5s - 3.0s cadence: natural pause buffer so shopkeepers/customers are never cut off mid-sentence
+const SILENCE_MS = 750; // 0.75s pause to auto-submit brisk kirana speech
 const MAX_UTTERANCE_MS = 25000;
 
 function playChime(freq = 587.33, duration = 0.15) {
@@ -95,53 +95,6 @@ export function useVoice(language: string) {
   const [wakeDetected, setWakeDetected] = useState(false);
   const [micActive, setMicActive] = useState(false);
   const micActiveRef = useRef(false);
-  const isSpeakingNativeRef = useRef(false);
-
-  const speakInstantTTS = useCallback((text: string, langCode: string) => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-      return false;
-    }
-    try {
-      window.speechSynthesis.cancel();
-      const clean = text
-        .replace(/\[SILENT\]/gi, "")
-        .replace(/[⚠️🚨🤝📜✓✕•*"]/g, "")
-        .replace(/\s+/g, " ")
-        .trim();
-      if (!clean) return false;
-
-      const u = new SpeechSynthesisUtterance(clean);
-      u.lang = langCode || "hi-IN";
-      u.rate = 1.05;
-
-      const voices = window.speechSynthesis.getVoices();
-      const prefix = (langCode || "hi").split("-")[0].toLowerCase();
-      const match =
-        voices.find((v) => v.lang.toLowerCase() === langCode.toLowerCase()) ||
-        voices.find((v) => v.lang.toLowerCase().startsWith(prefix));
-      if (match) {
-        u.voice = match;
-      }
-
-      isSpeakingNativeRef.current = true;
-      setStatus("speaking");
-
-      u.onend = () => {
-        isSpeakingNativeRef.current = false;
-        setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
-      };
-      u.onerror = () => {
-        isSpeakingNativeRef.current = false;
-        setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
-      };
-
-      window.speechSynthesis.speak(u);
-      return true;
-    } catch {
-      isSpeakingNativeRef.current = false;
-      return false;
-    }
-  }, []);
 
   const ws = useRef<WebSocket | null>(null);
   const rec = useRef<{
@@ -232,15 +185,8 @@ export function useVoice(language: string) {
               setMsgs((x) => [...x, { role: "you", text: m.text }]);
             } else if (m.type === "reply") {
               setMsgs((x) => [...x, { role: "ai", text: m.text }]);
-              if (m.text && m.text !== "[SILENT]") {
-                // Deliberate reading pause (~1200ms): allows shopkeeper to see recognized transcript and read it properly before TTS speaks
-                setTimeout(() => {
-                  const started = speakInstantTTS(m.text, language);
-                  if (!started && statusRef.current === "thinking") {
-                    setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
-                  }
-                }, 1200);
-              } else if (statusRef.current === "thinking") {
+              // If no audio event accompanies reply, return to monitoring
+              if (statusRef.current === "thinking") {
                 setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
               }
             } else if (m.type === "draft") {
@@ -271,23 +217,19 @@ export function useVoice(language: string) {
                 return next;
               });
 
-              // Only play audio WAV if native Web Speech API didn't already speak
-              setTimeout(() => {
-                if (!isSpeakingNativeRef.current) {
-                  try {
-                    const a = new Audio("data:audio/wav;base64," + m.data);
-                    setStatus("speaking");
-                    a.onended = a.onerror = () => {
-                      setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
-                    };
-                    a.play().catch(() => {
-                      setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
-                    });
-                  } catch {
-                    setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
-                  }
-                }
-              }, 1200);
+              try {
+                const a = new Audio("data:audio/wav;base64," + m.data);
+                setStatus("speaking");
+                a.onended = a.onerror = () => {
+                  // After speaking, immediately resume hands-free monitoring!
+                  setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
+                };
+                a.play().catch(() => {
+                  setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
+                });
+              } catch {
+                setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
+              }
             }
           } catch {
             // ignore malformed frame
@@ -295,7 +237,7 @@ export function useVoice(language: string) {
         };
       } catch {
         setStatus("offline");
-        retry = setTimeout(connect, 1200);
+        retry = setTimeout(connect, 1000);
       }
     };
 
@@ -305,16 +247,14 @@ export function useVoice(language: string) {
       closed = true;
       clearTimeout(retry);
       clearInterval(pingTimer);
-      ws.current?.close();
+      try {
+        ws.current?.close();
+      } catch {}
     };
   }, [language]);
 
   // Stop current active utterance and submit to backend
   const stopUtterance = useCallback(() => {
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-    }
-    isSpeakingNativeRef.current = false;
     if (ws.current?.readyState === WebSocket.OPEN) {
       ws.current.send(JSON.stringify({ type: "end_utterance" }));
     }
@@ -353,19 +293,7 @@ export function useVoice(language: string) {
       }
 
       const src = ctx.createMediaStreamSource(stream);
-
-      // Hardware Audio Pre-Filtering: Isolate human vocal frequencies (120Hz - 3600Hz)
-      // High-pass filter strips low-end motor rumble, fan hum, and compressor vibration
-      const highpass = ctx.createBiquadFilter();
-      highpass.type = "highpass";
-      highpass.frequency.setValueAtTime(120, ctx.currentTime);
-
-      // Low-pass filter strips high-end hiss, ambient radio treble, and static
-      const lowpass = ctx.createBiquadFilter();
-      lowpass.type = "lowpass";
-      lowpass.frequency.setValueAtTime(3600, ctx.currentTime);
-
-      const node = ctx.createScriptProcessor(2048, 1, 1);
+      const node = ctx.createScriptProcessor(4096, 1, 1);
 
       // ~400ms circular pre-roll buffer to preserve beginning of words
       const preRollChunks: ArrayBuffer[] = [];
@@ -411,14 +339,10 @@ export function useVoice(language: string) {
           }
 
           // Dukaan Ambient Noise Immunity: Filter distant background customer chatter
-          const vadThreshold = Math.max(0.024, noiseFloor * 2.5);
+          const vadThreshold = Math.max(0.018, noiseFloor * 1.8);
 
           if (isHF && rms > vadThreshold) {
-            // Speech detected hands-free! Cancel any previous speech synthesis immediately
-            if (typeof window !== "undefined" && "speechSynthesis" in window) {
-              window.speechSynthesis.cancel();
-            }
-            isSpeakingNativeRef.current = false;
+            // Speech detected hands-free!
             isSpoken = true;
             utteranceStart = Date.now();
             lastVoice = Date.now();
@@ -441,27 +365,17 @@ export function useVoice(language: string) {
             ws.current.send(pcm.buffer);
           }
 
-          const vadThreshold = Math.max(0.018, noiseFloor * 1.8);
+          const vadThreshold = Math.max(0.015, noiseFloor * 1.5);
           if (rms > vadThreshold) {
             lastVoice = Date.now();
           }
 
           const now = Date.now();
-          // Pause detected for SILENCE_MS (2.5s) -> Deliberate Human Speech Cadence
-          if (isSpoken && now - lastVoice > SILENCE_MS) {
-            if (now - utteranceStart > 600) {
-              // Legitimate spoken sentence -> Auto-submit
-              if (ws.current?.readyState === WebSocket.OPEN) {
-                ws.current.send(JSON.stringify({ type: "end_utterance" }));
-              }
-              setStatus("thinking");
-            } else {
-              // Transient acoustic click or mic bump (<600ms) -> return smoothly to monitoring
-              setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
-            }
-            isSpoken = false;
-            preRollChunks.length = 0;
-          } else if (now - utteranceStart > MAX_UTTERANCE_MS) {
+          // Pause detected for SILENCE_MS (750ms) -> Auto-submit!
+          if (
+            (isSpoken && now - lastVoice > SILENCE_MS) ||
+            now - utteranceStart > MAX_UTTERANCE_MS
+          ) {
             if (ws.current?.readyState === WebSocket.OPEN) {
               ws.current.send(JSON.stringify({ type: "end_utterance" }));
             }
@@ -472,9 +386,7 @@ export function useVoice(language: string) {
         }
       };
 
-      src.connect(highpass);
-      highpass.connect(lowpass);
-      lowpass.connect(node);
+      src.connect(node);
       node.connect(ctx.destination);
       rec.current = { ctx, stream, node, src };
       setMicActive(true);
