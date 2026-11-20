@@ -1,0 +1,2360 @@
+[
+  {
+    "id": 1,
+    "category": "credit_sale",
+    "language": "kn-Latn",
+    "utterance": "Basavaraj ge 340 udhar bardu",
+    "expected": {
+      "customer": "Basavaraj",
+      "amount": 340,
+      "type": "credit",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true,
+      "note": null
+    }
+  },
+  {
+    "id": 2,
+    "category": "credit_sale",
+    "language": "kn-Latn",
+    "utterance": "Kavitha avare account ge 180 baaki haaki",
+    "expected": {
+      "customer": "Kavitha",
+      "amount": 180,
+      "type": "credit",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true,
+      "note": null
+    }
+  },
+  {
+    "id": 3,
+    "category": "credit_sale",
+    "language": "kn-Latn",
+    "utterance": "Harish ge 520 udri barkoli",
+    "expected": {
+      "customer": "Harish",
+      "amount": 520,
+      "type": "credit",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true,
+      "note": null
+    }
+  },
+  {
+    "id": 4,
+    "category": "credit_sale",
+    "language": "kn-IN",
+    "utterance": "ಬಸವರಾಜ್ ಗೆ 450 ಉಧಾರ್ ಬರೆದು ಹಾಕಿ",
+    "expected": {
+      "customer": "Basavaraj",
+      "amount": 450,
+      "type": "credit",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true,
+      "note": null
+    }
+  },
+  {
+    "id": 5,
+    "category": "credit_sale",
+    "language": "kn-IN",
+    "utterance": "ಸಾವಿತ್ರಿ ಅಕ್ಕ ಗೆ 210 ಬಾಕಿ ಬರೆಯಿರಿ",
+    "expected": {
+      "customer": "Savitri",
+      "amount": 210,
+      "type": "credit",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true,
+      "note": null
+    }
+  },
+  {
+    "id": 6,
+    "category": "credit_sale",
+    "language": "hi-Latn",
+    "utterance": "Imran ke khate mein 650 udhaar daal do",
+    "expected": {
+      "customer": "Imran",
+      "amount": 650,
+      "type": "credit",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true,
+      "note": null
+    }
+  },
+  {
+    "id": 7,
+    "category": "credit_sale",
+    "language": "hi-Latn",
+    "utterance": "Meenakshi ko 290 baaki likh do",
+    "expected": {
+      "customer": "Meenakshi",
+      "amount": 290,
+      "type": "credit",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true,
+      "note": null
+    }
+  },
+  {
+    "id": 8,
+    "category": "credit_sale",
+    "language": "hi-IN",
+    "utterance": "दिनेश के खाते में 780 उधार लिख दो",
+    "expected": {
+      "customer": "Dinesh",
+      "amount": 780,
+      "type": "credit",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true,
+      "note": null
+    }
+  },
+  {
+    "id": 9,
+    "category": "credit_sale",
+    "language": "hi-IN",
+    "utterance": "रेखा जी को 145 बाकी डाल दो",
+    "expected": {
+      "customer": "Rekha",
+      "amount": 145,
+      "type": "credit",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true,
+      "note": null
+    }
+  },
+  {
+    "id": 10,
+    "category": "credit_sale",
+    "language": "en-IN",
+    "utterance": "Put 410 on Prakash account as credit",
+    "expected": {
+      "customer": "Prakash",
+      "amount": 410,
+      "type": "credit",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true,
+      "note": null
+    }
+  },
+  {
+    "id": 11,
+    "category": "credit_sale",
+    "language": "en-IN",
+    "utterance": "Add 890 udhar for Naveen",
+    "expected": {
+      "customer": "Naveen",
+      "amount": 890,
+      "type": "credit",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true,
+      "note": null
+    }
+  },
+  {
+    "id": 12,
+    "category": "credit_sale",
+    "language": "ta-IN",
+    "utterance": "Karthik ku 320 kadan ezhudhu",
+    "expected": {
+      "customer": "Karthik",
+      "amount": 320,
+      "type": "credit",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true,
+      "note": null
+    }
+  },
+  {
+    "id": 13,
+    "category": "credit_sale",
+    "language": "te-IN",
+    "utterance": "Padma garu ki 275 appu raayi",
+    "expected": {
+      "customer": "Padma",
+      "amount": 275,
+      "type": "credit",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true,
+      "note": null
+    }
+  },
+  {
+    "id": 14,
+    "category": "credit_sale",
+    "language": "mr-IN",
+    "utterance": "Yogesh chya khatyat 360 udhari liha",
+    "expected": {
+      "customer": "Yogesh",
+      "amount": 360,
+      "type": "credit",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true,
+      "note": null
+    }
+  },
+  {
+    "id": 15,
+    "category": "credit_sale",
+    "language": "hi-Latn",
+    "utterance": "Farida didi 120 udhar, 2 packet doodh",
+    "expected": {
+      "customer": "Farida",
+      "amount": 120,
+      "type": "credit",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true,
+      "note": "2 packet doodh"
+    }
+  },
+  {
+    "id": 16,
+    "category": "credit_sale",
+    "language": "kn-Latn",
+    "utterance": "Ganesh anna ge 550 baaki, 5kg akki",
+    "expected": {
+      "customer": "Ganesh",
+      "amount": 550,
+      "type": "credit",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true,
+      "note": "5kg akki"
+    }
+  },
+  {
+    "id": 17,
+    "category": "credit_sale",
+    "language": "en-IN",
+    "utterance": "Shanta aunty took 2kg sugar and 1L oil, 265 credit",
+    "expected": {
+      "customer": "Shanta",
+      "amount": 265,
+      "type": "credit",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true,
+      "note": "2kg sugar, 1L oil"
+    }
+  },
+  {
+    "id": 18,
+    "category": "credit_sale",
+    "language": "hi-Latn",
+    "utterance": "Vandana ji ko 95 likh do chai patti",
+    "expected": {
+      "customer": "Vandana",
+      "amount": 95,
+      "type": "credit",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true,
+      "note": "chai patti"
+    }
+  },
+  {
+    "id": 19,
+    "category": "credit_sale",
+    "language": "kn-Latn",
+    "utterance": "Mallika ge 130 saala haaki",
+    "expected": {
+      "customer": "Mallika",
+      "amount": 130,
+      "type": "credit",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true,
+      "note": null
+    }
+  },
+  {
+    "id": 20,
+    "category": "credit_sale",
+    "language": "hi-Latn",
+    "utterance": "Tariq bhai ko 440 khate mein daal do",
+    "expected": {
+      "customer": "Tariq",
+      "amount": 440,
+      "type": "credit",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true,
+      "note": null
+    }
+  },
+  {
+    "id": 21,
+    "category": "credit_sale",
+    "language": "en-IN",
+    "utterance": "Record 75 rupees due for Zoya",
+    "expected": {
+      "customer": "Zoya",
+      "amount": 75,
+      "type": "credit",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true,
+      "note": null
+    }
+  },
+  {
+    "id": 22,
+    "category": "credit_sale",
+    "language": "kn-Latn",
+    "utterance": "Shankar uncle ge 610 udhar baredi",
+    "expected": {
+      "customer": "Shankar",
+      "amount": 610,
+      "type": "credit",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true,
+      "note": null
+    }
+  },
+  {
+    "id": 23,
+    "category": "credit_sale",
+    "language": "hi-Latn",
+    "utterance": "Bhavna ka 315 udhaar likho",
+    "expected": {
+      "customer": "Bhavna",
+      "amount": 315,
+      "type": "credit",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true,
+      "note": null
+    }
+  },
+  {
+    "id": 24,
+    "category": "credit_sale",
+    "language": "kn-Latn",
+    "utterance": "Raghu ge 240 baaki bardu",
+    "expected": {
+      "customer": "Raghu",
+      "amount": 240,
+      "type": "credit",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true,
+      "note": null
+    }
+  },
+  {
+    "id": 25,
+    "category": "credit_sale",
+    "language": "en-IN",
+    "utterance": "Geetha credit 500 for groceries",
+    "expected": {
+      "customer": "Geetha",
+      "amount": 500,
+      "type": "credit",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true,
+      "note": "groceries"
+    }
+  },
+  {
+    "id": 26,
+    "category": "payment",
+    "language": "kn-Latn",
+    "utterance": "Basavaraj 500 kottru",
+    "expected": {
+      "customer": "Basavaraj",
+      "amount": 500,
+      "type": "payment",
+      "payment_mode": null,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 27,
+    "category": "payment",
+    "language": "kn-Latn",
+    "utterance": "Kavitha 300 PhonePe maadidru",
+    "expected": {
+      "customer": "Kavitha",
+      "amount": 300,
+      "type": "payment",
+      "payment_mode": "upi",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 28,
+    "category": "payment",
+    "language": "kn-IN",
+    "utterance": "ಹರೀಶ್ 400 ಜಮಾ ಕೊಟ್ಟರು",
+    "expected": {
+      "customer": "Harish",
+      "amount": 400,
+      "type": "payment",
+      "payment_mode": null,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 29,
+    "category": "payment",
+    "language": "hi-Latn",
+    "utterance": "Imran ne 200 PhonePe kiya",
+    "expected": {
+      "customer": "Imran",
+      "amount": 200,
+      "type": "payment",
+      "payment_mode": "upi",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 30,
+    "category": "payment",
+    "language": "hi-Latn",
+    "utterance": "Meenakshi ne 450 GPay se jama kiya",
+    "expected": {
+      "customer": "Meenakshi",
+      "amount": 450,
+      "type": "payment",
+      "payment_mode": "upi",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 31,
+    "category": "payment",
+    "language": "hi-Latn",
+    "utterance": "Dinesh ne 600 Paytm bheja",
+    "expected": {
+      "customer": "Dinesh",
+      "amount": 600,
+      "type": "payment",
+      "payment_mode": "upi",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 32,
+    "category": "payment",
+    "language": "hi-Latn",
+    "utterance": "Rekha ne 350 cash de diya",
+    "expected": {
+      "customer": "Rekha",
+      "amount": 350,
+      "type": "payment",
+      "payment_mode": "cash",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 33,
+    "category": "payment",
+    "language": "hi-Latn",
+    "utterance": "Prakash ne 150 nagad jama kiya",
+    "expected": {
+      "customer": "Prakash",
+      "amount": 150,
+      "type": "payment",
+      "payment_mode": "cash",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 34,
+    "category": "payment",
+    "language": "hi-IN",
+    "utterance": "नवीन ने 500 रुपये जमा किए",
+    "expected": {
+      "customer": "Naveen",
+      "amount": 500,
+      "type": "payment",
+      "payment_mode": null,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 35,
+    "category": "payment",
+    "language": "en-IN",
+    "utterance": "Karthik paid 700 by UPI",
+    "expected": {
+      "customer": "Karthik",
+      "amount": 700,
+      "type": "payment",
+      "payment_mode": "upi",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 36,
+    "category": "payment",
+    "language": "en-IN",
+    "utterance": "Padma gave 250 cash",
+    "expected": {
+      "customer": "Padma",
+      "amount": 250,
+      "type": "payment",
+      "payment_mode": "cash",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 37,
+    "category": "payment",
+    "language": "ta-IN",
+    "utterance": "Yogesh 400 varavu kuduthaaru",
+    "expected": {
+      "customer": "Yogesh",
+      "amount": 400,
+      "type": "payment",
+      "payment_mode": null,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 38,
+    "category": "payment",
+    "language": "te-IN",
+    "utterance": "Farida 300 jama ichhaaru",
+    "expected": {
+      "customer": "Farida",
+      "amount": 300,
+      "type": "payment",
+      "payment_mode": null,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 39,
+    "category": "payment",
+    "language": "kn-Latn",
+    "utterance": "Ganesh 800 Google Pay kottidru",
+    "expected": {
+      "customer": "Ganesh",
+      "amount": 800,
+      "type": "payment",
+      "payment_mode": "upi",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 40,
+    "category": "partial_payment",
+    "language": "hi-Latn",
+    "utterance": "Shanta ne 500 mein se 300 diya, baaki baad mein",
+    "expected": {
+      "customer": "Shanta",
+      "amount": 300,
+      "type": "payment",
+      "payment_mode": null,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 41,
+    "category": "partial_payment",
+    "language": "kn-Latn",
+    "utterance": "Vandana 600 alli 250 kottru, baaki naale",
+    "expected": {
+      "customer": "Vandana",
+      "amount": 250,
+      "type": "payment",
+      "payment_mode": null,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 42,
+    "category": "partial_payment",
+    "language": "en-IN",
+    "utterance": "Mallika paid 400 out of 1000 today by cash",
+    "expected": {
+      "customer": "Mallika",
+      "amount": 400,
+      "type": "payment",
+      "payment_mode": "cash",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 43,
+    "category": "partial_payment",
+    "language": "hi-Latn",
+    "utterance": "Tariq ne 1000 mein se 600 PhonePe kiya",
+    "expected": {
+      "customer": "Tariq",
+      "amount": 600,
+      "type": "payment",
+      "payment_mode": "upi",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 44,
+    "category": "advance",
+    "language": "hi-Latn",
+    "utterance": "Zoya ka 1000 advance rakho",
+    "expected": {
+      "customer": "Zoya",
+      "amount": 1000,
+      "type": "payment",
+      "payment_mode": null,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 45,
+    "category": "advance",
+    "language": "kn-Latn",
+    "utterance": "Shankar 1500 advance mungaada kottru",
+    "expected": {
+      "customer": "Shankar",
+      "amount": 1500,
+      "type": "payment",
+      "payment_mode": null,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 46,
+    "category": "advance",
+    "language": "en-IN",
+    "utterance": "Keep 2000 deposit advance for Bhavna via UPI",
+    "expected": {
+      "customer": "Bhavna",
+      "amount": 2000,
+      "type": "payment",
+      "payment_mode": "upi",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 47,
+    "category": "advance",
+    "language": "hi-Latn",
+    "utterance": "Raghu ne 500 advance jama karwaya cash mein",
+    "expected": {
+      "customer": "Raghu",
+      "amount": 500,
+      "type": "payment",
+      "payment_mode": "cash",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 48,
+    "category": "payment",
+    "language": "kn-Latn",
+    "utterance": "Geetha 300 BHIM UPI jama bantu",
+    "expected": {
+      "customer": "Geetha",
+      "amount": 300,
+      "type": "payment",
+      "payment_mode": "upi",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 49,
+    "category": "payment",
+    "language": "hi-Latn",
+    "utterance": "Savitri ji ne 220 chuka diya",
+    "expected": {
+      "customer": "Savitri",
+      "amount": 220,
+      "type": "payment",
+      "payment_mode": null,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 50,
+    "category": "payment",
+    "language": "en-IN",
+    "utterance": "Received 450 from Basavaraj via QR code",
+    "expected": {
+      "customer": "Basavaraj",
+      "amount": 450,
+      "type": "payment",
+      "payment_mode": "upi",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 51,
+    "category": "full_settlement",
+    "language": "hi-Latn",
+    "utterance": "Imran ka sab clear kar do",
+    "expected": {
+      "customer": "Imran",
+      "payment_mode": null,
+      "is_write_off": false,
+      "tools": [
+        "search_customers",
+        "settle_balance"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 52,
+    "category": "full_settlement",
+    "language": "hi-Latn",
+    "utterance": "Meenakshi ka hisaab chukta ho gaya cash mein",
+    "expected": {
+      "customer": "Meenakshi",
+      "payment_mode": "cash",
+      "is_write_off": false,
+      "tools": [
+        "search_customers",
+        "settle_balance"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 53,
+    "category": "full_settlement",
+    "language": "hi-Latn",
+    "utterance": "Dinesh ka hisaab barabar kar do PhonePe se",
+    "expected": {
+      "customer": "Dinesh",
+      "payment_mode": "upi",
+      "is_write_off": false,
+      "tools": [
+        "search_customers",
+        "settle_balance"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 54,
+    "category": "full_settlement",
+    "language": "kn-Latn",
+    "utterance": "Basavaraj du ellaa clear maadi",
+    "expected": {
+      "customer": "Basavaraj",
+      "payment_mode": null,
+      "is_write_off": false,
+      "tools": [
+        "search_customers",
+        "settle_balance"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 55,
+    "category": "full_settlement",
+    "language": "kn-Latn",
+    "utterance": "Kavitha avaru poora settle maadidru UPI alli",
+    "expected": {
+      "customer": "Kavitha",
+      "payment_mode": "upi",
+      "is_write_off": false,
+      "tools": [
+        "search_customers",
+        "settle_balance"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 56,
+    "category": "full_settlement",
+    "language": "en-IN",
+    "utterance": "Settle Prakash account completely in cash",
+    "expected": {
+      "customer": "Prakash",
+      "payment_mode": "cash",
+      "is_write_off": false,
+      "tools": [
+        "search_customers",
+        "settle_balance"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 57,
+    "category": "full_settlement",
+    "language": "en-IN",
+    "utterance": "Clear full balance for Naveen",
+    "expected": {
+      "customer": "Naveen",
+      "payment_mode": null,
+      "is_write_off": false,
+      "tools": [
+        "search_customers",
+        "settle_balance"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 58,
+    "category": "full_settlement",
+    "language": "hi-IN",
+    "utterance": "रेखा का पूरा हिसाब चुकता कर दो",
+    "expected": {
+      "customer": "Rekha",
+      "payment_mode": null,
+      "is_write_off": false,
+      "tools": [
+        "search_customers",
+        "settle_balance"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 59,
+    "category": "write_off",
+    "language": "hi-Latn",
+    "utterance": "Tariq ka hisaab band karo, bad debt write off",
+    "expected": {
+      "customer": "Tariq",
+      "payment_mode": null,
+      "is_write_off": true,
+      "tools": [
+        "search_customers",
+        "settle_balance"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 60,
+    "category": "write_off",
+    "language": "en-IN",
+    "utterance": "Write off Yogesh unpaid balance permanently",
+    "expected": {
+      "customer": "Yogesh",
+      "payment_mode": null,
+      "is_write_off": true,
+      "tools": [
+        "search_customers",
+        "settle_balance"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 61,
+    "category": "write_off",
+    "language": "kn-Latn",
+    "utterance": "Raghu account close maadi write off",
+    "expected": {
+      "customer": "Raghu",
+      "payment_mode": null,
+      "is_write_off": true,
+      "tools": [
+        "search_customers",
+        "settle_balance"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 62,
+    "category": "write_off",
+    "language": "hi-Latn",
+    "utterance": "Shankar ka pura baaki maaf kar ke band karo",
+    "expected": {
+      "customer": "Shankar",
+      "payment_mode": null,
+      "is_write_off": true,
+      "tools": [
+        "search_customers",
+        "settle_balance"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 63,
+    "category": "adjustment",
+    "language": "hi-Latn",
+    "utterance": "Farida ne wo biscuit wapas kiya, 40 kam karo",
+    "expected": {
+      "customer": "Farida",
+      "amount": 40,
+      "type": "adjustment",
+      "adjustment_reason": "return",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 64,
+    "category": "adjustment",
+    "language": "kn-Latn",
+    "utterance": "Ganesh biscuit packet return maadidru, 60 kadime maadi",
+    "expected": {
+      "customer": "Ganesh",
+      "amount": 60,
+      "type": "adjustment",
+      "adjustment_reason": "return",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 65,
+    "category": "adjustment",
+    "language": "en-IN",
+    "utterance": "Shanta returned 1L oil, reduce 140 from account",
+    "expected": {
+      "customer": "Shanta",
+      "amount": 140,
+      "type": "adjustment",
+      "adjustment_reason": "return",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 66,
+    "category": "adjustment",
+    "language": "hi-Latn",
+    "utterance": "Vandana ka soap wapas aaya, 35 rupaye return adjust karo",
+    "expected": {
+      "customer": "Vandana",
+      "amount": 35,
+      "type": "adjustment",
+      "adjustment_reason": "return",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 67,
+    "category": "adjustment",
+    "language": "hi-IN",
+    "utterance": "मल्लिका ने आटा वापस किया 120 कम करो",
+    "expected": {
+      "customer": "Mallika",
+      "amount": 120,
+      "type": "adjustment",
+      "adjustment_reason": "return",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 68,
+    "category": "adjustment",
+    "language": "hi-Latn",
+    "utterance": "Chillar chhodo, Zoya ke khate se 10 discount kam karo",
+    "expected": {
+      "customer": "Zoya",
+      "amount": 10,
+      "type": "adjustment",
+      "adjustment_reason": "discount",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 69,
+    "category": "adjustment",
+    "language": "en-IN",
+    "utterance": "Give 25 rupees discount adjustment to Bhavna",
+    "expected": {
+      "customer": "Bhavna",
+      "amount": 25,
+      "type": "adjustment",
+      "adjustment_reason": "discount",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 70,
+    "category": "adjustment",
+    "language": "kn-Latn",
+    "utterance": "Geetha ge 15 rupayi discount maadi",
+    "expected": {
+      "customer": "Geetha",
+      "amount": 15,
+      "type": "adjustment",
+      "adjustment_reason": "discount",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 71,
+    "category": "adjustment",
+    "language": "hi-Latn",
+    "utterance": "Padma ji ko 20 rupaye chhoot de do khate mein",
+    "expected": {
+      "customer": "Padma",
+      "amount": 20,
+      "type": "adjustment",
+      "adjustment_reason": "discount",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 72,
+    "category": "adjustment",
+    "language": "en-IN",
+    "utterance": "Round off 12 rupees discount on Karthik ledger",
+    "expected": {
+      "customer": "Karthik",
+      "amount": 12,
+      "type": "adjustment",
+      "adjustment_reason": "discount",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 73,
+    "category": "adjustment",
+    "language": "hi-Latn",
+    "utterance": "Savitri ka kharab doodh return, 55 minus karo",
+    "expected": {
+      "customer": "Savitri",
+      "amount": 55,
+      "type": "adjustment",
+      "adjustment_reason": "return",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 74,
+    "category": "adjustment",
+    "language": "kn-Latn",
+    "utterance": "Harish 30 rupayi chillar discount haaki",
+    "expected": {
+      "customer": "Harish",
+      "amount": 30,
+      "type": "adjustment",
+      "adjustment_reason": "discount",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 75,
+    "category": "adjustment",
+    "language": "hi-Latn",
+    "utterance": "Chillar chhodo, Prakash ka 340 ki jagah 330 udhar likho",
+    "expected": {
+      "customer": "Prakash",
+      "amount": 330,
+      "type": "credit",
+      "adjustment_reason": null,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 76,
+    "category": "adjustment",
+    "language": "kn-Latn",
+    "utterance": "Naveen ge 210 badalu 200 udhar bardu",
+    "expected": {
+      "customer": "Naveen",
+      "amount": 200,
+      "type": "credit",
+      "adjustment_reason": null,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 77,
+    "category": "indian_numbers",
+    "language": "hi-Latn",
+    "utterance": "Imran ko saade teen sau udhar likho",
+    "expected": {
+      "customer": "Imran",
+      "amount": 350,
+      "confirm_required": true,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ]
+    }
+  },
+  {
+    "id": 78,
+    "category": "indian_numbers",
+    "language": "hi-Latn",
+    "utterance": "Meenakshi ko paune do sau udhar daal do",
+    "expected": {
+      "customer": "Meenakshi",
+      "amount": 175,
+      "confirm_required": true,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ]
+    }
+  },
+  {
+    "id": 79,
+    "category": "indian_numbers",
+    "language": "hi-Latn",
+    "utterance": "Dinesh ko dedh sau baaki likh do",
+    "expected": {
+      "customer": "Dinesh",
+      "amount": 150,
+      "confirm_required": true,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ]
+    }
+  },
+  {
+    "id": 80,
+    "category": "indian_numbers",
+    "language": "hi-Latn",
+    "utterance": "Rekha ko dhai sau udhar likho",
+    "expected": {
+      "customer": "Rekha",
+      "amount": 250,
+      "confirm_required": true,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ]
+    }
+  },
+  {
+    "id": 81,
+    "category": "indian_numbers",
+    "language": "hi-Latn",
+    "utterance": "Prakash ne sawa sau diya",
+    "expected": {
+      "customer": "Prakash",
+      "amount": 125,
+      "confirm_required": true,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ]
+    }
+  },
+  {
+    "id": 82,
+    "category": "indian_numbers",
+    "language": "hi-Latn",
+    "utterance": "Naveen ko do hazaar paanch sau udhar",
+    "expected": {
+      "customer": "Naveen",
+      "amount": 2500,
+      "confirm_required": true,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ]
+    }
+  },
+  {
+    "id": 83,
+    "category": "indian_numbers",
+    "language": "hi-Latn",
+    "utterance": "Karthik ne dedh hazaar jama kiya",
+    "expected": {
+      "customer": "Karthik",
+      "amount": 1500,
+      "confirm_required": true,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ]
+    }
+  },
+  {
+    "id": 84,
+    "category": "indian_numbers",
+    "language": "hi-Latn",
+    "utterance": "Padma ko saade paanch sau udhar",
+    "expected": {
+      "customer": "Padma",
+      "amount": 550,
+      "confirm_required": true,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ]
+    }
+  },
+  {
+    "id": 85,
+    "category": "indian_numbers",
+    "language": "hi-Latn",
+    "utterance": "Yogesh ko paune teen sau baaki",
+    "expected": {
+      "customer": "Yogesh",
+      "amount": 275,
+      "confirm_required": true,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ]
+    }
+  },
+  {
+    "id": 86,
+    "category": "indian_numbers",
+    "language": "hi-Latn",
+    "utterance": "Farida ko paune hazaar udhar likho",
+    "expected": {
+      "customer": "Farida",
+      "amount": 750,
+      "confirm_required": true,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ]
+    }
+  },
+  {
+    "id": 87,
+    "category": "indian_numbers",
+    "language": "kn-Latn",
+    "utterance": "Basavaraj ge innooru udhar bardu",
+    "expected": {
+      "customer": "Basavaraj",
+      "amount": 200,
+      "confirm_required": true,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ]
+    }
+  },
+  {
+    "id": 88,
+    "category": "indian_numbers",
+    "language": "kn-Latn",
+    "utterance": "Kavitha ge mooru nooru baaki haaki",
+    "expected": {
+      "customer": "Kavitha",
+      "amount": 300,
+      "confirm_required": true,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ]
+    }
+  },
+  {
+    "id": 89,
+    "category": "indian_numbers",
+    "language": "kn-Latn",
+    "utterance": "Harish aidu nooru kottru",
+    "expected": {
+      "customer": "Harish",
+      "amount": 500,
+      "confirm_required": true,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ]
+    }
+  },
+  {
+    "id": 90,
+    "category": "indian_numbers",
+    "language": "kn-Latn",
+    "utterance": "Savitri ge eradu savira udhar bardu",
+    "expected": {
+      "customer": "Savitri",
+      "amount": 2000,
+      "confirm_required": true,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ]
+    }
+  },
+  {
+    "id": 91,
+    "category": "indian_numbers",
+    "language": "kn-Latn",
+    "utterance": "Ganesh ge naalku nooru baaki",
+    "expected": {
+      "customer": "Ganesh",
+      "amount": 400,
+      "confirm_required": true,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ]
+    }
+  },
+  {
+    "id": 92,
+    "category": "indian_numbers",
+    "language": "hi-Latn",
+    "utterance": "Shanta ko tees rupaye udhar likho",
+    "expected": {
+      "customer": "Shanta",
+      "amount": 30,
+      "confirm_required": true,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ]
+    }
+  },
+  {
+    "id": 93,
+    "category": "indian_numbers",
+    "language": "en-IN",
+    "utterance": "Put thirteen rupees credit for Vandana",
+    "expected": {
+      "customer": "Vandana",
+      "amount": 13,
+      "confirm_required": true,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ]
+    }
+  },
+  {
+    "id": 94,
+    "category": "indian_numbers",
+    "language": "en-IN",
+    "utterance": "Put thirty rupees credit for Mallika",
+    "expected": {
+      "customer": "Mallika",
+      "amount": 30,
+      "confirm_required": true,
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ]
+    }
+  },
+  {
+    "id": 95,
+    "category": "balance",
+    "language": "kn-Latn",
+    "utterance": "Savitri akka ge eshtu baaki ide?",
+    "expected": {
+      "customer": "Savitri",
+      "tools": [
+        "search_customers",
+        "get_balance"
+      ],
+      "confirm_required": false
+    }
+  },
+  {
+    "id": 96,
+    "category": "balance",
+    "language": "hi-Latn",
+    "utterance": "Imran ka kitna baaki hai?",
+    "expected": {
+      "customer": "Imran",
+      "tools": [
+        "search_customers",
+        "get_balance"
+      ],
+      "confirm_required": false
+    }
+  },
+  {
+    "id": 97,
+    "category": "balance",
+    "language": "en-IN",
+    "utterance": "What is Kavitha's pending balance?",
+    "expected": {
+      "customer": "Kavitha",
+      "tools": [
+        "search_customers",
+        "get_balance"
+      ],
+      "confirm_required": false
+    }
+  },
+  {
+    "id": 98,
+    "category": "balance",
+    "language": "hi-IN",
+    "utterance": "दिनेश का हिसाब कितना है?",
+    "expected": {
+      "customer": "Dinesh",
+      "tools": [
+        "search_customers",
+        "get_balance"
+      ],
+      "confirm_required": false
+    }
+  },
+  {
+    "id": 99,
+    "category": "balance",
+    "language": "kn-IN",
+    "utterance": "ಬಸವರಾಜ್ ಬ್ಯಾಲೆನ್ಸ್ ಎಷ್ಟು ಇದೆ?",
+    "expected": {
+      "customer": "Basavaraj",
+      "tools": [
+        "search_customers",
+        "get_balance"
+      ],
+      "confirm_required": false
+    }
+  },
+  {
+    "id": 100,
+    "category": "summary",
+    "language": "hi-Latn",
+    "utterance": "Aaj kitna udhar gaya?",
+    "expected": {
+      "customer": null,
+      "tools": [
+        "get_shop_summary"
+      ],
+      "confirm_required": false
+    }
+  },
+  {
+    "id": 101,
+    "category": "summary",
+    "language": "en-IN",
+    "utterance": "Who owes the most in the shop?",
+    "expected": {
+      "customer": null,
+      "tools": [
+        "get_shop_summary"
+      ],
+      "confirm_required": false
+    }
+  },
+  {
+    "id": 102,
+    "category": "summary",
+    "language": "hi-Latn",
+    "utterance": "Sabse zyada baaki kiska hai?",
+    "expected": {
+      "customer": null,
+      "tools": [
+        "get_shop_summary"
+      ],
+      "confirm_required": false
+    }
+  },
+  {
+    "id": 103,
+    "category": "summary",
+    "language": "kn-Latn",
+    "utterance": "Ivattu eshtu udhar aagide matte collection eshtu?",
+    "expected": {
+      "customer": null,
+      "tools": [
+        "get_shop_summary"
+      ],
+      "confirm_required": false
+    }
+  },
+  {
+    "id": 104,
+    "category": "summary",
+    "language": "en-IN",
+    "utterance": "Show today's UPI and cash collection summary",
+    "expected": {
+      "customer": null,
+      "tools": [
+        "get_shop_summary"
+      ],
+      "confirm_required": false
+    }
+  },
+  {
+    "id": 105,
+    "category": "summary",
+    "language": "hi-Latn",
+    "utterance": "Total dukaan ka kitna udhaar baaki hai?",
+    "expected": {
+      "customer": null,
+      "tools": [
+        "get_shop_summary"
+      ],
+      "confirm_required": false
+    }
+  },
+  {
+    "id": 106,
+    "category": "reminder",
+    "language": "hi-Latn",
+    "utterance": "Harish ko yaad dilao paise ka",
+    "expected": {
+      "customer": "Harish",
+      "tools": [
+        "search_customers",
+        "prepare_reminder"
+      ],
+      "confirm_required": false
+    }
+  },
+  {
+    "id": 107,
+    "category": "reminder",
+    "language": "en-IN",
+    "utterance": "Send a payment reminder to Meenakshi",
+    "expected": {
+      "customer": "Meenakshi",
+      "tools": [
+        "search_customers",
+        "prepare_reminder"
+      ],
+      "confirm_required": false
+    }
+  },
+  {
+    "id": 108,
+    "category": "reminder",
+    "language": "kn-Latn",
+    "utterance": "Prakash ge reminder kalisi",
+    "expected": {
+      "customer": "Prakash",
+      "tools": [
+        "search_customers",
+        "prepare_reminder"
+      ],
+      "confirm_required": false
+    }
+  },
+  {
+    "id": 109,
+    "category": "reminder",
+    "language": "hi-Latn",
+    "utterance": "Rekha ji ko WhatsApp reminder bhejna hai",
+    "expected": {
+      "customer": "Rekha",
+      "tools": [
+        "search_customers",
+        "prepare_reminder"
+      ],
+      "confirm_required": false
+    }
+  },
+  {
+    "id": 110,
+    "category": "reminder",
+    "language": "en-IN",
+    "utterance": "Remind Naveen about his due balance",
+    "expected": {
+      "customer": "Naveen",
+      "tools": [
+        "search_customers",
+        "prepare_reminder"
+      ],
+      "confirm_required": false
+    }
+  },
+  {
+    "id": 111,
+    "category": "dates",
+    "language": "hi-Latn",
+    "utterance": "Kal ka 200 bhi Imran ke khate mein daal do",
+    "expected": {
+      "customer": "Imran",
+      "amount": 200,
+      "date_field": "backdated_to",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 112,
+    "category": "dates",
+    "language": "en-IN",
+    "utterance": "Add yesterday's 350 credit for Kavitha",
+    "expected": {
+      "customer": "Kavitha",
+      "amount": 350,
+      "date_field": "backdated_to",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 113,
+    "category": "dates",
+    "language": "kn-Latn",
+    "utterance": "Ninne du 180 Basavaraj ge udhar haaki",
+    "expected": {
+      "customer": "Basavaraj",
+      "amount": 180,
+      "date_field": "backdated_to",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 114,
+    "category": "dates",
+    "language": "hi-Latn",
+    "utterance": "Parso ka 400 udhar Dinesh ke naam likho",
+    "expected": {
+      "customer": "Dinesh",
+      "amount": 400,
+      "date_field": "backdated_to",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 115,
+    "category": "dates",
+    "language": "kn-Latn",
+    "utterance": "Harish ge 300 udhar, naale kodtini andru",
+    "expected": {
+      "customer": "Harish",
+      "amount": 300,
+      "date_field": "due_date",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 116,
+    "category": "dates",
+    "language": "hi-Latn",
+    "utterance": "Meenakshi 450 udhar, kal de dengi",
+    "expected": {
+      "customer": "Meenakshi",
+      "amount": 450,
+      "date_field": "due_date",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 117,
+    "category": "dates",
+    "language": "en-IN",
+    "utterance": "Prakash 600 credit, will pay on Saturday",
+    "expected": {
+      "customer": "Prakash",
+      "amount": 600,
+      "date_field": "due_date",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 118,
+    "category": "dates",
+    "language": "hi-Latn",
+    "utterance": "Rekha 250 udhar likho, Sunday ko dene wali hain",
+    "expected": {
+      "customer": "Rekha",
+      "amount": 250,
+      "date_field": "due_date",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 119,
+    "category": "dates",
+    "language": "kn-Latn",
+    "utterance": "Naveen 500 baaki, Monday kodtare",
+    "expected": {
+      "customer": "Naveen",
+      "amount": 500,
+      "date_field": "due_date",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 120,
+    "category": "dates",
+    "language": "en-IN",
+    "utterance": "Backdate 150 payment from Karthik to yesterday",
+    "expected": {
+      "customer": "Karthik",
+      "amount": 150,
+      "date_field": "backdated_to",
+      "tools": [
+        "search_customers",
+        "create_draft"
+      ],
+      "confirm_required": true
+    }
+  },
+  {
+    "id": 121,
+    "category": "honorific",
+    "language": "kn-Latn",
+    "utterance": "Savitri akka ge 190 udhar bardu",
+    "expected": {
+      "customer": "Savitri",
+      "amount": 190
+    }
+  },
+  {
+    "id": 122,
+    "category": "honorific",
+    "language": "hi-Latn",
+    "utterance": "Prakash bhaiya ko 280 baaki likho",
+    "expected": {
+      "customer": "Prakash",
+      "amount": 280
+    }
+  },
+  {
+    "id": 123,
+    "category": "honorific",
+    "language": "en-IN",
+    "utterance": "Shankar uncle 310 credit",
+    "expected": {
+      "customer": "Shankar",
+      "amount": 310
+    }
+  },
+  {
+    "id": 124,
+    "category": "honorific",
+    "language": "te-IN",
+    "utterance": "Padma garu ki 160 appu",
+    "expected": {
+      "customer": "Padma",
+      "amount": 160
+    }
+  },
+  {
+    "id": 125,
+    "category": "nickname_landmark",
+    "language": "hi-Latn",
+    "utterance": "Doodh wala Yogesh ko 420 udhar likho",
+    "expected": {
+      "customer": "Yogesh",
+      "amount": 420
+    }
+  },
+  {
+    "id": 126,
+    "category": "nickname_landmark",
+    "language": "en-IN",
+    "utterance": "Temple street Ganesh 230 credit",
+    "expected": {
+      "customer": "Ganesh",
+      "amount": 230
+    }
+  },
+  {
+    "id": 127,
+    "category": "nickname_landmark",
+    "language": "kn-Latn",
+    "utterance": "Auto driver Raghu ge 175 baaki haaki",
+    "expected": {
+      "customer": "Raghu",
+      "amount": 175
+    }
+  },
+  {
+    "id": 128,
+    "category": "nickname_landmark",
+    "language": "hi-Latn",
+    "utterance": "Paan shop Tariq ne 500 jama kiya",
+    "expected": {
+      "customer": "Tariq",
+      "amount": 500
+    }
+  },
+  {
+    "id": 129,
+    "category": "proxy",
+    "language": "hi-Latn",
+    "utterance": "Imran ka beta aaya tha, uske naam 140 udhar likho",
+    "expected": {
+      "customer": "Imran",
+      "amount": 140
+    }
+  },
+  {
+    "id": 130,
+    "category": "proxy",
+    "language": "kn-Latn",
+    "utterance": "Basavaraj avara maga bandiddu, 220 udhar haaki",
+    "expected": {
+      "customer": "Basavaraj",
+      "amount": 220
+    }
+  },
+  {
+    "id": 131,
+    "category": "proxy",
+    "language": "en-IN",
+    "utterance": "Kavitha's driver picked up rice, put 480 on her account",
+    "expected": {
+      "customer": "Kavitha",
+      "amount": 480
+    }
+  },
+  {
+    "id": 132,
+    "category": "proxy",
+    "language": "hi-Latn",
+    "utterance": "Dinesh ki wife aayi thi, 310 khate mein daal do",
+    "expected": {
+      "customer": "Dinesh",
+      "amount": 310
+    }
+  },
+  {
+    "id": 133,
+    "category": "update_customer",
+    "language": "hi-Latn",
+    "utterance": "Harish ka phone number 9876543210 update karo",
+    "expected": {
+      "customer": "Harish",
+      "amount": null
+    }
+  },
+  {
+    "id": 134,
+    "category": "update_customer",
+    "language": "en-IN",
+    "utterance": "Update Geetha landmark to Near Railway Gate",
+    "expected": {
+      "customer": "Geetha",
+      "amount": null
+    }
+  },
+  {
+    "id": 135,
+    "category": "correction",
+    "language": "hi-Latn",
+    "utterance": "Nahi nahi, 430 likho, 340 nahi",
+    "expected": {
+      "amount": 430
+    }
+  },
+  {
+    "id": 136,
+    "category": "correction",
+    "language": "kn-Latn",
+    "utterance": "Alla, 430 antha bardu, 340 alla",
+    "expected": {
+      "amount": 430
+    }
+  },
+  {
+    "id": 137,
+    "category": "correction",
+    "language": "en-IN",
+    "utterance": "No, make it 520 instead",
+    "expected": {
+      "amount": 520
+    }
+  },
+  {
+    "id": 138,
+    "category": "undo",
+    "language": "kn-Latn",
+    "utterance": "Last entry delete maadi",
+    "expected": {
+      "amount": null
+    }
+  },
+  {
+    "id": 139,
+    "category": "undo",
+    "language": "hi-Latn",
+    "utterance": "Pichla entry hatao, galat ho gaya",
+    "expected": {
+      "amount": null
+    }
+  },
+  {
+    "id": 140,
+    "category": "undo",
+    "language": "en-IN",
+    "utterance": "Undo the last transaction for Imran",
+    "expected": {
+      "amount": null
+    }
+  },
+  {
+    "id": 141,
+    "category": "two_amounts",
+    "language": "hi-Latn",
+    "utterance": "Kavitha ne 500 diya aur 340 udhar likho",
+    "expected": {
+      "amount": [
+        500,
+        340
+      ]
+    }
+  },
+  {
+    "id": 142,
+    "category": "two_amounts",
+    "language": "kn-Latn",
+    "utterance": "Basavaraj 300 kottru matte 220 baaki bardu",
+    "expected": {
+      "amount": [
+        300,
+        220
+      ]
+    }
+  },
+  {
+    "id": 143,
+    "category": "two_customers",
+    "language": "en-IN",
+    "utterance": "Harish and Ganesh, 100 rupees credit each",
+    "expected": {
+      "amount": 100
+    }
+  },
+  {
+    "id": 144,
+    "category": "two_customers",
+    "language": "hi-Latn",
+    "utterance": "Rekha aur Savitri dono ke khate mein 150 udhar daal do",
+    "expected": {
+      "amount": 150
+    }
+  },
+  {
+    "id": 145,
+    "category": "confirm_cross_lang",
+    "language": "hi-Latn",
+    "utterance": "Haan theek hai",
+    "expected": {
+      "amount": null
+    }
+  },
+  {
+    "id": 146,
+    "category": "confirm_cross_lang",
+    "language": "kn-Latn",
+    "utterance": "Houdu sari maadi",
+    "expected": {
+      "amount": null
+    }
+  },
+  {
+    "id": 147,
+    "category": "confirm_cross_lang",
+    "language": "ta-IN",
+    "utterance": "Aama confirm pannunga",
+    "expected": {
+      "amount": null
+    }
+  },
+  {
+    "id": 148,
+    "category": "cancel_cross_lang",
+    "language": "kn-Latn",
+    "utterance": "Beda illa cancel maadi",
+    "expected": {
+      "amount": null
+    }
+  },
+  {
+    "id": 149,
+    "category": "interrupted",
+    "language": "hi-Latn",
+    "utterance": "Imran... ek minute... haan Imran ko 270 udhar likho",
+    "expected": {
+      "amount": 270
+    }
+  },
+  {
+    "id": 150,
+    "category": "anomaly_large_amount",
+    "language": "hi-Latn",
+    "utterance": "Meenakshi ko 50000 udhar likh do",
+    "expected": {
+      "amount": 50000
+    }
+  },
+  {
+    "id": 151,
+    "category": "shop_floor_ignore",
+    "language": "hi-Latn",
+    "utterance": "Ek kilo sugar kitne ka hai?",
+    "expected": {
+      "tools": [],
+      "must_not_create_draft": true
+    }
+  },
+  {
+    "id": 152,
+    "category": "shop_floor_ignore",
+    "language": "kn-Latn",
+    "utterance": "Ondu packet haalu eshtu?",
+    "expected": {
+      "tools": [],
+      "must_not_create_draft": true
+    }
+  },
+  {
+    "id": 153,
+    "category": "shop_floor_ignore",
+    "language": "en-IN",
+    "utterance": "What is the price of sunflower oil today?",
+    "expected": {
+      "tools": [],
+      "must_not_create_draft": true
+    }
+  },
+  {
+    "id": 154,
+    "category": "shop_floor_ignore",
+    "language": "hi-Latn",
+    "utterance": "Bhaiya thoda kam karo na, 45 mein de do",
+    "expected": {
+      "tools": [],
+      "must_not_create_draft": true
+    }
+  },
+  {
+    "id": 155,
+    "category": "shop_floor_ignore",
+    "language": "kn-Latn",
+    "utterance": "Namaskara sir, chennagiddira?",
+    "expected": {
+      "tools": [],
+      "must_not_create_draft": true
+    }
+  },
+  {
+    "id": 156,
+    "category": "shop_floor_ignore",
+    "language": "hi-Latn",
+    "utterance": "Main 500 de raha hoon, khulla hai kya?",
+    "expected": {
+      "tools": [],
+      "must_not_create_draft": true
+    }
+  },
+  {
+    "id": 157,
+    "category": "shop_floor_ignore",
+    "language": "kn-Latn",
+    "utterance": "Naanu 200 kodtini, change kodi",
+    "expected": {
+      "tools": [],
+      "must_not_create_draft": true
+    }
+  },
+  {
+    "id": 158,
+    "category": "shop_floor_ignore",
+    "language": "hi-Latn",
+    "utterance": "Haan mummy, main shaam ko ghar aaunga",
+    "expected": {
+      "tools": [],
+      "must_not_create_draft": true
+    }
+  },
+  {
+    "id": 159,
+    "category": "shop_floor_ignore",
+    "language": "en-IN",
+    "utterance": "Keep the biscuit boxes near the back shelf",
+    "expected": {
+      "tools": [],
+      "must_not_create_draft": true
+    }
+  },
+  {
+    "id": 160,
+    "category": "shop_floor_ignore",
+    "language": "hi-Latn",
+    "utterance": "Delivery boy aa gaya, rice ka bora andar rakhwao",
+    "expected": {
+      "tools": [],
+      "must_not_create_draft": true
+    }
+  },
+  {
+    "id": 161,
+    "category": "shop_floor_ignore",
+    "language": "kn-Latn",
+    "utterance": "Ivattu tumbha bisilu ide alva",
+    "expected": {
+      "tools": [],
+      "must_not_create_draft": true
+    }
+  },
+  {
+    "id": 162,
+    "category": "shop_floor_ignore",
+    "language": "hi-Latn",
+    "utterance": "Do packet Maggi aur ek Colgate dena",
+    "expected": {
+      "tools": [],
+      "must_not_create_draft": true
+    }
+  },
+  {
+    "id": 163,
+    "category": "shop_floor_ignore",
+    "language": "en-IN",
+    "utterance": "Hello, good morning",
+    "expected": {
+      "tools": [],
+      "must_not_create_draft": true
+    }
+  },
+  {
+    "id": 164,
+    "category": "shop_floor_ignore",
+    "language": "hi-Latn",
+    "utterance": "ummm... haan...",
+    "expected": {
+      "tools": [],
+      "must_not_create_draft": true
+    }
+  }
+]

@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "DukaanAI",
+    "slug": "dukaan-ai",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#059669"
+    },
+    "plugins": [
+      "./plugins/withWakeWord",
+      "expo-asset"
+    ],
+    "ios": {
+      "bundleIdentifier": "com.dukaanai.app",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "DukaanAI listens to record your khata entries by voice.",
+        "NSCameraUsageDescription": "DukaanAI uses the camera to scan and photograph kirana udhar book pages, receipts and bills.",
+        "NSPhotoLibraryUsageDescription": "DukaanAI allows you to select photo proofs of ledger bills.",
+        "UIBackgroundModes": [
+          "audio"
+        ]
+      }
+    },
+    "android": {
+      "package": "com.dukaanai.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#059669"
+      },
+      "permissions": [
+        "RECORD_AUDIO",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_MICROPHONE",
+        "WAKE_LOCK",
+        "POST_NOTIFICATIONS"
+      ]
+    },
+    "extra": {
+      "eas": {
+        "projectId": "24f3f3c4-c4ed-4067-be83-ed742a081f8b"
+      }
+    }
+  }
+}

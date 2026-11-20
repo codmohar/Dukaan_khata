@@ -1,0 +1,60 @@
+name: Build DukaanAI Standalone Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+          cache-dependency-path: dukaan-ai/mobile/package.json
+
+      - name: ☕ Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 🤖 Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: 📦 Install Mobile Dependencies
+        run: |
+          cd dukaan-ai/mobile
+          npm install
+
+      - name: 🚀 Setup Expo & EAS
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 🔨 Prebuild Android Project
+        run: |
+          cd dukaan-ai/mobile
+          npx expo prebuild --platform android
+
+      - name: 🏗️ Assemble Release APK
+        run: |
+          cd dukaan-ai/mobile/android
+          ./gradlew assembleRelease --no-daemon
+
+      - name: 📤 Upload Standalone APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DukaanAI-Standalone-APK
+          path: dukaan-ai/mobile/android/app/build/outputs/apk/release/*.apk
+

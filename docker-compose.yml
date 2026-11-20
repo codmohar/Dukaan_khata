@@ -1,0 +1,45 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: dukaan-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: dukaan
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./supabase/migrations/001_init_schema.sql:/docker-entrypoint-initdb.d/001_init_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d dukaan"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dukaan-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgrespassword@db:5432/dukaan
+      - DEFAULT_SHOP_ID=00000000-0000-0000-0000-000000000001
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.5-flash}
+      - SPEECH_PROVIDER=${SPEECH_PROVIDER:-sarvam}
+      - SARVAM_API_KEY=${SARVAM_API_KEY:-}
+      - GNANI_API_KEY=${GNANI_API_KEY:-}
+      - GNANI_STT_URL=${GNANI_STT_URL:-https://api.gnani.ai/v3/speech-to-text}
+      - GNANI_TTS_URL=${GNANI_TTS_URL:-https://api.gnani.ai/v3/text-to-speech}
+      - CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,*
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

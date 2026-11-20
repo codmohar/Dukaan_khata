@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <rect width="512" height="512" rx="128" fill="#059669"/>
+  <!-- Ledger book / Dukaan icon -->
+  <path d="M140 120H372C383.046 120 392 128.954 392 140V372C392 383.046 383.046 392 372 392H140C128.954 392 120 383.046 120 372V140C120 128.954 128.954 120 140 120Z" fill="white" fill-opacity="0.95"/>
+  <rect x="246" y="120" width="20" height="272" fill="#047857"/>
+  <!-- Microphone badge in center -->
+  <circle cx="256" cy="256" r="64" fill="#059669"/>
+  <rect x="246" y="224" width="20" height="40" rx="10" fill="white"/>
+  <path d="M236 244C236 255.046 244.954 264 256 264C267.046 264 276 255.046 276 244" stroke="white" stroke-width="6" stroke-linecap="round"/>
+  <line x1="256" y1="264" x2="256" y2="284" stroke="white" stroke-width="6" stroke-linecap="round"/>
+  <line x1="244" y1="284" x2="268" y2="284" stroke="white" stroke-width="6" stroke-linecap="round"/>
+</svg>
+
