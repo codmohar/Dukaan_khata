@@ -718,7 +718,7 @@ async def ws_voice_endpoint(
                 if kind == "end_utterance":
                     pcm = bytes(buf)
                     buf.clear()
-                    if len(pcm) < 3200:  # < 100 ms of audio: ignore noise
+                    if len(pcm) < 16000:  # < 500 ms of audio: ignore transient pops and clicks
                         await send_json({"type": "noop"})
                         continue
                     user_text = await sess.transcribe(pcm)
@@ -729,7 +729,7 @@ async def ws_voice_endpoint(
                         await send_json({"type": "noop"})
                         continue
                     audio_bytes = base64.b64decode(raw_b64)
-                    if len(audio_bytes) < 1000:
+                    if len(audio_bytes) < 16000:  # < 500 ms of audio
                         await send_json({"type": "noop"})
                         continue
                     user_text = await sess.transcribe(audio_bytes)
@@ -740,8 +740,8 @@ async def ws_voice_endpoint(
                 else:
                     continue
 
-                if not user_text:
-                    await send_json({"type": "error", "message": "Could not recognize any speech. Please repeat."})
+                if not user_text or len(user_text.strip()) <= 1:
+                    await send_json({"type": "noop"})
                     continue
 
                 # Echo transcript to client

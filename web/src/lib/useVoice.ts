@@ -54,7 +54,7 @@ export type Status =
   | "speaking"
   | "offline";
 
-const SILENCE_MS = 500; // 0.5s pause to auto-submit brisk kirana speech (<2s turn latency)
+const SILENCE_MS = 2500; // 2.5s - 3.0s cadence: natural pause buffer so shopkeepers/customers are never cut off mid-sentence
 const MAX_UTTERANCE_MS = 25000;
 
 function playChime(freq = 587.33, duration = 0.15) {
@@ -233,10 +233,13 @@ export function useVoice(language: string) {
             } else if (m.type === "reply") {
               setMsgs((x) => [...x, { role: "ai", text: m.text }]);
               if (m.text && m.text !== "[SILENT]") {
-                const started = speakInstantTTS(m.text, language);
-                if (!started && statusRef.current === "thinking") {
-                  setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
-                }
+                // Deliberate reading pause (~1200ms): allows shopkeeper to see recognized transcript and read it properly before TTS speaks
+                setTimeout(() => {
+                  const started = speakInstantTTS(m.text, language);
+                  if (!started && statusRef.current === "thinking") {
+                    setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
+                  }
+                }, 1200);
               } else if (statusRef.current === "thinking") {
                 setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
               }
@@ -269,20 +272,22 @@ export function useVoice(language: string) {
               });
 
               // Only play audio WAV if native Web Speech API didn't already speak
-              if (!isSpeakingNativeRef.current) {
-                try {
-                  const a = new Audio("data:audio/wav;base64," + m.data);
-                  setStatus("speaking");
-                  a.onended = a.onerror = () => {
+              setTimeout(() => {
+                if (!isSpeakingNativeRef.current) {
+                  try {
+                    const a = new Audio("data:audio/wav;base64," + m.data);
+                    setStatus("speaking");
+                    a.onended = a.onerror = () => {
+                      setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
+                    };
+                    a.play().catch(() => {
+                      setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
+                    });
+                  } catch {
                     setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
-                  };
-                  a.play().catch(() => {
-                    setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
-                  });
-                } catch {
-                  setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
+                  }
                 }
-              }
+              }, 1200);
             }
           } catch {
             // ignore malformed frame
@@ -442,11 +447,21 @@ export function useVoice(language: string) {
           }
 
           const now = Date.now();
-          // Pause detected for SILENCE_MS (1.4s) -> Auto-submit!
-          if (
-            (isSpoken && now - lastVoice > SILENCE_MS) ||
-            now - utteranceStart > MAX_UTTERANCE_MS
-          ) {
+          // Pause detected for SILENCE_MS (2.5s) -> Deliberate Human Speech Cadence
+          if (isSpoken && now - lastVoice > SILENCE_MS) {
+            if (now - utteranceStart > 600) {
+              // Legitimate spoken sentence -> Auto-submit
+              if (ws.current?.readyState === WebSocket.OPEN) {
+                ws.current.send(JSON.stringify({ type: "end_utterance" }));
+              }
+              setStatus("thinking");
+            } else {
+              // Transient acoustic click or mic bump (<600ms) -> return smoothly to monitoring
+              setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
+            }
+            isSpoken = false;
+            preRollChunks.length = 0;
+          } else if (now - utteranceStart > MAX_UTTERANCE_MS) {
             if (ws.current?.readyState === WebSocket.OPEN) {
               ws.current.send(JSON.stringify({ type: "end_utterance" }));
             }
