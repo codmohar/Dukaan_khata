@@ -367,7 +367,8 @@ CASH_PATTERN = re.compile(
 # Indian honorifics stripped from names
 HONORIFICS = {
     "anna", "akka", "bhaiya", "bhayya", "bhai", "didi", "sir", "madam", "maam",
-    "uncle", "aunty", "ji", "saab", "sahab", "avare", "avaru", "amma", "appa",
+    "uncle", "aunty", "ji", "saab", "sahab", "avare", "avaru", "avar", "amma", "appa",
+    "babu", "shetr", "seth", "sethji", "bhaiji",
     # Devanagari honorifics
     "जी", "भाई", "भैया", "दीदी", "अंकल", "आंटी", "सर", "मैडम", "साहब", "अण्णा", "बाबू",
     # Kannada honorifics
@@ -389,6 +390,8 @@ STOPWORDS = {
     "aapka", "apka", "kul", "total", "bill", "bana", "itna", "hoya", "aaythu", "aagide", "aaitu", "tum", "hi", "ho",
     "nahi", "nahin", "alla", "beda", "nako", "no", "mat", "cancel", "hatao",
     "bariyiri", "bari", "bariyiro", "haakri", "haakiro",
+    "sell", "becho", "bechna", "kharido", "kharid", "buy", "liya", "liye", "diye", "packet", "piece", "kilo", "kg", "gm", "litre", "ltr", "rate", "bhav", "price", "cost",
+    "phonepe", "gpay", "paytm", "upi", "bhim", "cash", "online", "qr", "cheque", "pelam", "loan", "cashloan", "er",
     # 14 languages markers & postpositions
     "kitta", "irundhu", "ku", "roobai", "vanginen", "kuduthen", "podunga", "ezhudhu",
     "nunchi", "ki", "rupayalu", "techukunnanu", "ichanu", "rayandi", "ochindi",
@@ -419,29 +422,31 @@ class FastPathResult:
 
 
 def _extract_name_tokens(text: str) -> List[str]:
-    """Cleanly extract customer name tokens: strips punctuation, numbers, honorifics, kirana items/brands, and attached postpositions while preserving Indic scripts."""
+    """Dynamically extract any customer name: strips punctuation, numbers, honorifics,
+    transaction verbs (dena, lena, udhar, sell, buy), and attached postpositions.
+    Supports ALL names across all Indian languages without hardcoding selected names.
+    """
     cleaned_punct = re.sub(r"[\u0964\u0965.,?!;:\"'()\[\]{}\-—_]", " ", text)
-    words = re.sub(r"[^\w\s\u0900-\u097F\u0C80-\u0CFF]", " ", cleaned_punct).split()
+    words = cleaned_punct.split()
     tokens = []
     for raw in words:
         w = raw.strip()
         lower = w.lower()
 
-        # Skip stopwords, honorifics, kirana products/brands, and numbers
+        # Skip stopwords (transaction verbs, buy/sell context), honorifics, kirana items, and numbers
         if (
             lower in STOPWORDS
             or lower in HONORIFICS
             or lower in KIRANA_ITEMS
-            or any(item in lower for item in ("parle", "maggi", "lays", "kurkure", "biscuit", "sugar", "cheeni", "atta", "doodh", "milk", "chawal", "rice", "dal", "soap", "sabun"))
             or w.isdigit()
             or len(w) <= 1
         ):
             continue
 
-        # Strip attached postpositions/suffixes (e.g. Rameshge -> Ramesh, Lakshmige -> Lakshmi, Rameshne -> Ramesh)
+        # Strip attached postpositions/suffixes (e.g. Rameshge -> Ramesh, Lakshmige -> Lakshmi, Manjunathavarige -> Manjunath, Deepakko -> Deepak)
         cleaned = w
         if len(cleaned) > 4:
-            for suf in ["ige", "inda", "ge", "ne", "ko", "ka", "ki", "ke"]:
+            for suf in ["avarige", "inda", "ige", "ge", "ne", "ko", "ka", "ki", "ke", "er"]:
                 if cleaned.lower().endswith(suf) and len(cleaned) > len(suf) + 2:
                     cleaned = cleaned[:-len(suf)]
                     break
@@ -450,7 +455,6 @@ def _extract_name_tokens(text: str) -> List[str]:
             cleaned.lower() not in STOPWORDS
             and cleaned.lower() not in HONORIFICS
             and cleaned.lower() not in KIRANA_ITEMS
-            and not any(item in cleaned.lower() for item in ("parle", "maggi", "lays", "kurkure", "biscuit", "sugar", "cheeni", "atta", "doodh", "milk", "chawal", "rice", "dal", "soap", "sabun"))
             and len(cleaned) > 1
         ):
             tokens.append(cleaned)
@@ -467,21 +471,64 @@ def _detect_payment_mode(text: str) -> Optional[str]:
 
 
 def _pick_best_match(matches: List[Dict[str, Any]], query_name: str) -> Tuple[Optional[Dict[str, Any]], List[Dict[str, Any]]]:
-    """If exact case-insensitive match exists among candidates, pick it; else require disambiguation if multiple."""
-    if not matches:
+    """Filter candidate customers for genuine name matches.
+    If no candidate genuinely matches query_name, returns (None, []) so a new customer is created dynamically.
+    Does not assume selected names or force unrelated database matches onto new customers.
+    """
+    if not matches or not query_name:
         return None, []
-    if len(matches) == 1:
-        return matches[0], []
 
     clean_q = query_name.strip().lower()
-    exact = [m for m in matches if m.get("name", "").strip().lower() == clean_q]
-    if len(exact) == 1:
-        return exact[0], []
+    q_words = clean_q.split()
 
-    if len(exact) > 1:
-        return None, exact
+    genuine_matches: List[Dict[str, Any]] = []
+    exact_matches: List[Dict[str, Any]] = []
 
-    return None, matches
+    for m in matches:
+        m_name = (m.get("name") or "").strip().lower()
+        m_words = m_name.split()
+        m_score = float(m.get("score") or 0.0)
+
+        # 1. Exact match (case-insensitive)
+        if m_name == clean_q:
+            exact_matches.append(m)
+            genuine_matches.append(m)
+            continue
+
+        # 2. First name match (e.g. query "Ramesh" -> candidate "Ramesh Kumar" or "Ramesh Gowda")
+        if m_words and m_words[0] == clean_q:
+            genuine_matches.append(m)
+            continue
+
+        # 3. Query is multi-word and matches candidate prefix or candidate starts with query
+        if len(q_words) > 1 and (m_name.startswith(clean_q) or clean_q.startswith(m_name)):
+            genuine_matches.append(m)
+            continue
+
+        # 4. Word boundary match
+        if clean_q in m_words:
+            genuine_matches.append(m)
+            continue
+
+        # 5. High fuzzy score (at least 0.65 similarity for minor spelling/transliteration differences)
+        if m_score >= 0.65:
+            genuine_matches.append(m)
+            continue
+
+    if len(exact_matches) == 1:
+        return exact_matches[0], []
+    if len(exact_matches) > 1:
+        return None, exact_matches
+
+    if not genuine_matches:
+        # No existing customer genuinely matches this name! It is a NEW customer!
+        return None, []
+
+    if len(genuine_matches) == 1:
+        return genuine_matches[0], []
+
+    # Multiple genuine matches (e.g. query "Ramesh" matched both "Ramesh Kumar" and "Ramesh Gowda")
+    return None, genuine_matches
 
 
 def extract_corrected_amount(text: str) -> Optional[float]:
@@ -1504,23 +1551,16 @@ async def try_fast_path(
                 return FastPathResult(handled=True, reply=msg)
 
             else:
-                has_ledger_context = any(w in lower for w in [
-                    "naya", "naye", "hosa", "new", "khata", "hisaab", "hisab", "graahaka", "customer", "likho", "likh", "daal",
-                    "खाता", "हिसाब", "नया", "नये", "ग्राहक", "लिखो", "डालो", "ಖಾತೆ", "ಲೆಕ್ಕ"
-                ])
-                if has_ledger_context:
-                    if sess:
-                        sess.active_customer_name = cust_name
-                        sess.active_customer_id = None
+                # Dynamic New Customer: Any name spoken is accepted and tracked in session
+                if sess:
+                    sess.active_customer_name = cust_name
+                    sess.active_customer_id = None
 
-                    if lang.startswith("kn"):
-                        msg = f"Hosa graahaka {cust_name} avarige eshtu udhar athava jama baribeku?"
-                    else:
-                        msg = f"Naye customer {cust_name} ke naam kitna udhar ya payment likhna hai?"
-                    return FastPathResult(handled=True, reply=msg)
+                if lang.startswith("kn"):
+                    msg = f"Hosa graahaka {cust_name} avarige eshtu udhar athava jama baribeku?"
                 else:
-                    # Let Gemini Flash LLM disambiguate, search, or handle contextually
-                    return FastPathResult(handled=False)
+                    msg = f"Naye customer {cust_name} ke naam kitna udhar ya payment likhna hai?"
+                return FastPathResult(handled=True, reply=msg)
 
     # ---------------------------------------------------------
     # 16. PARTIAL INPUT: Amount & Type only (No Customer Name)
