@@ -13,6 +13,11 @@ from ..config import settings
 from ..db import SessionLocal
 from ..services import speech
 from . import tools
+from .conversation_cache import (
+    ConversationContextCache,
+    ConversationState,
+    ShopConversationCacheManager,
+)
 from .fast_engine import try_fast_path
 from .llm_provider import BaseLLMProvider, get_llm_provider
 from .prompts import SYSTEM_PROMPT
@@ -59,6 +64,17 @@ class VoiceSession:
         self.pending_bill_item: str | None = None
         self.greeting_given: bool = False
 
+        # Rolling conversation context cache for multi-turn counter interactions
+        self.cache = ShopConversationCacheManager.get_cache(self.shop_id)
+        if self.cache.active_customer_name:
+            self.active_customer_name = self.cache.active_customer_name
+        if self.cache.pending_bill_amount:
+            self.pending_bill_amount = self.cache.pending_bill_amount
+        if self.cache.pending_bill_item:
+            self.pending_bill_item = self.cache.pending_bill_item
+        if self.cache.last_draft_id:
+            self.last_draft_id = self.cache.last_draft_id
+
     async def transcribe(self, pcm: bytes) -> str:
         """Convert raw 16kHz PCM audio to text."""
         return await speech.transcribe(pcm, self.language)
@@ -74,6 +90,7 @@ class VoiceSession:
         """
         self.turn += 1
         events: List[Dict[str, Any]] = []
+        self.cache.add_turn(role="user", text=user_text)
 
         # Keep recent sliding window cleanly aligned on a user text turn boundary
         if len(self.history) > 36:
@@ -104,10 +121,13 @@ class VoiceSession:
                     if ev.get("type") == "draft":
                         self.last_draft_id = ev.get("draft_id")
                         self.draft_turn[ev["draft_id"]] = self.turn
+                        self.cache.last_draft_id = ev.get("draft_id")
                     elif ev.get("type") in ("confirmed", "cancelled"):
                         self.last_draft_id = None
+                        self.cache.last_draft_id = None
             if fast_res.reply != "[SILENT]":
                 self.history.append({"role": "model", "parts": [{"text": fast_res.reply}]})
+                self.cache.add_turn(role="assistant", text=fast_res.reply)
             return fast_res.reply, fast_res.events
 
         IST = ZoneInfo("Asia/Kolkata")

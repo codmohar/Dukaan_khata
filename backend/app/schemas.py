@@ -133,6 +133,8 @@ class VoiceTurnResponse(BaseModel):
     reply: str
     audio_base64: str | None = None
     events: list[dict] = Field(default_factory=list)
+    structured: dict[str, Any] | None = None
+    cache_state: dict[str, Any] | None = None
 
 
 # -------------------- ADVANCED FEATURES SCHEMAS --------------------

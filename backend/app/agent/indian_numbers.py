@@ -138,10 +138,36 @@ def extract_indian_amount(text: str) -> float | None:
     norm_text = text.translate(INDIC_DIGITS_MAP)
     norm_text = re.sub(r"(?<=\d),(?=\d)", "", norm_text)
 
-    # Fall back to explicit digits (ignore 10-digit phone numbers)
-    for m in re.finditer(r"(?<!\d)(\d{1,7}(?:\.\d{1,2})?)(?!\d)", norm_text):
+    # 1. Prefer explicit currency marker association (e.g. "20 rupayi", "₹50", "Rs 100", "50 rupaye")
+    cur_match = re.search(
+        r"(?:rs\.?|inr|₹)\s*(\d{1,7}(?:\.\d{1,2})?)|"
+        r"(\d{1,7}(?:\.\d{1,2})?)\s*(?:rupayi|rupaye|rupae|rupai|rupiya|rupya|rupay|rupayya|roopayi|roopaye|rupee|rupees|rs|inr|₹|taka|tanka|rooba|roobai)",
+        norm_text,
+        re.I,
+    )
+    if cur_match:
+        val_str = cur_match.group(1) or cur_match.group(2)
+        if val_str:
+            return float(val_str)
+
+    # 2. Extract digits, filtering out product quantity prefixes (e.g. "1 packet biscuit 20" -> 20)
+    all_digit_matches = list(re.finditer(r"(?<!\d)(\d{1,7}(?:\.\d{1,2})?)(?!\d)", norm_text))
+    valid_numbers: list[tuple[float, bool]] = []
+    for m in all_digit_matches:
         token = m.group(1)
         if len(token.split(".")[0]) >= 9:
             continue
-        return float(token)
+        val = float(token)
+        # Check if immediately followed by quantity words
+        after_text = norm_text[m.end():m.end() + 15].strip().lower()
+        is_qty = bool(re.match(r"^(?:packet|pkt|kilo|kg|gm|piece|pc|pcs|dabba|pouch|ltr|liter|litre|glass|cup)\b", after_text))
+        valid_numbers.append((val, is_qty))
+
+    if valid_numbers:
+        # If there's a non-quantity number, prefer it (e.g. in "1 packet biscuit 20", pick 20)
+        non_qty = [v for v, is_q in valid_numbers if not is_q]
+        if non_qty:
+            return non_qty[0]
+        return valid_numbers[0][0]
+
     return None

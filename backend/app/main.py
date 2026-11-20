@@ -650,6 +650,7 @@ async def process_voice_turn(
         reply=reply,
         audio_base64=audio_b64,
         events=events,
+        cache_state=sess.cache.to_dict() if hasattr(sess, "cache") else None,
     )
 
 
@@ -760,8 +761,12 @@ async def ws_voice_endpoint(
                 for ev in events:
                     await send_json(ev)
 
-                # Emit final assistant textual reply
-                await send_json({"type": "reply", "text": reply})
+                # Emit final assistant textual reply with conversation cache context
+                await send_json({
+                    "type": "reply",
+                    "text": reply,
+                    "cache_state": sess.cache.to_dict() if hasattr(sess, "cache") else None,
+                })
 
                 # Synthesize and stream speech audio WAV
                 try:
