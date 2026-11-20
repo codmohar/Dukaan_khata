@@ -292,6 +292,44 @@ def build_eval_dataset() -> list[dict]:
     for lang, utt in ignore_samples:
         add("shop_floor_ignore", lang, utt, {"tools": [], "must_not_create_draft": True})
 
+    # 11. SUPPLIER PAYABLES, SHOP EXPENSES & CASH BOOK (Separate flows, not customer ledger) - 8 cases
+    supplier_samples = [
+        ("hi-Latn", "Distributor ko 12,000 dena hai", "supplier_payable", 12000),
+        ("hi-Latn", "Rice wale ko 5000 diya", "supplier_payment", 5000),
+        ("hi-Latn", "Bijli bill 1800 de do", "shop_expense", 1800),
+        ("hi-Latn", "Hamaal 300 diya", "shop_expense", 300),
+        ("hi-Latn", "Aaj 8000 ka dhanda hua", "daily_cash_book", 8000),
+        ("hi-Latn", "Mahine ka hisaab karna hai", "month_end_settlement", None),
+        ("hi-Latn", "Sugar supplier Somvaar ko aayega", "supplier_delivery", None),
+        ("hi-Latn", "Geetha ke liye kal 2 packet rice rakhna", "goods_reservation", None),
+    ]
+    for lang, utt, sub, amt in supplier_samples:
+        add(sub, lang, utt, {"amount": amt, "customer_ledger": False})
+
+    # 12. NOISE, RADIO & SONG IMMUNITY - 6 cases
+    noise_samples = [
+        ("hi-Latn", "kyunki tum hi ho ab tum hi ho zindagi ab tum hi ho", "song_lyrics", "[SILENT]"),
+        ("hi-Latn", "Parle ji aapka 20 hua tum hi ho", "song_with_command", "triage"),
+        ("hi-Latn", "Radio City 91.1 FM superhit gaana bajao", "radio_noise", "[SILENT]"),
+        ("hi-Latn", "Match kaun jeeta bhai score kya hua", "ambient_cricket", "[SILENT]"),
+        ("hi-Latn", "Chai banao teen cup auto gaadi roko", "ambient_gossip", "[SILENT]"),
+        ("hi-Latn", "Doodh packet aapka 30 hua", "counter_bill", "triage"),
+    ]
+    for lang, utt, sub, exp_type in noise_samples:
+        add(sub, lang, utt, {"expected_type": exp_type})
+
+    # 13. TRILEMMA COUNTER FLOW - 6 cases
+    trilemma_samples = [
+        ("hi-Latn", "Aapka 50 hua", "counter_bill_tally", 50),
+        ("hi-Latn", "20 nahi 50", "counter_correction", 50),
+        ("hi-Latn", "Udhar likh do Farhan", "assign_credit", "Farhan"),
+        ("hi-Latn", "Kal dega Farhan", "assign_promise", "Farhan"),
+        ("hi-Latn", "Ye lo cash 50", "paid_sale_cash", 50),
+        ("hi-Latn", "50 Google Pay kar diya", "paid_sale_upi", 50),
+    ]
+    for lang, utt, sub, val in trilemma_samples:
+        add(sub, lang, utt, {"value": val})
+
     return cases
 
 

@@ -2356,5 +2356,193 @@
       "tools": [],
       "must_not_create_draft": true
     }
+  },
+  {
+    "id": 165,
+    "category": "supplier_payable",
+    "language": "hi-Latn",
+    "utterance": "Distributor ko 12,000 dena hai",
+    "expected": {
+      "amount": 12000,
+      "customer_ledger": false
+    }
+  },
+  {
+    "id": 166,
+    "category": "supplier_payment",
+    "language": "hi-Latn",
+    "utterance": "Rice wale ko 5000 diya",
+    "expected": {
+      "amount": 5000,
+      "customer_ledger": false
+    }
+  },
+  {
+    "id": 167,
+    "category": "shop_expense",
+    "language": "hi-Latn",
+    "utterance": "Bijli bill 1800 de do",
+    "expected": {
+      "amount": 1800,
+      "customer_ledger": false
+    }
+  },
+  {
+    "id": 168,
+    "category": "shop_expense",
+    "language": "hi-Latn",
+    "utterance": "Hamaal 300 diya",
+    "expected": {
+      "amount": 300,
+      "customer_ledger": false
+    }
+  },
+  {
+    "id": 169,
+    "category": "daily_cash_book",
+    "language": "hi-Latn",
+    "utterance": "Aaj 8000 ka dhanda hua",
+    "expected": {
+      "amount": 8000,
+      "customer_ledger": false
+    }
+  },
+  {
+    "id": 170,
+    "category": "month_end_settlement",
+    "language": "hi-Latn",
+    "utterance": "Mahine ka hisaab karna hai",
+    "expected": {
+      "amount": null,
+      "customer_ledger": false
+    }
+  },
+  {
+    "id": 171,
+    "category": "supplier_delivery",
+    "language": "hi-Latn",
+    "utterance": "Sugar supplier Somvaar ko aayega",
+    "expected": {
+      "amount": null,
+      "customer_ledger": false
+    }
+  },
+  {
+    "id": 172,
+    "category": "goods_reservation",
+    "language": "hi-Latn",
+    "utterance": "Geetha ke liye kal 2 packet rice rakhna",
+    "expected": {
+      "amount": null,
+      "customer_ledger": false
+    }
+  },
+  {
+    "id": 173,
+    "category": "song_lyrics",
+    "language": "hi-Latn",
+    "utterance": "kyunki tum hi ho ab tum hi ho zindagi ab tum hi ho",
+    "expected": {
+      "expected_type": "[SILENT]"
+    }
+  },
+  {
+    "id": 174,
+    "category": "song_with_command",
+    "language": "hi-Latn",
+    "utterance": "Parle ji aapka 20 hua tum hi ho",
+    "expected": {
+      "expected_type": "triage"
+    }
+  },
+  {
+    "id": 175,
+    "category": "radio_noise",
+    "language": "hi-Latn",
+    "utterance": "Radio City 91.1 FM superhit gaana bajao",
+    "expected": {
+      "expected_type": "[SILENT]"
+    }
+  },
+  {
+    "id": 176,
+    "category": "ambient_cricket",
+    "language": "hi-Latn",
+    "utterance": "Match kaun jeeta bhai score kya hua",
+    "expected": {
+      "expected_type": "[SILENT]"
+    }
+  },
+  {
+    "id": 177,
+    "category": "ambient_gossip",
+    "language": "hi-Latn",
+    "utterance": "Chai banao teen cup auto gaadi roko",
+    "expected": {
+      "expected_type": "[SILENT]"
+    }
+  },
+  {
+    "id": 178,
+    "category": "counter_bill",
+    "language": "hi-Latn",
+    "utterance": "Doodh packet aapka 30 hua",
+    "expected": {
+      "expected_type": "triage"
+    }
+  },
+  {
+    "id": 179,
+    "category": "counter_bill_tally",
+    "language": "hi-Latn",
+    "utterance": "Aapka 50 hua",
+    "expected": {
+      "value": 50
+    }
+  },
+  {
+    "id": 180,
+    "category": "counter_correction",
+    "language": "hi-Latn",
+    "utterance": "20 nahi 50",
+    "expected": {
+      "value": 50
+    }
+  },
+  {
+    "id": 181,
+    "category": "assign_credit",
+    "language": "hi-Latn",
+    "utterance": "Udhar likh do Farhan",
+    "expected": {
+      "value": "Farhan"
+    }
+  },
+  {
+    "id": 182,
+    "category": "assign_promise",
+    "language": "hi-Latn",
+    "utterance": "Kal dega Farhan",
+    "expected": {
+      "value": "Farhan"
+    }
+  },
+  {
+    "id": 183,
+    "category": "paid_sale_cash",
+    "language": "hi-Latn",
+    "utterance": "Ye lo cash 50",
+    "expected": {
+      "value": 50
+    }
+  },
+  {
+    "id": 184,
+    "category": "paid_sale_upi",
+    "language": "hi-Latn",
+    "utterance": "50 Google Pay kar diya",
+    "expected": {
+      "value": 50
+    }
   }
 ]

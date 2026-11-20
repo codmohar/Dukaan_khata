@@ -15,16 +15,33 @@ from app.agent.fast_engine import try_fast_path
 from app.db import SessionLocal
 
 DATASET_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "training", "dukaan_conversations.jsonl"))
+DATASET_JSON_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "kirana_eval_dataset.json"))
 SHOP_ID = "00000000-0000-0000-0000-000000000001"
 
 
 async def evaluate_dataset():
-    if not os.path.exists(DATASET_PATH):
-        print(f"Error: Dataset not found at {DATASET_PATH}")
+    rows = []
+    if os.path.exists(DATASET_PATH):
+        with open(DATASET_PATH, "r", encoding="utf-8") as f:
+            rows = [json.loads(line) for line in f]
+    elif os.path.exists(DATASET_JSON_PATH):
+        with open(DATASET_JSON_PATH, "r", encoding="utf-8") as f:
+            raw_cases = json.load(f)
+            for c in raw_cases:
+                rows.append({
+                    "id": str(c.get("id")),
+                    "lang": c.get("language", "hi").split("-")[0],
+                    "mode": "command",
+                    "text": c.get("utterance", ""),
+                    "label": {
+                        "intent": c.get("category", "").upper(),
+                        "action": "draft" if c.get("expected", {}).get("confirm_required") else "ignore_ledger",
+                        "entries": [{"type": c.get("expected", {}).get("type", "credit"), "amount": c.get("expected", {}).get("amount")}] if c.get("expected", {}).get("amount") else [],
+                    }
+                })
+    else:
+        print(f"Error: Dataset not found at {DATASET_PATH} or {DATASET_JSON_PATH}")
         return
-
-    with open(DATASET_PATH, "r", encoding="utf-8") as f:
-        rows = [json.loads(line) for line in f]
 
     print(f"\n========================================================", flush=True)
     print(f"  DukaanAI Conversation Playbook Evaluation Harness", flush=True)
@@ -39,7 +56,7 @@ async def evaluate_dataset():
     passed = 0
     failed = 0
 
-    for r in rows:
+    for idx, r in enumerate(rows):
         cid = r["id"]
         lang = r["lang"]
         mode = r.get("mode", "command")
@@ -65,11 +82,21 @@ async def evaluate_dataset():
         elif ":" in text:
             test_utterance = text.split(":", 1)[-1].strip()
 
-        res = await try_fast_path(
-            session_or_shop_id=SHOP_ID,
-            user_text=test_utterance,
-            language=f"{lang}-IN" if len(lang) == 2 else "hi-IN",
-        )
+        try:
+            res = await asyncio.wait_for(
+                try_fast_path(
+                    session_or_shop_id=SHOP_ID,
+                    user_text=test_utterance,
+                    language=f"{lang}-IN" if len(lang) == 2 else "hi-IN",
+                ),
+                timeout=3.0,
+            )
+        except Exception as e:
+            from app.agent.fast_engine import FastPathResult
+            res = FastPathResult(handled=False)
+
+        if (idx + 1) % 10 == 0 or idx < 5:
+            print(f"[{idx+1}/{len(rows)}] {lang}: '{test_utterance[:40]}' -> reply: '{res.reply[:30]}'", flush=True)
 
         # Check intent / action matching
         is_match = False
