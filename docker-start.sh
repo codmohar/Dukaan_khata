@@ -34,3 +34,4 @@ echo ""
 echo "To view real-time logs: $COMPOSE logs -f"
 echo "To stop containers:     $COMPOSE down"
 echo "================================================="
+

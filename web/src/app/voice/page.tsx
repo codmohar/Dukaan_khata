@@ -334,6 +334,39 @@ export default function VoicePage() {
               </div>
             )}
 
+            {/* Pending Promise Alert Amber Banner */}
+            {(voice.draft.promise_warning || voice.draft.pending_promise) && (
+              <div className="mt-3 rounded-xl bg-amber-100 border-2 border-amber-400 p-3.5 text-amber-950 shadow-sm animate-in slide-in-from-top-2">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-xs font-black uppercase tracking-wide text-amber-900 flex items-center gap-1.5">
+                    <span>⚠️ Pending Payment Promise Alert</span>
+                  </p>
+                  <span className="text-[10px] font-bold bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full uppercase">
+                    {voice.draft.pending_promise?.status || "PENDING"}
+                  </span>
+                </div>
+                <div className="mt-2 rounded-lg bg-white/95 p-2.5 border border-amber-300 text-xs shadow-sm">
+                  <p className="font-extrabold text-amber-900 flex items-center gap-1.5 flex-wrap">
+                    <span>🤝 Existing Promise to Pay:</span>
+                    <span className="underline">
+                      {voice.draft.pending_promise?.promised_amount
+                        ? inr(voice.draft.pending_promise.promised_amount)
+                        : "Purana hisaab"}{" "}
+                      by {voice.draft.pending_promise?.expected_date}
+                    </span>
+                  </p>
+                  {voice.draft.pending_promise?.description && (
+                    <p className="text-[11px] text-amber-800 mt-1 font-medium">
+                      Note: &quot;{voice.draft.pending_promise.description}&quot;
+                    </p>
+                  )}
+                  <p className="text-[11px] text-amber-900 mt-1.5 font-bold bg-amber-50 p-1.5 rounded border border-amber-200">
+                    Customer is asking for additional credit of {inr(voice.draft.amount)}. Confirm below to give more credit, or cancel to collect payment first.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Quick Add WhatsApp option right below name ONLY if customer has no WhatsApp registered */}
             {!voice.draft.customer_phone && voice.draft.customer_id && (
               <div className="mt-2">
@@ -495,12 +528,20 @@ export default function VoicePage() {
         </div>
       )}
 
-      {/* Blue Promise Recorded Card */}
+      {/* Promise Recorded or Pending Promise Alert Card */}
       {voice.promiseCard && (
-        <div className="card mb-6 border-2 border-blue-400 bg-blue-50/95 shadow-md animate-in slide-in-from-top-4">
+        <div className={`card mb-6 border-2 shadow-md animate-in slide-in-from-top-4 ${
+          voice.promiseCard.alert
+            ? "border-amber-400 bg-amber-50/95"
+            : "border-blue-400 bg-blue-50/95"
+        }`}>
           <div className="flex items-center justify-between">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-200 text-blue-900 px-2.5 py-0.5 text-xs font-bold uppercase">
-              🤝 Promise Recorded
+            <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold uppercase ${
+              voice.promiseCard.alert
+                ? "bg-amber-200 text-amber-950"
+                : "bg-blue-200 text-blue-900"
+            }`}>
+              {voice.promiseCard.alert ? "⚠️ Pending Promise Alert" : "🤝 Promise Recorded"}
             </span>
             <button
               onClick={voice.clearPromiseCard}
@@ -511,11 +552,16 @@ export default function VoicePage() {
           </div>
           <div className="my-2.5">
             <p className="text-xl font-black text-slate-900">
-              {voice.promiseCard.entity_name} • {voice.promiseCard.amount ? inr(voice.promiseCard.amount) : voice.promiseCard.description}
+              {voice.promiseCard.customer_name || voice.promiseCard.entity_name} • {voice.promiseCard.amount ? inr(voice.promiseCard.amount) : voice.promiseCard.description}
             </p>
-            <p className="text-xs font-bold text-blue-800 mt-1">
+            <p className={`text-xs font-bold mt-1 ${voice.promiseCard.alert ? "text-amber-900" : "text-blue-800"}`}>
               📅 Expected Date: {voice.promiseCard.expected_date}
             </p>
+            {voice.promiseCard.new_amount && (
+              <p className="text-xs font-bold text-amber-950 mt-1 bg-white/80 p-1.5 rounded border border-amber-300">
+                ⚠️ Asking for additional {inr(voice.promiseCard.new_amount)} udhar. Existing promise is still pending.
+              </p>
+            )}
             <p className="text-xs text-slate-600 mt-1">
               🔒 Note: Customer ledger balance remains unchanged until payment is actually confirmed.
             </p>

@@ -27,6 +27,16 @@ export type Draft = {
   is_advance?: boolean;
   anomaly_warning?: boolean;
   warning_message?: string | null;
+  pending_promise?: {
+    promise_id: string;
+    entity_name: string;
+    promised_amount?: number | null;
+    expected_date: string;
+    description: string;
+    status: string;
+    days_overdue?: number;
+  } | null;
+  promise_warning?: boolean;
 };
 export type Reminder = {
   customer: string;
@@ -44,7 +54,7 @@ export type Status =
   | "speaking"
   | "offline";
 
-const SILENCE_MS = 750; // 0.75s pause to auto-submit brisk kirana speech
+const SILENCE_MS = 500; // 0.5s pause to auto-submit brisk kirana speech (<2s turn latency)
 const MAX_UTTERANCE_MS = 25000;
 
 function playChime(freq = 587.33, duration = 0.15) {
@@ -85,6 +95,53 @@ export function useVoice(language: string) {
   const [wakeDetected, setWakeDetected] = useState(false);
   const [micActive, setMicActive] = useState(false);
   const micActiveRef = useRef(false);
+  const isSpeakingNativeRef = useRef(false);
+
+  const speakInstantTTS = useCallback((text: string, langCode: string) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      return false;
+    }
+    try {
+      window.speechSynthesis.cancel();
+      const clean = text
+        .replace(/\[SILENT\]/gi, "")
+        .replace(/[⚠️🚨🤝📜✓✕•*"]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+      if (!clean) return false;
+
+      const u = new SpeechSynthesisUtterance(clean);
+      u.lang = langCode || "hi-IN";
+      u.rate = 1.05;
+
+      const voices = window.speechSynthesis.getVoices();
+      const prefix = (langCode || "hi").split("-")[0].toLowerCase();
+      const match =
+        voices.find((v) => v.lang.toLowerCase() === langCode.toLowerCase()) ||
+        voices.find((v) => v.lang.toLowerCase().startsWith(prefix));
+      if (match) {
+        u.voice = match;
+      }
+
+      isSpeakingNativeRef.current = true;
+      setStatus("speaking");
+
+      u.onend = () => {
+        isSpeakingNativeRef.current = false;
+        setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
+      };
+      u.onerror = () => {
+        isSpeakingNativeRef.current = false;
+        setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
+      };
+
+      window.speechSynthesis.speak(u);
+      return true;
+    } catch {
+      isSpeakingNativeRef.current = false;
+      return false;
+    }
+  }, []);
 
   const ws = useRef<WebSocket | null>(null);
   const rec = useRef<{
@@ -175,8 +232,12 @@ export function useVoice(language: string) {
               setMsgs((x) => [...x, { role: "you", text: m.text }]);
             } else if (m.type === "reply") {
               setMsgs((x) => [...x, { role: "ai", text: m.text }]);
-              // If no audio event accompanies reply, return to monitoring
-              if (statusRef.current === "thinking") {
+              if (m.text && m.text !== "[SILENT]") {
+                const started = speakInstantTTS(m.text, language);
+                if (!started && statusRef.current === "thinking") {
+                  setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
+                }
+              } else if (statusRef.current === "thinking") {
                 setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
               }
             } else if (m.type === "draft") {
@@ -207,18 +268,20 @@ export function useVoice(language: string) {
                 return next;
               });
 
-              try {
-                const a = new Audio("data:audio/wav;base64," + m.data);
-                setStatus("speaking");
-                a.onended = a.onerror = () => {
-                  // After speaking, immediately resume hands-free monitoring!
+              // Only play audio WAV if native Web Speech API didn't already speak
+              if (!isSpeakingNativeRef.current) {
+                try {
+                  const a = new Audio("data:audio/wav;base64," + m.data);
+                  setStatus("speaking");
+                  a.onended = a.onerror = () => {
+                    setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
+                  };
+                  a.play().catch(() => {
+                    setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
+                  });
+                } catch {
                   setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
-                };
-                a.play().catch(() => {
-                  setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
-                });
-              } catch {
-                setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
+                }
               }
             }
           } catch {
@@ -243,6 +306,10 @@ export function useVoice(language: string) {
 
   // Stop current active utterance and submit to backend
   const stopUtterance = useCallback(() => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+    isSpeakingNativeRef.current = false;
     if (ws.current?.readyState === WebSocket.OPEN) {
       ws.current.send(JSON.stringify({ type: "end_utterance" }));
     }
@@ -281,7 +348,7 @@ export function useVoice(language: string) {
       }
 
       const src = ctx.createMediaStreamSource(stream);
-      const node = ctx.createScriptProcessor(4096, 1, 1);
+      const node = ctx.createScriptProcessor(2048, 1, 1);
 
       // ~400ms circular pre-roll buffer to preserve beginning of words
       const preRollChunks: ArrayBuffer[] = [];
@@ -330,7 +397,11 @@ export function useVoice(language: string) {
           const vadThreshold = Math.max(0.024, noiseFloor * 2.5);
 
           if (isHF && rms > vadThreshold) {
-            // Speech detected hands-free!
+            // Speech detected hands-free! Cancel any previous speech synthesis immediately
+            if (typeof window !== "undefined" && "speechSynthesis" in window) {
+              window.speechSynthesis.cancel();
+            }
+            isSpeakingNativeRef.current = false;
             isSpoken = true;
             utteranceStart = Date.now();
             lastVoice = Date.now();

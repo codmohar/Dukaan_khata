@@ -371,6 +371,39 @@ async def create_draft(
             amount=amt,
         )
 
+    # Check for pending payment promises for this customer (Promise Memory alert)
+    pending_promise = None
+    if type == "credit" and cust.id:
+        try:
+            p_row = (
+                await s.execute(
+                    text(
+                        """
+                        SELECT id, entity_name, promised_amount, expected_date, description, status,
+                               (CURRENT_DATE - expected_date) AS days_overdue
+                        FROM promises
+                        WHERE shop_id = :sid AND customer_id = :cid
+                          AND promise_type = 'PAYMENT_PROMISE'
+                          AND status IN ('PENDING', 'OVERDUE')
+                        ORDER BY expected_date ASC LIMIT 1
+                        """
+                    ),
+                    {"sid": to_uuid(shop_id), "cid": cust.id},
+                )
+            ).mappings().first()
+            if p_row:
+                pending_promise = {
+                    "promise_id": str(p_row["id"]),
+                    "entity_name": p_row["entity_name"],
+                    "promised_amount": float(p_row["promised_amount"]) if p_row["promised_amount"] else None,
+                    "expected_date": str(p_row["expected_date"]),
+                    "description": p_row["description"],
+                    "status": p_row["status"],
+                    "days_overdue": int(p_row["days_overdue"]) if p_row.get("days_overdue") is not None else 0,
+                }
+        except Exception as pe:
+            log.warning("Pending promise check error in create_draft: %s", pe)
+
     parsed_due = _parse_iso_date(due_date)
     parsed_backdate = _parse_iso_date(backdated_to)
 
@@ -423,6 +456,8 @@ async def create_draft(
         "warning_message": warning_message,
         "rule_warnings": rule_warnings,
         "requires_override": len(rule_warnings) > 0,
+        "pending_promise": pending_promise,
+        "promise_warning": pending_promise is not None,
     }
 
 

@@ -205,6 +205,13 @@ B. DUKAAN RULES (CREDIT POLICIES):
   * If they say "Amount badal do" (e.g. "Amount 1000 kar do"), call `create_draft` with the updated amount.
 
 C. PROMISE MEMORY (FUTURE COMMITMENTS & RESERVATIONS):
+- CRITICAL - WHEN CUSTOMER WITH PENDING PROMISE COMES FOR MORE UDHAR / CREDIT:
+  When `create_draft` returns `pending_promise` or `promise_warning: True`:
+  * The customer already has a pending or overdue promise to pay money!
+  * You MUST warn the shopkeeper explicitly before confirming more udhar:
+    - Hindi: "⚠️ Dhyan dein: {customer} ji ka pehle se ₹{amount} dene ka wada pending hai ({date}). Kya naya ₹{new_amount} udhar likhna hai ya purana hisaab clear karwayein? Confirm karein?"
+    - Kannada: "⚠️ Gamanisi: {customer} avarige igaagale ₹{amount} koduvudagi promise ide ({date}). Innu ₹{new_amount} udhar baribeka athava purana clear maadbeka? Khaathri maadi."
+    - English: "⚠️ Alert: {customer} already has a pending promise to pay ₹{amount} by {date}. Give more credit of ₹{new_amount} anyway? Please confirm."
 - When future payment or goods reservation or supplier delivery is mentioned:
   * "Ramesh shukravaar ko 500 dega" -> NOT a ledger draft! Call `create_promise(entity_name="Ramesh", promise_type="PAYMENT_PROMISE", promised_amount=500, expected_date=..., description="Payment promise")`.
   * "Sunita ke liye kal 2 packet rice rakhna" -> Call `create_promise(entity_name="Sunita", promise_type="GOODS_RESERVATION", description="2 packets rice", expected_date=...)`.

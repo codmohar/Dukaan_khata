@@ -1,4 +1,4 @@
-﻿# DukaanAI 1-Click Container Launcher (Windows PowerShell)
+# DukaanAI 1-Click Container Launcher (Windows PowerShell)
 $ErrorActionPreference = "Continue"
 
 Write-Host "=================================================" -ForegroundColor Green
@@ -37,3 +37,4 @@ Write-Host ""
 Write-Host "To view real-time logs: $composeCmd logs -f" -ForegroundColor Yellow
 Write-Host "To stop containers:    $composeCmd down" -ForegroundColor Yellow
 Write-Host "=================================================" -ForegroundColor Green
+

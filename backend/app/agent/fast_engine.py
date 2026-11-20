@@ -179,6 +179,75 @@ def _format_rule_warning_msg(draft_res: Dict[str, Any], cname: str, amount: floa
             f"A draft of ₹{amount:,.0f} credit has been prepared for {cname}. Do you want to continue anyway or change the amount?"
         )
 
+
+def _format_promise_warning_msg(draft_res: Dict[str, Any], cname: str, amount: float, lang: str) -> str:
+    """When a customer with a pending payment promise asks for more credit, immediately warn the shopkeeper!"""
+    p = draft_res.get("pending_promise") or {}
+    p_amt = float(p.get("promised_amount") or 0)
+    p_date = p.get("expected_date") or "jald"
+    amt_str = f"₹{p_amt:,.0f}" if p_amt > 0 else "purana amount"
+
+    if lang.startswith("kn"):
+        return (
+            f"⚠️ Gamanisi: {cname} avarige igaagale {amt_str} koduvudagi promise ide ({p_date}). "
+            f"Innu ₹{amount:,.0f} udhar baribeka athava purana clear maadbeka? Khaathri maadi."
+        )
+    elif lang.startswith("hi"):
+        return (
+            f"⚠️ Dhyan dein: {cname} ji ka pehle se {amt_str} dene ka wada pending hai ({p_date}). "
+            f"Kya naya ₹{amount:,.0f} udhar likhna hai ya pehle purana hisaab clear karwayein? Confirm karein?"
+        )
+    else:
+        return (
+            f"⚠️ Alert: {cname} already has a pending promise to pay {amt_str} by {p_date}. "
+            f"Give more credit of ₹{amount:,.0f} anyway? Please confirm."
+        )
+
+
+def _parse_relative_promise_date(text: str) -> date:
+    lower = text.lower()
+    today = datetime.now(timezone(timedelta(hours=5, minutes=30))).date()
+
+    if any(w in lower for w in ["parso", "naadiddu", "erandu naal", "ellundi"]):
+        return today + timedelta(days=2)
+
+    if any(w in lower for w in ["kal", "naale", "tomorrow", "udya", "repu", "naalaiku", "kali"]):
+        return today + timedelta(days=1)
+
+    weekday_map = {
+        "somwar": 0, "somvaar": 0, "monday": 0, "tingalavara": 0,
+        "mangalwar": 1, "mangalvaar": 1, "tuesday": 1, "mangalavara": 1,
+        "budhwar": 2, "budhwaar": 2, "wednesday": 2, "budhavara": 2,
+        "guruwar": 3, "guruwaar": 3, "thursday": 3, "guruvara": 3,
+        "shukrawar": 4, "shukrawaar": 4, "friday": 4, "shukravara": 4,
+        "shaniwar": 5, "shaniwaar": 5, "saturday": 5, "shanivara": 5,
+        "itwar": 6, "ravivar": 6, "sunday": 6, "bhanuvara": 6,
+    }
+    for day_word, target_wd in weekday_map.items():
+        if re.search(r"\b" + day_word + r"\b", lower):
+            days_ahead = target_wd - today.weekday()
+            if days_ahead <= 0:
+                days_ahead += 7
+            return today + timedelta(days=days_ahead)
+
+    return today + timedelta(days=1)
+
+
+# Promise Recording Intent ("Ramesh kal 500 dega", "Suresh naale 200 kodtini")
+PROMISE_RECORD_PATTERN = re.compile(
+    r"\b(?:dega|degi|denge|de\s*dunga|dene\s*ka\s*wada|wada\s*kiya|wada\s*hai|kodtini|kodtane|kodtare|kodthini|tharen|isthanu|tharaam|deto|aapis|debo|devanga|debi|dim|dunga|will\s*pay|promised|promise\s*kiya)\b|"
+    r"(?:देगा|देगी|देंगे|दे\s*दूंगा|वादा|प्रॉमिस)|"
+    r"(?:ಕೊಡ್ತೀನಿ|ಕೊಡ್ತಾರೆ|ಕೊಡುತ್ತೇನೆ|ಪ್ರಾಮಿಸ್)",
+    re.I,
+)
+
+# Promise Query Intent ("Kiska promise pending hai", "Ramesh ka promise kya tha")
+PROMISE_QUERY_PATTERN = re.compile(
+    r"\b(?:promises|promise\s*kya|promise\s*list|wada|pending\s*promise|promises\s*dikhao|yaara\s*promise|kiska\s*wada|kiska\s*promise|promise\s*check)\b|"
+    r"(?:प्रॉमिस|वादा|पेंडिंग\s*प्रॉमिस)",
+    re.I,
+)
+
 # Payment Mode Regex
 UPI_PATTERN = re.compile(
     r"\b(?:phonepe|gpay|google\s*pay|paytm|upi|bhim|qr|online)\b|"
@@ -214,6 +283,7 @@ STOPWORDS = {
     "bataiye", "boliye", "chahiye", "hai", "kya", "tha", "thi", "the", "aaya", "aayi",
     "aaye", "gaya", "gayi", "gaye", "hua", "hui", "hue", "khata", "ledger", "entry",
     "record", "karna", "sab", "clear", "ella", "ellaa", "maadi", "chukta", "barabar",
+    "kal", "naale", "parso", "naadiddu", "today", "tomorrow", "yesterday", "dega", "degi", "denge", "dunga", "wada", "kodtini", "kodtane", "kodtare",
     # 14 languages markers & postpositions
     "kitta", "irundhu", "ku", "roobai", "vanginen", "kuduthen", "podunga", "ezhudhu",
     "nunchi", "ki", "rupayalu", "techukunnanu", "ichanu", "rayandi", "ochindi",
@@ -330,6 +400,12 @@ async def try_fast_path(
     amount = extract_indian_amount(text)
     name_tokens = _extract_name_tokens(text)
     payment_mode = _detect_payment_mode(text)
+    is_loan = bool(LOAN_DIRECTION_PATTERN.search(text))
+    is_credit = bool(CREDIT_PATTERN.search(text)) or is_loan
+    is_payment = (bool(PAYMENT_PATTERN.search(text)) and not is_loan) or bool(payment_mode and not is_credit)
+    is_return = bool(RETURN_PATTERN.search(text))
+    is_discount = bool(DISCOUNT_PATTERN.search(text))
+    is_advance = bool(ADVANCE_PATTERN.search(text))
 
     # ---------------------------------------------------------
     # 1. AMBIENT SHOP CHATTER FILTER (< 0.1ms)
@@ -563,6 +639,95 @@ async def try_fast_path(
                     )
 
     # ---------------------------------------------------------
+    # 8A. RECORD PAYMENT PROMISE ("Ramesh kal 500 dega", "Suresh naale 200 kodtini")
+    # ---------------------------------------------------------
+    if amount and name_tokens and PROMISE_RECORD_PATTERN.search(text) and not (is_payment or is_return or is_discount):
+        cust_name = " ".join(t.capitalize() for t in name_tokens[:2])
+        exp_date = _parse_relative_promise_date(text)
+
+        async with SessionLocal() as s:
+            p_res = await tools.create_promise(
+                s,
+                shop_id,
+                entity_name=cust_name,
+                promise_type="PAYMENT_PROMISE",
+                description=f"Payment promise of ₹{amount:,.0f}",
+                expected_date=exp_date.isoformat(),
+                promised_amount=amount,
+                transcript=text,
+            )
+
+            date_str = exp_date.isoformat()
+            if lang.startswith("kn"):
+                msg = f"{cust_name} avaru ₹{amount:,.0f} koduvudagi promise record aagide ({date_str}). Ledger baaki badalaagilla."
+            elif lang.startswith("hi"):
+                msg = f"{cust_name} ji ka ₹{amount:,.0f} dene ka wada ({date_str}) record kar liya hai. Ledger balance change nahi hua hai."
+            else:
+                msg = f"Payment promise of ₹{amount:,.0f} from {cust_name} recorded for {date_str}. Ledger balance unchanged."
+
+            return FastPathResult(
+                handled=True,
+                reply=msg,
+                events=[{
+                    "type": "promise_card",
+                    "entity_name": cust_name,
+                    "amount": amount,
+                    "expected_date": date_str,
+                    "description": f"Payment promise of ₹{amount:,.0f}",
+                    "status": "PENDING",
+                    "promise_id": p_res.get("promise_id"),
+                }],
+            )
+
+    # ---------------------------------------------------------
+    # 8B. PROMISE INQUIRY ("Kiska promise pending hai", "Ramesh ka promise kya tha")
+    # ---------------------------------------------------------
+    if PROMISE_QUERY_PATTERN.search(text) and not amount:
+        cust_name = " ".join(t.capitalize() for t in name_tokens[:2]) if name_tokens else None
+        if not cust_name and sess and sess.active_customer_name:
+            cust_name = sess.active_customer_name
+
+        async with SessionLocal() as s:
+            p_list = await tools.list_promises(s, shop_id, status="PENDING", customer_name=cust_name)
+            if not p_list and cust_name:
+                p_list = await tools.list_promises(s, shop_id, status="PENDING")
+
+            if not p_list:
+                if lang.startswith("kn"):
+                    msg = "Yaavude pending promises illa."
+                elif lang.startswith("hi"):
+                    msg = "Koi pending payment promise nahi hai."
+                else:
+                    msg = "No pending promises found."
+                return FastPathResult(handled=True, reply=msg)
+
+            lines = []
+            for p in p_list[:3]:
+                p_amt = float(p.get("promised_amount") or 0)
+                lines.append(f"{p['entity_name']} (₹{p_amt:,.0f}, {p['expected_date']})")
+            summary = ", ".join(lines)
+
+            if lang.startswith("kn"):
+                msg = f"Pending promises: {summary}."
+            elif lang.startswith("hi"):
+                msg = f"Pending promises: {summary}."
+            else:
+                msg = f"Pending promises: {summary}."
+
+            return FastPathResult(
+                handled=True,
+                reply=msg,
+                events=[{
+                    "type": "promise_card",
+                    "entity_name": p_list[0]["entity_name"],
+                    "amount": p_list[0].get("promised_amount"),
+                    "expected_date": p_list[0].get("expected_date"),
+                    "description": p_list[0].get("description"),
+                    "status": p_list[0].get("status"),
+                }],
+            )
+
+    # ---------------------------------------------------------
     # 9. DISAMBIGUATION RESOLUTION (e.g. "1", "pehla wala", landmark)
     # ---------------------------------------------------------
     if sess and sess.active_disambiguation:
@@ -694,13 +859,6 @@ async def try_fast_path(
     # 12. MULTI-TURN CONTINUATION: Amount & Type provided with active customer in session
     # (e.g. Turn 1: "Ramesh" -> Turn 2: "450 udhar")
     # ---------------------------------------------------------
-    is_loan = bool(LOAN_DIRECTION_PATTERN.search(text))
-    is_credit = bool(CREDIT_PATTERN.search(text)) or is_loan
-    is_payment = (bool(PAYMENT_PATTERN.search(text)) and not is_loan) or bool(payment_mode and not is_credit)
-    is_return = bool(RETURN_PATTERN.search(text))
-    is_discount = bool(DISCOUNT_PATTERN.search(text))
-    is_advance = bool(ADVANCE_PATTERN.search(text))
-
     if amount and sess and (sess.active_customer_id or sess.active_customer_name) and not name_tokens:
         tx_type = "adjustment" if (is_return or is_discount) else ("payment" if (is_payment or is_advance) else "credit")
         adj_reason = "return" if is_return else ("discount" if is_discount else None)
@@ -736,8 +894,28 @@ async def try_fast_path(
                 proj_bal = float(draft_res.get("projected_balance", 0))
                 tx_label = adj_reason if (tx_type == "adjustment" and adj_reason) else tx_type
 
-                # Rule warning check first (dukaandar unconsciously forgot rule!)
-                if draft_res.get("rule_warnings"):
+                draft_events = [{**draft_res, "tx_type": tx_type, "type": "draft"}]
+                if draft_res.get("pending_promise"):
+                    p_info = draft_res["pending_promise"]
+                    draft_events.append({
+                        "type": "promise_card",
+                        "alert": True,
+                        "entity_name": c_display,
+                        "customer_name": c_display,
+                        "amount": p_info.get("promised_amount"),
+                        "expected_date": p_info.get("expected_date"),
+                        "description": p_info.get("description"),
+                        "status": p_info.get("status"),
+                        "new_amount": amount,
+                        "draft_id": draft_res.get("draft_id"),
+                    })
+
+                # Promise warning & Rule warning check
+                if draft_res.get("rule_warnings") and draft_res.get("pending_promise"):
+                    msg = f"{_format_promise_warning_msg(draft_res, c_display, amount, lang)} {_format_rule_warning_msg(draft_res, c_display, amount, lang)}"
+                elif draft_res.get("pending_promise"):
+                    msg = _format_promise_warning_msg(draft_res, c_display, amount, lang)
+                elif draft_res.get("rule_warnings"):
                     msg = _format_rule_warning_msg(draft_res, c_display, amount, lang)
                 elif draft_res.get("anomaly_warning"):
                     if lang.startswith("kn"):
@@ -752,7 +930,7 @@ async def try_fast_path(
                 return FastPathResult(
                     handled=True,
                     reply=msg,
-                    events=[{**draft_res, "tx_type": tx_type, "type": "draft"}],
+                    events=draft_events,
                 )
 
     # ---------------------------------------------------------
@@ -790,7 +968,27 @@ async def try_fast_path(
                 proj_bal = cur_bal + tx_amt if tx_type == "credit" else cur_bal - tx_amt
                 mode_str = f" {p_mode.upper()}" if p_mode else ""
 
-                if draft_res.get("rule_warnings"):
+                draft_events = [{**draft_res, "tx_type": tx_type, "type": "draft"}]
+                if draft_res.get("pending_promise"):
+                    p_info = draft_res["pending_promise"]
+                    draft_events.append({
+                        "type": "promise_card",
+                        "alert": True,
+                        "entity_name": best["name"],
+                        "customer_name": best["name"],
+                        "amount": p_info.get("promised_amount"),
+                        "expected_date": p_info.get("expected_date"),
+                        "description": p_info.get("description"),
+                        "status": p_info.get("status"),
+                        "new_amount": tx_amt,
+                        "draft_id": draft_res.get("draft_id"),
+                    })
+
+                if draft_res.get("rule_warnings") and draft_res.get("pending_promise"):
+                    msg = f"{_format_promise_warning_msg(draft_res, best['name'], tx_amt, lang)} {_format_rule_warning_msg(draft_res, best['name'], tx_amt, lang)}"
+                elif draft_res.get("pending_promise"):
+                    msg = _format_promise_warning_msg(draft_res, best["name"], tx_amt, lang)
+                elif draft_res.get("rule_warnings"):
                     msg = _format_rule_warning_msg(draft_res, best["name"], tx_amt, lang)
                 elif lang.startswith("kn"):
                     msg = f"{best['name']} avarige ₹{tx_amt:,.0f}{mode_str} {tx_type} draft aagide (naya baaki ₹{proj_bal:,.0f}). Confirm maadla?"
@@ -800,7 +998,7 @@ async def try_fast_path(
                 return FastPathResult(
                     handled=True,
                     reply=msg,
-                    events=[{**draft_res, "tx_type": tx_type, "type": "draft"}],
+                    events=draft_events,
                 )
 
             elif ambig:
@@ -841,9 +1039,9 @@ async def try_fast_path(
 
     # ---------------------------------------------------------
     # 14. COMPLETE ONE-SHOT TRANSACTION (Customer + Amount + Type + Mode)
-    # (e.g. "Ramesh ge 340 udhar bardu", "Suresh 500 kottru", "Pooja ne 200 PhonePe kiya")
+    # (e.g. "Ramesh ge 340 udhar bardu", "Suresh 500 kottru", "Pooja ne 200 PhonePe kiya", "Ramesh 500")
     # ---------------------------------------------------------
-    if amount and (is_credit or is_payment or is_return or is_discount or is_advance) and name_tokens:
+    if amount and name_tokens:
         tx_type = "adjustment" if (is_return or is_discount) else ("payment" if (is_payment or is_advance) else "credit")
         adj_reason = "return" if is_return else ("discount" if is_discount else None)
         note = "Cash Loan" if is_loan else ("Advance / Deposit" if is_advance else None)
@@ -878,7 +1076,28 @@ async def try_fast_path(
                 mode_str = f" {payment_mode.upper()}" if payment_mode else ""
                 tx_label = "advance" if is_advance else (adj_reason if (tx_type == "adjustment" and adj_reason) else tx_type)
 
-                if draft_res.get("rule_warnings"):
+                draft_events = [{**draft_res, "tx_type": tx_type, "type": "draft"}]
+                if draft_res.get("pending_promise"):
+                    p_info = draft_res["pending_promise"]
+                    draft_events.append({
+                        "type": "promise_card",
+                        "alert": True,
+                        "entity_name": cname,
+                        "customer_name": cname,
+                        "amount": p_info.get("promised_amount"),
+                        "expected_date": p_info.get("expected_date"),
+                        "description": p_info.get("description"),
+                        "status": p_info.get("status"),
+                        "new_amount": amount,
+                        "draft_id": draft_res.get("draft_id"),
+                    })
+
+                # Promise warning & Rule warning check
+                if draft_res.get("rule_warnings") and draft_res.get("pending_promise"):
+                    msg = f"{_format_promise_warning_msg(draft_res, cname, amount, lang)} {_format_rule_warning_msg(draft_res, cname, amount, lang)}"
+                elif draft_res.get("pending_promise"):
+                    msg = _format_promise_warning_msg(draft_res, cname, amount, lang)
+                elif draft_res.get("rule_warnings"):
                     msg = _format_rule_warning_msg(draft_res, cname, amount, lang)
                 elif draft_res.get("anomaly_warning"):
                     if lang.startswith("kn"):
@@ -893,7 +1112,7 @@ async def try_fast_path(
                 return FastPathResult(
                     handled=True,
                     reply=msg,
-                    events=[{**draft_res, "tx_type": tx_type, "type": "draft"}],
+                    events=draft_events,
                 )
 
             elif ambig:
