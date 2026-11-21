@@ -26,33 +26,37 @@ export function setCurrentShopId(id: string): void {
 }
 
 export function getApiUrl(): string {
-  if (typeof window !== "undefined" && window.location) {
-    // Same-origin unified proxy when accessed via HTTPS tunnel, Nginx (port 80), or port 4000
-    const port = window.location.port;
-    if (window.location.protocol === "https:" || port === "4000" || port === "80" || port === "") {
-      return `${window.location.origin}/api`;
+  const envUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (envUrl && envUrl.trim() && !envUrl.includes("localhost") && !envUrl.includes("127.0.0.1")) {
+    let u = envUrl.trim();
+    if (!u.startsWith("http://") && !u.startsWith("https://")) {
+      u = `https://${u}`;
     }
-    const envUrl = process.env.NEXT_PUBLIC_API_URL;
-    if (envUrl && !envUrl.includes("localhost") && !envUrl.includes("127.0.0.1")) {
-      return envUrl;
+    return u.replace(/\/+$/, "");
+  }
+  if (typeof window !== "undefined" && window.location) {
+    // Same-origin unified proxy when accessed via Nginx (port 80) or port 4000
+    const port = window.location.port;
+    if (port === "4000" || port === "80") {
+      return `${window.location.origin}/api`;
     }
     return `${window.location.protocol}//${window.location.hostname}:8000`;
   }
-  return process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+  return "http://localhost:8000";
 }
 
 export function getWsUrl(lang?: string): string {
   const sid = getCurrentShopId();
   let base = "";
-  if (typeof window !== "undefined" && window.location) {
-    const port = window.location.port;
-    if (window.location.protocol === "https:" || port === "4000" || port === "80" || port === "") {
-      const wsProto = window.location.protocol === "https:" ? "wss:" : "ws:";
-      base = `${wsProto}//${window.location.host}/ws/voice`;
-    }
+  const apiUrl = getApiUrl();
+  if (apiUrl && (apiUrl.startsWith("http://") || apiUrl.startsWith("https://"))) {
+    base = apiUrl.replace(/^http/, "ws") + "/ws/voice";
+  } else if (typeof window !== "undefined" && window.location) {
+    const wsProto = window.location.protocol === "https:" ? "wss:" : "ws:";
+    base = `${wsProto}//${window.location.host}/ws/voice`;
   }
   if (!base) {
-    base = getApiUrl().replace(/^http/, "ws") + "/ws/voice";
+    base = "ws://localhost:8000/ws/voice";
   }
   const params = new URLSearchParams();
   if (lang) params.set("language", lang);
