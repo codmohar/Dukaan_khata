@@ -127,6 +127,143 @@ def transliterate_indic_to_latin(text: str) -> str:
     return ''.join(res).strip()
 
 
+def soundex(text: str) -> str:
+    """Standard Soundex algorithm for phonetic indexing."""
+    if not text:
+        return ""
+    cleaned = re.sub(r"[^A-Za-z]", "", text).upper()
+    if not cleaned:
+        return ""
+    first_char = cleaned[0]
+    mapping = {
+        "B": "1", "F": "1", "P": "1", "V": "1",
+        "C": "2", "G": "2", "J": "2", "K": "2", "Q": "2", "S": "2", "X": "2", "Z": "2",
+        "D": "3", "T": "3",
+        "L": "4",
+        "M": "5", "N": "5",
+        "R": "6",
+    }
+    coded = [first_char]
+    prev = mapping.get(first_char, "0")
+    for char in cleaned[1:]:
+        code = mapping.get(char, "0")
+        if code != "0":
+            if code != prev:
+                coded.append(code)
+            prev = code
+        else:
+            prev = "0"
+    return (("".join(coded) + "0000")[:4])
+
+
+def normalize_phonetic_token(w: str) -> str:
+    """Normalize Indian phonological dialect variants (e.g. ee/i, oo/u, ai/e, sh/s, v/w, ph/f, aspirated stops)."""
+    w = w.lower().strip()
+    w = re.sub(r"[^a-z]", "", w)
+    if not w:
+        return ""
+    # Map common Indian vowel digraphs
+    w = re.sub(r"(?:ee|ii)", "i", w)
+    w = re.sub(r"(?:oo|uu)", "u", w)
+    w = re.sub(r"(?:ai|ay|ei|ey)", "e", w)
+    w = re.sub(r"(?:au|ou|aw)", "o", w)
+    w = re.sub(r"(?:aa)", "a", w)
+    # Map consonants
+    w = w.replace("sh", "s").replace("ph", "f").replace("w", "v").replace("z", "j")
+    w = w.replace("th", "t").replace("dh", "d").replace("bh", "b").replace("gh", "g").replace("kh", "k")
+    # Collapse double letters
+    w = re.sub(r"(.)\1+", r"\1", w)
+    return w
+
+
+def phonetic_tuple(name: str) -> tuple[str, ...]:
+    """Tuple of Soundex codes for each word token."""
+    words = name.strip().split()
+    return tuple(soundex(w) for w in words if soundex(w))
+
+
+def dialect_tuple(name: str) -> tuple[str, ...]:
+    """Tuple of normalized phonetic dialect tokens for each word token."""
+    words = name.strip().split()
+    return tuple(normalize_phonetic_token(w) for w in words if normalize_phonetic_token(w))
+
+
+def is_phonetic_match(q: str, target: str) -> bool:
+    """Check whether query and target customer names match phonetically or across Indian dialects/scripts.
+    Matches e.g. Suresh Telar vs Suresh Tailor, Patel vs Patil, Choudhary vs Chowdhury,
+    Raju vs Raju Electrician, Suresh vs Suresh Tailor, Shyam vs Siam.
+    """
+    if not q or not target:
+        return False
+    q_clean = q.strip().lower()
+    t_clean = target.strip().lower()
+    if q_clean == t_clean:
+        return True
+
+    # 1. Compare Soundex tuples
+    q_sx = phonetic_tuple(q_clean)
+    t_sx = phonetic_tuple(t_clean)
+    if q_sx and t_sx:
+        if q_sx == t_sx:
+            return True
+        # Single-token query matches any token of multi-token target (e.g. "Suresh" or "Tailor" in "Suresh Tailor")
+        if len(q_sx) == 1 and q_sx[0] in t_sx:
+            return True
+        if len(q_sx) == len(t_sx) and all(q_sx[i] == t_sx[i] for i in range(len(q_sx))):
+            return True
+
+    # 2. Compare Indian dialect normalized tuples
+    q_dia = dialect_tuple(q_clean)
+    t_dia = dialect_tuple(t_clean)
+    if q_dia and t_dia:
+        if q_dia == t_dia:
+            return True
+        if len(q_dia) == 1 and q_dia[0] in t_dia:
+            return True
+        if len(q_dia) == len(t_dia) and all(q_dia[i] == t_dia[i] for i in range(len(q_dia))):
+            return True
+
+    return False
+
+
+INVALID_CUSTOMER_STOPWORDS = {
+    "ka", "ki", "ke", "ko", "ne", "se", "mein", "par", "rupayi", "rupaye", "rupiya", "rupees", "rs", "inr",
+    "udhar", "udri", "jama", "likho", "likh", "kotta", "kottru", "diya", "paid", "credit", "payment",
+    "aur", "karo", "kar", "de", "le", "lo", "batao", "bhi", "ek", "do", "teen", "chaar", "paanch",
+    "hai", "kya", "tha", "thi", "the", "aaya", "aayi", "gaya", "gayi", "hua", "hui", "hue", "bana", "bane",
+    "sab", "clear", "ella", "maadi", "chukta", "barabar", "nahi", "nahin", "not", "no", "cancel", "hatao",
+    "aaj", "hisaab", "hisab", "summary", "total", "kul", "bill", "aajka",
+    "jiska", "jiske", "jiski", "jisne", "jis", "abhi", "ab", "bhar", "bhara", "bhare", "bharo", "bharna",
+    "kottiddene", "kotte", "kottidini", "kottidru", "kottide",
+    "parle", "parleg", "parle-g", "maggi", "lays", "biscuit", "sugar", "cheeni", "atta", "oil", "tel", "doodh", "milk",
+    "का", "की", "के", "को", "ने", "से", "में", "पर", "रुपये", "रुपए", "रुपया",
+    "उधार", "उधारी", "जमा", "लिखो", "लिख", "डाल", "दिया", "दिए", "दे", "लिया", "लिए", "ले",
+    "करो", "कर", "दो", "दी", "हो", "गया", "गई", "है", "हैं", "था", "थी", "हुआ", "हुए", "हुई", "बना", "बने",
+    "आज", "हिसाब", "समरी", "कुल", "बिल",
+    "जिसका", "जिसके", "जिसकी", "जिसने", "जिस", "अभी", "अब", "भर", "भरा", "भरे", "भरो", "भरना",
+    "ಕೊಟ್ಟಿದ್ದೇನೆ", "ಕೊಟ್ಟೆ", "ಕೊಟ್ಟಿದೀನಿ", "ಕೊಟ್ಟಿದ್ರು", "ಕೊಟ್ಟಿದೆ", "ಉದ್ರಿ", "ಜಮಾ", "ಬರೆ", "ಹಾಕಿ", "ಕೊಟ್ರು"
+}
+
+
+def is_valid_customer_name(name: str) -> bool:
+    """Validate that candidate string is genuinely a customer's person name and not a filler,
+    product name, amount, or transaction verb."""
+    if not name or len(name.strip()) < 2 or len(name.strip()) > 50:
+        return False
+    # Reject strings with digits (e.g. "50भर", "15", "₹15")
+    if any(ch.isdigit() for ch in name):
+        return False
+    # Reject strings composed entirely of stopwords/filler words
+    words = re.sub(r'''[₹$€£।॥.,?!;:"'()\[\]{}\-—_/\\]''', ' ', name).strip().split()
+    if not words:
+        return False
+    # If all tokens are stopwords, reject!
+    all_stop = all(w.lower() in INVALID_CUSTOMER_STOPWORDS for w in words)
+    if all_stop:
+        return False
+    return True
+
+
 def normalize_customer_query(raw: str) -> str:
     """Strip honorifics, punctuation, and extra spaces from a spoken customer query while preserving Indic matras."""
     cleaned = re.sub(r"[^\w\s\u0900-\u097F\u0C80-\u0CFF]", " ", raw or "")
@@ -145,12 +282,14 @@ def _parse_iso_date(val: str | None) -> date | None:
 
 
 async def search_customers(s: AsyncSession, shop_id: str, name: str) -> dict:
-    """Fuzzy-search customers by name OR landmark after stripping Indian honorifics and cross-script transliteration."""
+    """Fuzzy-search customers by name OR landmark after stripping Indian honorifics and cross-script transliteration,
+    with phonetic and dialect equivalence checking."""
     raw_query = (name or "").strip()
     clean_name = normalize_customer_query(raw_query)
     latin_name = transliterate_indic_to_latin(clean_name)
     shop_uuid = to_uuid(shop_id)
 
+    matches = []
     try:
         rows = (
             await s.execute(
@@ -172,18 +311,16 @@ async def search_customers(s: AsyncSession, shop_id: str, name: str) -> dict:
                     left join customer_balances b on b.customer_id = c.id
                     where c.shop_id = :shop
                       and (
-                        similarity(c.name, :q) > 0.20
-                        or word_similarity(:q, c.name) > 0.35
-                        or similarity(c.name, :lat) > 0.20
-                        or word_similarity(:lat, c.name) > 0.35
+                        similarity(c.name, :q) > 0.15
+                        or word_similarity(:q, c.name) > 0.25
+                        or similarity(c.name, :lat) > 0.15
+                        or word_similarity(:lat, c.name) > 0.25
                         or c.name ilike :like
                         or c.name ilike :lat_like
                         or coalesce(c.landmark, '') ilike :like
                         or coalesce(c.landmark, '') ilike :lat_like
-                        or coalesce(word_similarity(:q, c.landmark), 0) > 0.45
-                        or coalesce(word_similarity(:lat, c.landmark), 0) > 0.45
                       )
-                    order by score desc limit 6
+                    order by score desc limit 8
                     """
                 ),
                 {
@@ -207,7 +344,6 @@ async def search_customers(s: AsyncSession, shop_id: str, name: str) -> dict:
             }
             for r in rows
         ]
-        return {"query_normalized": clean_name, "matches": matches}
 
     except Exception:
         await s.rollback()
@@ -218,12 +354,11 @@ async def search_customers(s: AsyncSession, shop_id: str, name: str) -> dict:
                 (Customer.name.ilike(f"%{clean_name}%"))
                 | (Customer.landmark.ilike(f"%{clean_name}%")),
             )
-            .limit(6)
+            .limit(8)
         )
         res = await s.execute(query)
         custs = res.scalars().all()
 
-        matches = []
         for c in custs:
             bal_row = (
                 await s.execute(
@@ -241,7 +376,49 @@ async def search_customers(s: AsyncSession, shop_id: str, name: str) -> dict:
                     "score": 0.8 if clean_name.lower() in c.name.lower() else 0.5,
                 }
             )
-        return {"query_normalized": clean_name, "matches": matches}
+
+    # Dialect & Phonetic Pass over all customers in shop
+    try:
+        all_shop_custs_res = await s.execute(
+            select(Customer).where(Customer.shop_id == shop_uuid)
+        )
+        all_shop_custs = all_shop_custs_res.scalars().all()
+        matched_ids = {m["customer_id"] for m in matches}
+
+        for sc in all_shop_custs:
+            sc_id = str(sc.id)
+            is_match = (
+                is_phonetic_match(clean_name, sc.name)
+                or (latin_name and is_phonetic_match(latin_name, sc.name))
+            )
+            if is_match:
+                if sc_id in matched_ids:
+                    for m in matches:
+                        if m["customer_id"] == sc_id:
+                            m["score"] = 1.0
+                            m["phonetic_match"] = True
+                else:
+                    bal_row = (
+                        await s.execute(
+                            text("select balance from customer_balances where customer_id = :cid"),
+                            {"cid": sc_id},
+                        )
+                    ).scalar() or 0.0
+                    matches.append({
+                        "customer_id": sc_id,
+                        "name": sc.name,
+                        "landmark": sc.landmark,
+                        "phone": sc.phone,
+                        "balance": float(bal_row),
+                        "score": 1.0,
+                        "phonetic_match": True,
+                    })
+                    matched_ids.add(sc_id)
+    except Exception as ex:
+        pass
+
+    matches.sort(key=lambda m: (float(m.get("score", 0.0)), bool(m.get("phonetic_match", False))), reverse=True)
+    return {"query_normalized": clean_name, "matches": matches[:6]}
 
 
 async def create_customer(
@@ -251,15 +428,46 @@ async def create_customer(
     phone: str | None = None,
     landmark: str | None = None,
 ) -> dict:
-    """Add a new customer to the kirana shop's ledger (stripping trailing honorifics and saving in English only)."""
+    """Add a new customer to the kirana shop's ledger (stripping trailing honorifics and saving in English only).
+    Checks dialect and phonetic equivalence: if a customer with the same pronunciation/dialect already exists,
+    returns the existing customer instead of creating a duplicate!
+    """
     raw_clean = normalize_customer_query(name)
     lat = transliterate_indic_to_latin(raw_clean)
     clean_name = (lat or raw_clean).strip().title()
-    if not clean_name:
-        return {"error": "Customer name is required"}
+
+    if not is_valid_customer_name(clean_name):
+        return {"error": f"Invalid customer name '{name}'. Cannot create customer from filler words or transaction amounts."}
+
+    shop_uuid = to_uuid(shop_id)
+
+    # Dialect & Pronunciation Check: Check if an existing customer with the same pronunciation already exists!
+    existing_res = await s.execute(
+        select(Customer).where(Customer.shop_id == shop_uuid)
+    )
+    existing_custs = existing_res.scalars().all()
+    for ec in existing_custs:
+        if ec.name.strip().lower() == clean_name.lower() or is_phonetic_match(clean_name, ec.name):
+            bal_row = (
+                await s.execute(
+                    text("select balance from customer_balances where customer_id = :cid"),
+                    {"cid": str(ec.id)},
+                )
+            ).scalar() or 0.0
+            return {
+                "customer_id": str(ec.id),
+                "name": ec.name,
+                "phone": ec.phone,
+                "landmark": ec.landmark,
+                "balance": float(bal_row),
+                "created": False,
+                "matched_existing": True,
+                "matched_phonetic": True,
+            }
+
     c = Customer(
         id=uuid.uuid4(),
-        shop_id=to_uuid(shop_id),
+        shop_id=shop_uuid,
         name=clean_name,
         phone=phone.strip() if phone else None,
         landmark=landmark.strip() if landmark else None,

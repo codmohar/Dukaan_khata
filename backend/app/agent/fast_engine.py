@@ -520,6 +520,7 @@ STOPWORDS = {
     "khaate", "rupay", "ada", "kiya", "likhiye",
     # Pronouns, Question markers & Inquiry tokens
     "mujhe", "mujhko", "mujhse", "hume", "humein", "humko", "kaun", "kise", "kisko", "kiske", "kisne", "kis", "sabka", "sabki", "sabke", "sabko", "kisi", "kisika", "dikhao", "dikhaiye", "bataiye", "bakaya", "bata", "dikha", "patti", "thorisi", "nanage", "namage", "yaaru", "yaarige", "yaaradu", "yaaraadru", "yaaraarige", "ellaru", "ellara", "ellarigu",
+    "jiska", "jiske", "jiski", "jisne", "jis", "abhi", "ab", "bhar", "bhara", "bhare", "bharo", "bharna", "kottiddene", "kotte", "kottidini", "kottidru", "kottide",
     # Devanagari stopwords
     "का", "की", "के", "को", "ने", "से", "में", "पर", "रुपये", "रुपए", "रुपया", "रु",
     "उधार", "उधारी", "जमा", "लिखो", "लिख", "डाल", "डालो", "दिया", "दिए", "दे", "लिया",
@@ -527,10 +528,12 @@ STOPWORDS = {
     "थी", "थे", "खाता", "खाते", "खातों", "हिसाब", "पंद्रह", "पन्द्रह", "बीस", "पच्चीस", "तीस", "चालीस", "पचास", "साठ", "सत्तर", "अस्सी", "नब्बे", "गल्ला", "गल्ले", "बॉक्स", "पेटी", "काउंटर", "सब", "क्लियर", "फोनपे", "कैश", "नकद", "कृपया", "बोलो", "बताओ",
     "पिछली", "पिछला", "एंट्री", "डिलीट", "हटाओ", "कितना", "कितने", "बैलेंस", "छूट", "हुआ", "हुए", "हुई", "बना", "बने", "बनी", "रुपये", "रुपए", "रुपया", "पैसा", "पैसे", "ಆಯ್ತು", "ಆಗಿದೆ", "ಆಯಿತು", "ರೂಪಾಯಿ", "आपके", "आपकी", "तुम्हारा", "तुम्हारी", "तुम्हारे", "तेरे", "तेरी", "तेरा", "उनका", "उनकी", "उनके", "इनका", "इनकी", "इनके", "किसका", "किसकी", "किसके", "कॉपी", "ಖಾತೆ", "ನಿಮಗೆ",
     "मुझे", "मुझको", "मुझसे", "हमें", "हमको", "हमारा", "हमारी", "हमारे", "मैं", "तू", "तुम", "आप", "कौन", "किसे", "किसको", "किसने", "किस", "सबका", "सबकी", "सबके", "सबको", "किसी", "किसिका", "दिखाओ", "दिखाइए", "बताइए", "बता", "दिखा", "लिस्ट", "बकाया", "देगा", "देंगे", "वादा", "प्रॉमिस", "पूरा", "निभाया",
+    "जिसका", "जिसके", "जिसकी", "जिसने", "जिस", "अभी", "अब", "भर", "भरा", "भरे", "भरो", "भरना",
     # Kannada stopwords
     "ಗೆ", "ಇಂದ", "ರೂಪಾಯಿ", "ರೂ", "ಉದ್ರಿ", "ಉಧಾರ್", "ಜಮಾ", "ಬರೆ", "ಹಾಕಿ", "ಕೊಟ್ರು",
     "ಕೊಟ್ಟ", "ಆಗಿದೆ", "ಆಯ್ತು", "ಇದೆ", "ಮಾಡಿದೆ", "ಖಾತೆ", "ಖಾತೆಗೆ", "ಖಾತೆಯಲ್ಲಿ", "ಲೆಕ್ಕ", "ಬ್ಯಾಲೆನ್ಸ್", "ಎಷ್ಟು", "ಸಾಲ", "ಮನ್ನಾ", "ರೈಟ್", "ಆಫ್", "ಹಿಂದಿನ", "ಮಾಡಿ", "ಪ್ರಾಮಿಸ್", "ಪೂರ್ಣ", "ಪೂರ್ತಿ",
-    "ನನಗೆ", "ನಮಗೆ", "ನಮ್ಮ", "ನನ್ನ", "ಯಾರು", "ಯಾರಿಗೆ", "ಯಾರದು", "ಯಾರಾದ್ರೂ", "ಯಾರಾರಿಗೆ", "ಎಲ್ಲರ", "ಎಲ್ಲರಿಗೂ", "ಹೇಳಿ", "ತೋರಿಸಿ", "ಪಟ್ಟಿ", "ಕೊಡಬೇಕು"
+    "ನನಗೆ", "ನಮಗೆ", "ನಮ್ಮ", "ನನ್ನ", "ಯಾರು", "ಯಾರಿಗೆ", "ಯಾರದು", "ಯಾರಾದ್ರೂ", "ಯಾರಾರಿಗೆ", "ಎಲ್ಲರ", "ಎಲ್ಲರಿಗೂ", "ಹೇಳಿ", "ತೋರಿಸಿ", "ಪಟ್ಟಿ", "ಕೊಡಬೇಕು",
+    "ಕೊಟ್ಟಿದ್ದೇನೆ", "ಕೊಟ್ಟೆ", "ಕೊಟ್ಟಿದೀನಿ", "ಕೊಟ್ಟಿದ್ರು", "ಕೊಟ್ಟಿದೆ"
 }
 
 
@@ -546,7 +549,8 @@ def _extract_name_tokens(text: str) -> List[str]:
     honorifics, transaction verbs (dena, lena, udhar, sell, buy), and attached postpositions.
     Always returns normalized English/Latin tokens for uniform database storage and recall.
     """
-    cleaned_punct = re.sub(r'''[₹$€£।॥.,?!;:"'()\[\]{}\-—_/\\]''', ' ', text)
+    spaced_digits = re.sub(r'(\d+)', r' \1 ', text)
+    cleaned_punct = re.sub(r'''[₹$€£।॥.,?!;:"'()\[\]{}\-—_/\\]''', ' ', spaced_digits)
     words = cleaned_punct.split()
     tokens = []
     for raw in words:
@@ -596,7 +600,7 @@ def _detect_payment_mode(text: str) -> Optional[str]:
 
 
 def _pick_best_match(matches: List[Dict[str, Any]], query_name: str) -> Tuple[Optional[Dict[str, Any]], List[Dict[str, Any]]]:
-    """Filter candidate customers for genuine name matches.
+    """Filter candidate customers for genuine name matches, including cross-script and dialect phonetic matching.
     If no candidate genuinely matches query_name, returns (None, []) so a new customer is created dynamically.
     Does not assume selected names or force unrelated database matches onto new customers.
     """
@@ -604,7 +608,9 @@ def _pick_best_match(matches: List[Dict[str, Any]], query_name: str) -> Tuple[Op
         return None, []
 
     clean_q = query_name.strip().lower()
-    q_words = clean_q.split()
+    lat_q = tools.transliterate_indic_to_latin(clean_q).strip().lower()
+    effective_q = lat_q if lat_q else clean_q
+    q_words = effective_q.split()
 
     genuine_matches: List[Dict[str, Any]] = []
     exact_matches: List[Dict[str, Any]] = []
@@ -614,29 +620,42 @@ def _pick_best_match(matches: List[Dict[str, Any]], query_name: str) -> Tuple[Op
         m_words = m_name.split()
         m_score = float(m.get("score") or 0.0)
 
-        # 1. Exact match (case-insensitive)
-        if m_name == clean_q:
+        # 0. Direct phonetic match confirmed by search_customers
+        if m.get("phonetic_match"):
             exact_matches.append(m)
             genuine_matches.append(m)
             continue
 
-        # 2. First name match (e.g. query "Ramesh" -> candidate "Ramesh Kumar" or "Ramesh Gowda")
-        if m_words and m_words[0] == clean_q:
+        # 1. Exact match (case-insensitive) against original or Latin query
+        if m_name in (clean_q, effective_q):
+            exact_matches.append(m)
             genuine_matches.append(m)
             continue
 
-        # 3. Query is multi-word and matches candidate prefix or candidate starts with query
-        if len(q_words) > 1 and (m_name.startswith(clean_q) or clean_q.startswith(m_name)):
+        # 2. Phonetic & Dialect match across languages/scripts (e.g. Suresh Telar vs Suresh Tailor, Patel vs Patil, Rhan vs Rehan)
+        if tools.is_phonetic_match(clean_q, m_name) or tools.is_phonetic_match(effective_q, m_name):
+            if m_score >= 0.8:
+                exact_matches.append(m)
             genuine_matches.append(m)
             continue
 
-        # 4. Word boundary match
-        if clean_q in m_words:
+        # 3. First name match (e.g. query "Ramesh" -> candidate "Ramesh Kumar" or "Ramesh Gowda")
+        if m_words and (m_words[0] == clean_q or m_words[0] == effective_q):
             genuine_matches.append(m)
             continue
 
-        # 5. High fuzzy score (at least 0.80 similarity for minor spelling/transliteration differences)
-        if m_score >= 0.80 and abs(len(m_name) - len(clean_q)) <= 2:
+        # 4. Query is multi-word and matches candidate prefix or candidate starts with query
+        if len(q_words) > 1 and (m_name.startswith(effective_q) or effective_q.startswith(m_name)):
+            genuine_matches.append(m)
+            continue
+
+        # 5. Word boundary match
+        if clean_q in m_words or effective_q in m_words:
+            genuine_matches.append(m)
+            continue
+
+        # 6. High fuzzy score (at least 0.80 similarity for minor spelling/transliteration differences)
+        if m_score >= 0.80 and abs(len(m_name) - len(effective_q)) <= 2:
             genuine_matches.append(m)
             continue
 
@@ -1350,11 +1369,11 @@ async def try_fast_path(
 
             summary_str = " aur ".join(clause_summaries)
             if lang.startswith("kn"):
-                msg = f"{len(clause_summaries)} actions process aagide: {' mattu '.join(clause_summaries)}. Confirm maadla?"
+                msg = f"{len(clause_summaries)} actions process aagide: {' mattu '.join(clause_summaries)}. Ondu sala check maadi, confirm maadla?"
             elif lang.startswith("hi"):
-                msg = f"{len(clause_summaries)} actions process ho gaye hain: {summary_str}. Confirm karein?"
+                msg = f"{len(clause_summaries)} actions process ho gaye hain: {summary_str}. Ek baar check karein, confirm karein?"
             else:
-                msg = f"{len(clause_summaries)} actions processed: {summary_str}. Please confirm."
+                msg = f"{len(clause_summaries)} actions processed: {summary_str}. Please check once and confirm."
 
             return FastPathResult(handled=True, reply=msg, events=all_events)
 
@@ -1976,13 +1995,13 @@ async def try_fast_path(
                     msg = _format_rule_warning_msg(draft_res, c_display, amount, lang)
                 elif draft_res.get("anomaly_warning"):
                     if lang.startswith("kn"):
-                        msg = f"⚠️ Gamana kodi: ₹{amount:,.0f} mottha saamaanyakkinta hecchide! {c_display} avarige khaathri maadlaa?"
+                        msg = f"⚠️ Gamana kodi: ₹{amount:,.0f} mottha saamaanyakkinta hecchide! {c_display} avarige ondu sala check maadi khaathri maadlaa?"
                     else:
-                        msg = f"⚠️ Alert: ₹{amount:,.0f} amount customer ke normal entry se 10 guna zyada hai! Confirm karein?"
+                        msg = f"⚠️ Alert: {c_display} ke liye ₹{amount:,.0f} normal se 10x zyada hai! Ek baar check karein, confirm karein?"
                 elif lang.startswith("kn"):
-                    msg = f"{c_display} avarige ₹{amount:,.0f}{mode_str} {tx_label} draft aagide ({proj_bal_str_kn}). Confirm maadla?"
+                    msg = f"{c_display} avarige ₹{amount:,.0f}{mode_str} {tx_label} draft aagide ({proj_bal_str_kn}). Ondu sala check maadi, confirm maadla?"
                 else:
-                    msg = f"{c_display} ke naam ₹{amount:,.0f}{mode_str} {tx_label} draft ban gaya hai ({proj_bal_str_hi}). Confirm karein?"
+                    msg = f"{c_display} ke naam ₹{amount:,.0f}{mode_str} {tx_label} draft ban gaya hai ({proj_bal_str_hi}). Ek baar check karein, confirm karein?"
 
                 return FastPathResult(
                     handled=True,
@@ -2048,9 +2067,9 @@ async def try_fast_path(
                 elif draft_res.get("rule_warnings"):
                     msg = _format_rule_warning_msg(draft_res, best["name"], tx_amt, lang)
                 elif lang.startswith("kn"):
-                    msg = f"{best['name']} avarige ₹{tx_amt:,.0f}{mode_str} {tx_type} draft aagide (naya baaki ₹{proj_bal:,.0f}). Confirm maadla?"
+                    msg = f"{best['name']} avarige ₹{tx_amt:,.0f}{mode_str} {tx_type} draft aagide (naya baaki ₹{proj_bal:,.0f}). Ondu sala check maadi, confirm maadla?"
                 else:
-                    msg = f"{best['name']} ke naam ₹{tx_amt:,.0f}{mode_str} {tx_type} draft ban gaya hai (naya balance ₹{proj_bal:,.0f}). Confirm karein?"
+                    msg = f"{best['name']} ke naam ₹{tx_amt:,.0f}{mode_str} {tx_type} draft ban gaya hai (naya balance ₹{proj_bal:,.0f}). Ek baar check karein, confirm karein?"
 
                 return FastPathResult(
                     handled=True,
@@ -2081,12 +2100,18 @@ async def try_fast_path(
                 sess.active_tx_type = None
                 sess.active_payment_mode = None
 
-                if draft_res.get("rule_warnings"):
+                if new_c.get("matched_existing"):
+                    c_found = new_c["name"]
+                    if lang.startswith("kn"):
+                        msg = f"{c_found} avarige ₹{tx_amt:,.0f}{mode_str} {tx_type} draft aagide. Ondu sala check maadi, confirm maadla?"
+                    else:
+                        msg = f"{c_found} ke naam ₹{tx_amt:,.0f}{mode_str} {tx_type} draft ban gaya hai. Ek baar check karein, confirm karein?"
+                elif draft_res.get("rule_warnings"):
                     msg = _format_rule_warning_msg(draft_res, cust_name, tx_amt, lang)
                 elif lang.startswith("kn"):
-                    msg = f"Hosa graahaka {cust_name} serislaagide mattu ₹{tx_amt:,.0f} {tx_type} draft aagide. Confirm maadla?"
+                    msg = f"Hosa graahaka {cust_name} serisi ₹{tx_amt:,.0f} {tx_type} draft maadlaagide. Ondu sala check maadi, confirm maadla?"
                 else:
-                    msg = f"Naye customer {cust_name} ke naam ₹{tx_amt:,.0f} {tx_type} draft bana diya hai. Confirm karein?"
+                    msg = f"Naye customer {cust_name} ke naam ₹{tx_amt:,.0f} {tx_type} draft bana diya hai. Ek baar check karein, confirm karein?"
 
                 return FastPathResult(
                     handled=True,
@@ -2161,13 +2186,13 @@ async def try_fast_path(
                     msg = _format_rule_warning_msg(draft_res, cname, amount, lang)
                 elif draft_res.get("anomaly_warning"):
                     if lang.startswith("kn"):
-                        msg = f"⚠️ Alert: ₹{amount:,.0f} mottha saamaanyakkinta hecchide! {cname} avarige khaathri maadlaa?"
+                        msg = f"⚠️ Alert: ₹{amount:,.0f} mottha saamaanyakkinta hecchide! {cname} avarige ondu sala check maadi khaathri maadlaa?"
                     else:
-                        msg = f"⚠️ Alert: ₹{amount:,.0f} normal se 10x zyada hai! Confirm karein?"
+                        msg = f"⚠️ Alert: {cname} ke liye ₹{amount:,.0f} normal se 10x zyada hai! Ek baar check karein, confirm karein?"
                 elif lang.startswith("kn"):
-                    msg = f"{cname} avarige ₹{amount:,.0f}{mode_str} {tx_label} draft aagide ({proj_bal_str_kn}). Confirm maadla?"
+                    msg = f"{cname} avarige ₹{amount:,.0f}{mode_str} {tx_label} draft aagide ({proj_bal_str_kn}). Ondu sala check maadi, confirm maadla?"
                 else:
-                    msg = f"{cname} ke naam ₹{amount:,.0f}{mode_str} {tx_label} draft ban gaya hai ({proj_bal_str_hi}). Confirm karein?"
+                    msg = f"{cname} ke naam ₹{amount:,.0f}{mode_str} {tx_label} draft ban gaya hai ({proj_bal_str_hi}). Ek baar check karein, confirm karein?"
 
                 return FastPathResult(
                     handled=True,
@@ -2212,12 +2237,18 @@ async def try_fast_path(
                         sess.active_customer_name = None
 
                     mode_str = f" {payment_mode.upper()}" if payment_mode else ""
-                    if draft_res.get("rule_warnings"):
+                    if new_c.get("matched_existing"):
+                        c_found = new_c["name"]
+                        if lang.startswith("kn"):
+                            msg = f"{c_found} avarige ₹{amount:,.0f}{mode_str} {tx_type} draft aagide. Ondu sala check maadi, confirm maadla?"
+                        else:
+                            msg = f"{c_found} ke naam ₹{amount:,.0f}{mode_str} {tx_type} draft ban gaya hai. Ek baar check karein, confirm karein?"
+                    elif draft_res.get("rule_warnings"):
                         msg = _format_rule_warning_msg(draft_res, cust_name, amount, lang)
                     elif lang.startswith("kn"):
-                        msg = f"Hosa graahaka {cust_name} serislaagide mattu ₹{amount:,.0f}{mode_str} {tx_type} draft aagide. Confirm maadla?"
+                        msg = f"Hosa graahaka {cust_name} serisi ₹{amount:,.0f}{mode_str} {tx_type} draft maadlaagide. Ondu sala check maadi, confirm maadla?"
                     else:
-                        msg = f"Naye customer {cust_name} ko register karke ₹{amount:,.0f}{mode_str} {tx_type} draft bana diya hai. Confirm karein?"
+                        msg = f"Naye customer {cust_name} ko register karke ₹{amount:,.0f}{mode_str} {tx_type} draft bana diya hai. Ek baar check karein, confirm karein?"
 
                     return FastPathResult(
                         handled=True,
