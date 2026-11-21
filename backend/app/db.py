@@ -206,6 +206,25 @@ async def init_db():
                     "alter table promises enable row level security",
                     "alter table shop_rules enable row level security",
                     "alter table daily_reconciliations enable row level security",
+                    # Migration 005: Shop Cash Book, Refund Support, Directional Money Flows
+                    """create table if not exists cash_book_entries (
+                        id uuid primary key default gen_random_uuid(),
+                        shop_id uuid not null references shops(id) on delete cascade,
+                        type varchar(20) not null check (type in ('cash_in', 'cash_out')),
+                        amount numeric(12, 2) not null check (amount > 0),
+                        reason varchar(100) default 'general',
+                        description text,
+                        payment_mode varchar(20) default 'cash',
+                        transaction_date date not null default current_date,
+                        created_at timestamptz not null default now()
+                    )""",
+                    "create index if not exists idx_cash_book_shop on cash_book_entries(shop_id)",
+                    "create index if not exists idx_cash_book_date on cash_book_entries(shop_id, transaction_date)",
+                    "alter table transactions drop constraint if exists transactions_type_check",
+                    "alter table transactions add constraint transactions_type_check check (type in ('credit', 'payment', 'adjustment', 'refund'))",
+                    "alter table transactions drop constraint if exists transactions_adjustment_reason_check",
+                    "alter table transactions add constraint transactions_adjustment_reason_check check (adjustment_reason is null or lower(adjustment_reason) in ('discount', 'return', 'write_off', 'correction', 'round_off', 'refund'))",
+                    "alter table transactions alter column customer_id drop not null",
                 ]
                 for stmt in migration_stmts:
                     try:

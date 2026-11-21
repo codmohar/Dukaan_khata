@@ -10,13 +10,13 @@ from datetime import date, datetime, timezone
 from decimal import Decimal, InvalidOperation
 from typing import Any
 
-from sqlalchemy import select, text
+from sqlalchemy import case, func, select, text
 try:
     from sqlalchemy.ext.asyncio import AsyncSession
 except Exception:
     AsyncSession = Any
 
-from ..models import Customer, DailyReconciliation, HouseholdMember, Promise, Reminder, Shop, ShopRule, Transaction
+from ..models import CashBookEntry, Customer, DailyReconciliation, HouseholdMember, Promise, Reminder, Shop, ShopRule, Transaction
 from ..services import household as household_service
 from ..services import memory as memory_service
 from ..services import promises as promises_service
@@ -1108,6 +1108,133 @@ async def run_daily_reconciliation(
         return {"error": str(e)}
 
 
+async def record_cash_in(
+    s: AsyncSession,
+    shop_id: str,
+    amount: float,
+    reason: str = "deposit",
+    description: str = "",
+    payment_mode: str = "cash",
+) -> dict:
+    """Record cash inflow into the shop cash drawer (independent of customer debt)."""
+    try:
+        sid = to_uuid(shop_id)
+        amt = Decimal(str(amount))
+        if amt <= 0:
+            return {"error": "Amount must be greater than zero"}
+
+        entry = CashBookEntry(
+            shop_id=sid,
+            type="cash_in",
+            amount=amt,
+            reason=reason,
+            description=description or f"Cash deposit: ₹{amt}",
+            payment_mode=payment_mode or "cash",
+            transaction_date=date.today(),
+        )
+        s.add(entry)
+        await s.commit()
+
+        balance_res = await get_cash_balance(s, shop_id)
+        return {
+            "ok": True,
+            "entry_id": str(entry.id),
+            "type": "cash_in",
+            "amount": float(amt),
+            "reason": reason,
+            "cash_balance": balance_res.get("cash_balance", float(amt)),
+            "message": f"Shop cash box mein ₹{amt:,.0f} cash-in jama ho gaya. Naya cash balance ₹{balance_res.get('cash_balance', 0):,.0f} hai.",
+        }
+    except Exception as e:
+        await s.rollback()
+        return {"error": str(e)}
+
+
+async def record_cash_out(
+    s: AsyncSession,
+    shop_id: str,
+    amount: float,
+    reason: str = "expense",
+    description: str = "",
+    payment_mode: str = "cash",
+) -> dict:
+    """Record cash outflow/withdrawal from the shop cash drawer."""
+    try:
+        sid = to_uuid(shop_id)
+        amt = Decimal(str(amount))
+        if amt <= 0:
+            return {"error": "Amount must be greater than zero"}
+
+        entry = CashBookEntry(
+            shop_id=sid,
+            type="cash_out",
+            amount=amt,
+            reason=reason,
+            description=description or f"Cash expense/withdrawal: ₹{amt}",
+            payment_mode=payment_mode or "cash",
+            transaction_date=date.today(),
+        )
+        s.add(entry)
+        await s.commit()
+
+        balance_res = await get_cash_balance(s, shop_id)
+        return {
+            "ok": True,
+            "entry_id": str(entry.id),
+            "type": "cash_out",
+            "amount": float(amt),
+            "reason": reason,
+            "cash_balance": balance_res.get("cash_balance", 0.0),
+            "message": f"Shop cash box se ₹{amt:,.0f} cash-out (kharch) nikal gaya. Naya cash balance ₹{balance_res.get('cash_balance', 0):,.0f} hai.",
+        }
+    except Exception as e:
+        await s.rollback()
+        return {"error": str(e)}
+
+
+async def get_cash_balance(s: AsyncSession, shop_id: str) -> dict:
+    """Get the current net physical cash balance in the shop cash drawer."""
+    try:
+        sid = to_uuid(shop_id)
+        q = await s.execute(
+            select(
+                func.coalesce(
+                    func.sum(
+                        case(
+                            (CashBookEntry.type == "cash_in", CashBookEntry.amount),
+                            else_=-CashBookEntry.amount,
+                        )
+                    ),
+                    0,
+                )
+            ).where(CashBookEntry.shop_id == sid)
+        )
+        total_cash = float(q.scalar() or 0.0)
+
+        today = date.today()
+        q_today_in = await s.execute(
+            select(func.coalesce(func.sum(CashBookEntry.amount), 0))
+            .where(CashBookEntry.shop_id == sid, CashBookEntry.type == "cash_in", CashBookEntry.transaction_date == today)
+        )
+        today_in = float(q_today_in.scalar() or 0.0)
+
+        q_today_out = await s.execute(
+            select(func.coalesce(func.sum(CashBookEntry.amount), 0))
+            .where(CashBookEntry.shop_id == sid, CashBookEntry.type == "cash_out", CashBookEntry.transaction_date == today)
+        )
+        today_out = float(q_today_out.scalar() or 0.0)
+
+        return {
+            "ok": True,
+            "cash_balance": total_cash,
+            "today_cash_in": today_in,
+            "today_cash_out": today_out,
+            "message": f"Dukaan cash balance: ₹{total_cash:,.0f} (Aaj jama: ₹{today_in:,.0f}, Aaj kharch: ₹{today_out:,.0f})",
+        }
+    except Exception as e:
+        return {"error": str(e), "cash_balance": 0.0}
+
+
 # Gemini function tool declarations (context-based, zero hardcoded default names)
 DECLARATIONS = [
     {
@@ -1467,6 +1594,40 @@ DECLARATIONS = [
                 "notes": {"type": "string", "description": "Optional notes or comments"},
             },
             "required": ["actual_cash", "actual_upi"],
+        },
+    },
+    {
+        "name": "record_cash_in",
+        "description": "Record physical cash deposit/inflow into the shop cash box/drawer (independent of customer udhar ledger).",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "amount": {"type": "number", "description": "Cash amount deposited in Rupees"},
+                "reason": {"type": "string", "description": "Reason (e.g. deposit, daily_cash, change)"},
+                "description": {"type": "string", "description": "Optional notes"},
+            },
+            "required": ["amount"],
+        },
+    },
+    {
+        "name": "record_cash_out",
+        "description": "Record physical cash withdrawal/expense from the shop cash box/drawer.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "amount": {"type": "number", "description": "Cash amount withdrawn/spent in Rupees"},
+                "reason": {"type": "string", "description": "Reason (e.g. expense, withdrawal, supplier_payment)"},
+                "description": {"type": "string", "description": "Optional notes"},
+            },
+            "required": ["amount"],
+        },
+    },
+    {
+        "name": "get_cash_balance",
+        "description": "Retrieve current shop cash drawer balance and today's total cash-in and cash-out.",
+        "parameters": {
+            "type": "object",
+            "properties": {},
         },
     },
 ]

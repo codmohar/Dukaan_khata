@@ -138,6 +138,14 @@ def extract_indian_amount(text: str) -> float | None:
     norm_text = text.translate(INDIC_DIGITS_MAP)
     norm_text = re.sub(r"(?<=\d),(?=\d)", "", norm_text)
 
+    # 0. Partial payment extraction: "500 mein se 300 diya", "600 alli 250 kottru", "400 out of 1000"
+    partial_match = re.search(r"\b\d+\s*(?:mein\s*se|alli)\s*(\d{1,7}(?:\.\d{1,2})?)\b", norm_text, re.I)
+    if partial_match:
+        return float(partial_match.group(1))
+    out_of_match = re.search(r"\b(\d{1,7}(?:\.\d{1,2})?)\s*out\s*of\s*\d+\b", norm_text, re.I)
+    if out_of_match:
+        return float(out_of_match.group(1))
+
     # 1. Prefer explicit currency marker association (e.g. "20 rupayi", "₹50", "Rs 100", "50 rupaye")
     cur_match = re.search(
         r"(?:rs\.?|inr|₹)\s*(\d{1,7}(?:\.\d{1,2})?)|"
@@ -160,7 +168,7 @@ def extract_indian_amount(text: str) -> float | None:
         val = float(token)
         # Check if immediately followed by quantity words
         after_text = norm_text[m.end():m.end() + 15].strip().lower()
-        is_qty = bool(re.match(r"^(?:packet|pkt|kilo|kg|gm|piece|pc|pcs|dabba|pouch|ltr|liter|litre|glass|cup)\b", after_text))
+        is_qty = bool(re.match(r"^(?:l\b|ltr|liter|litre|packet|pkt|kilo|kg|gm|piece|pc|pcs|dabba|pouch|glass|cup)\b", after_text))
         valid_numbers.append((val, is_qty))
 
     if valid_numbers:
@@ -168,6 +176,6 @@ def extract_indian_amount(text: str) -> float | None:
         non_qty = [v for v, is_q in valid_numbers if not is_q]
         if non_qty:
             return non_qty[0]
-        return valid_numbers[0][0]
+        return None
 
     return None

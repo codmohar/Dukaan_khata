@@ -1,0 +1,1866 @@
+[
+  {
+    "id": 1,
+    "category": "product_inquiry",
+    "language": "kn-IN",
+    "utterance": "shyam ake pucha ki parleg lena hae 15 rupae ka",
+    "expected_intent": "inquiry",
+    "expected": {
+      "silent": true
+    }
+  },
+  {
+    "id": 2,
+    "category": "product_inquiry",
+    "language": "kn-Latn",
+    "utterance": "Manjunatha bandu 1 packet biscuit kelidru 20 rupayi",
+    "expected_intent": "inquiry",
+    "expected": {
+      "silent": true
+    }
+  },
+  {
+    "id": 3,
+    "category": "product_inquiry",
+    "language": "hi-IN",
+    "utterance": "एक किलो चीनी कितने का है भैया?",
+    "expected_intent": "inquiry",
+    "expected": {
+      "silent": true
+    }
+  },
+  {
+    "id": 4,
+    "category": "product_inquiry",
+    "language": "hi-Latn",
+    "utterance": "Ek kilo sugar kitne ka hai?",
+    "expected_intent": "inquiry",
+    "expected": {
+      "silent": true
+    }
+  },
+  {
+    "id": 5,
+    "category": "product_inquiry",
+    "language": "kn-Latn",
+    "utterance": "Ondu packet haalu eshtu bele?",
+    "expected_intent": "inquiry",
+    "expected": {
+      "silent": true
+    }
+  },
+  {
+    "id": 6,
+    "category": "product_inquiry",
+    "language": "en-IN",
+    "utterance": "What is the price of sunflower oil today?",
+    "expected_intent": "inquiry",
+    "expected": {
+      "silent": true
+    }
+  },
+  {
+    "id": 7,
+    "category": "product_inquiry",
+    "language": "hi-Latn",
+    "utterance": "Do packet Maggi aur ek Colgate lena hai kitne ka hua",
+    "expected_intent": "inquiry",
+    "expected": {
+      "silent": true
+    }
+  },
+  {
+    "id": 8,
+    "category": "paid_walk_in",
+    "language": "hi-Latn",
+    "utterance": "Ye lo 50 cash",
+    "expected_intent": "paid_sale",
+    "expected": {
+      "silent": true
+    }
+  },
+  {
+    "id": 9,
+    "category": "paid_walk_in",
+    "language": "hi-Latn",
+    "utterance": "50 Google Pay kar diya bhaiya",
+    "expected_intent": "paid_sale",
+    "expected": {
+      "silent": true
+    }
+  },
+  {
+    "id": 10,
+    "category": "paid_walk_in",
+    "language": "kn-Latn",
+    "utterance": "Naanu 200 kodtini, change kodi",
+    "expected_intent": "paid_sale",
+    "expected": {
+      "silent": true
+    }
+  },
+  {
+    "id": 11,
+    "category": "paid_walk_in",
+    "language": "hi-Latn",
+    "utterance": "Main 500 de raha hoon, khulla hai kya?",
+    "expected_intent": "paid_sale",
+    "expected": {
+      "silent": true
+    }
+  },
+  {
+    "id": 12,
+    "category": "paid_walk_in",
+    "language": "en-IN",
+    "utterance": "Here is 100 rupees for the milk",
+    "expected_intent": "paid_sale",
+    "expected": {
+      "silent": true
+    }
+  },
+  {
+    "id": 13,
+    "category": "paid_walk_in",
+    "language": "kn-Latn",
+    "utterance": "Ye lo note diya 100 rupayi",
+    "expected_intent": "paid_sale",
+    "expected": {
+      "silent": true
+    }
+  },
+  {
+    "id": 14,
+    "category": "paid_walk_in",
+    "language": "hi-Latn",
+    "utterance": "Ye lo bhaiya 30 rupaye poore ho gaye",
+    "expected_intent": "paid_sale",
+    "expected": {
+      "silent": true
+    }
+  },
+  {
+    "id": 15,
+    "category": "credit_sale",
+    "language": "kn-Latn",
+    "utterance": "Basavaraj ge 340 udhar bardu",
+    "expected_intent": "credit",
+    "expected": {
+      "customer": "Basavaraj",
+      "amount": 340,
+      "tx_type": "credit"
+    }
+  },
+  {
+    "id": 16,
+    "category": "credit_sale",
+    "language": "kn-Latn",
+    "utterance": "Kavitha avare account ge 180 baaki haaki",
+    "expected_intent": "credit",
+    "expected": {
+      "customer": "Kavitha",
+      "amount": 180,
+      "tx_type": "credit"
+    }
+  },
+  {
+    "id": 17,
+    "category": "credit_sale",
+    "language": "kn-IN",
+    "utterance": "ಬಸವರಾಜ್ ಗೆ 450 ಉಧಾರ್ ಬರೆದು ಹಾಕಿ",
+    "expected_intent": "credit",
+    "expected": {
+      "customer": "Basavaraj",
+      "amount": 450,
+      "tx_type": "credit"
+    }
+  },
+  {
+    "id": 18,
+    "category": "credit_sale",
+    "language": "hi-Latn",
+    "utterance": "Imran ke khate mein 650 udhaar daal do",
+    "expected_intent": "credit",
+    "expected": {
+      "customer": "Imran",
+      "amount": 650,
+      "tx_type": "credit"
+    }
+  },
+  {
+    "id": 19,
+    "category": "credit_sale",
+    "language": "hi-IN",
+    "utterance": "दिनेश के खाते में 780 उधार लिख दो",
+    "expected_intent": "credit",
+    "expected": {
+      "customer": "Dinesh",
+      "amount": 780,
+      "tx_type": "credit"
+    }
+  },
+  {
+    "id": 20,
+    "category": "credit_sale",
+    "language": "en-IN",
+    "utterance": "Add 890 udhar for Naveen",
+    "expected_intent": "credit",
+    "expected": {
+      "customer": "Naveen",
+      "amount": 890,
+      "tx_type": "credit"
+    }
+  },
+  {
+    "id": 21,
+    "category": "credit_sale",
+    "language": "hi-Latn",
+    "utterance": "Meenakshi ko 290 baaki likh do",
+    "expected_intent": "credit",
+    "expected": {
+      "customer": "Meenakshi",
+      "amount": 290,
+      "tx_type": "credit"
+    }
+  },
+  {
+    "id": 22,
+    "category": "credit_sale",
+    "language": "kn-Latn",
+    "utterance": "Harish ge 520 udri barkoli",
+    "expected_intent": "credit",
+    "expected": {
+      "customer": "Harish",
+      "amount": 520,
+      "tx_type": "credit"
+    }
+  },
+  {
+    "id": 23,
+    "category": "payment_received",
+    "language": "kn-Latn",
+    "utterance": "Basavaraj 500 kottru",
+    "expected_intent": "payment",
+    "expected": {
+      "customer": "Basavaraj",
+      "amount": 500,
+      "tx_type": "payment"
+    }
+  },
+  {
+    "id": 24,
+    "category": "payment_received",
+    "language": "kn-Latn",
+    "utterance": "Kavitha 300 PhonePe maadidru",
+    "expected_intent": "payment",
+    "expected": {
+      "customer": "Kavitha",
+      "amount": 300,
+      "tx_type": "payment",
+      "mode": "upi"
+    }
+  },
+  {
+    "id": 25,
+    "category": "payment_received",
+    "language": "hi-Latn",
+    "utterance": "Imran ne 200 PhonePe kiya",
+    "expected_intent": "payment",
+    "expected": {
+      "customer": "Imran",
+      "amount": 200,
+      "tx_type": "payment",
+      "mode": "upi"
+    }
+  },
+  {
+    "id": 26,
+    "category": "payment_received",
+    "language": "hi-Latn",
+    "utterance": "Meenakshi ne 450 GPay se jama kiya",
+    "expected_intent": "payment",
+    "expected": {
+      "customer": "Meenakshi",
+      "amount": 450,
+      "tx_type": "payment",
+      "mode": "upi"
+    }
+  },
+  {
+    "id": 27,
+    "category": "payment_received",
+    "language": "hi-Latn",
+    "utterance": "Dinesh ne 600 Paytm bheja",
+    "expected_intent": "payment",
+    "expected": {
+      "customer": "Dinesh",
+      "amount": 600,
+      "tx_type": "payment",
+      "mode": "upi"
+    }
+  },
+  {
+    "id": 28,
+    "category": "payment_received",
+    "language": "hi-Latn",
+    "utterance": "Rekha ne 350 cash de diya",
+    "expected_intent": "payment",
+    "expected": {
+      "customer": "Rekha",
+      "amount": 350,
+      "tx_type": "payment",
+      "mode": "cash"
+    }
+  },
+  {
+    "id": 29,
+    "category": "payment_received",
+    "language": "en-IN",
+    "utterance": "Karthik paid 700 by UPI",
+    "expected_intent": "payment",
+    "expected": {
+      "customer": "Karthik",
+      "amount": 700,
+      "tx_type": "payment",
+      "mode": "upi"
+    }
+  },
+  {
+    "id": 30,
+    "category": "payment_received",
+    "language": "hi-IN",
+    "utterance": "नवीन ने 500 रुपये जमा किए",
+    "expected_intent": "payment",
+    "expected": {
+      "customer": "Naveen",
+      "amount": 500,
+      "tx_type": "payment"
+    }
+  },
+  {
+    "id": 31,
+    "category": "change_calculation",
+    "language": "hi-Latn",
+    "utterance": "500 diye 150 change do",
+    "expected_intent": "change_calc",
+    "expected": {
+      "change": 350,
+      "no_debt": true
+    }
+  },
+  {
+    "id": 32,
+    "category": "change_calculation",
+    "language": "kn-Latn",
+    "utterance": "50 change kodi",
+    "expected_intent": "change_calc",
+    "expected": {
+      "change": 50,
+      "no_debt": true
+    }
+  },
+  {
+    "id": 33,
+    "category": "change_calculation",
+    "language": "hi-Latn",
+    "utterance": "50 change do",
+    "expected_intent": "change_calc",
+    "expected": {
+      "change": 50,
+      "no_debt": true
+    }
+  },
+  {
+    "id": 34,
+    "category": "change_calculation",
+    "language": "kn-Latn",
+    "utterance": "Chillar wapas kodi 20 rupayi",
+    "expected_intent": "change_calc",
+    "expected": {
+      "change": 20,
+      "no_debt": true
+    }
+  },
+  {
+    "id": 35,
+    "category": "change_calculation",
+    "language": "hi-Latn",
+    "utterance": "Kitna change wapas dena hai?",
+    "expected_intent": "change_calc",
+    "expected": {
+      "no_debt": true
+    }
+  },
+  {
+    "id": 36,
+    "category": "change_calculation",
+    "language": "kn-Latn",
+    "utterance": "Eshtu change kodbeku?",
+    "expected_intent": "change_calc",
+    "expected": {
+      "no_debt": true
+    }
+  },
+  {
+    "id": 37,
+    "category": "change_calculation",
+    "language": "en-IN",
+    "utterance": "Give 40 rupees change return",
+    "expected_intent": "change_calc",
+    "expected": {
+      "change": 40,
+      "no_debt": true
+    }
+  },
+  {
+    "id": 38,
+    "category": "partial_payment",
+    "language": "hi-Latn",
+    "utterance": "Shanta ne 500 mein se 300 diya, baaki baad mein",
+    "expected_intent": "payment",
+    "expected": {
+      "customer": "Shanta",
+      "amount": 300,
+      "tx_type": "payment"
+    }
+  },
+  {
+    "id": 39,
+    "category": "partial_payment",
+    "language": "kn-Latn",
+    "utterance": "Vandana 600 alli 250 kottru, baaki naale",
+    "expected_intent": "payment",
+    "expected": {
+      "customer": "Vandana",
+      "amount": 250,
+      "tx_type": "payment"
+    }
+  },
+  {
+    "id": 40,
+    "category": "partial_payment",
+    "language": "en-IN",
+    "utterance": "Mallika paid 400 out of 1000 today by cash",
+    "expected_intent": "payment",
+    "expected": {
+      "customer": "Mallika",
+      "amount": 400,
+      "tx_type": "payment"
+    }
+  },
+  {
+    "id": 41,
+    "category": "partial_payment",
+    "language": "hi-Latn",
+    "utterance": "Tariq ne 1000 mein se 600 PhonePe kiya",
+    "expected_intent": "payment",
+    "expected": {
+      "customer": "Tariq",
+      "amount": 600,
+      "tx_type": "payment"
+    }
+  },
+  {
+    "id": 42,
+    "category": "partial_payment",
+    "language": "hi-Latn",
+    "utterance": "Deepak ne 800 mein se 400 chuka diya",
+    "expected_intent": "payment",
+    "expected": {
+      "customer": "Deepak",
+      "amount": 400,
+      "tx_type": "payment"
+    }
+  },
+  {
+    "id": 43,
+    "category": "partial_payment",
+    "language": "kn-Latn",
+    "utterance": "Harish 500 alli 200 kottru",
+    "expected_intent": "payment",
+    "expected": {
+      "customer": "Harish",
+      "amount": 200,
+      "tx_type": "payment"
+    }
+  },
+  {
+    "id": 44,
+    "category": "partial_payment",
+    "language": "en-IN",
+    "utterance": "Naveen gave 350 partial payment",
+    "expected_intent": "payment",
+    "expected": {
+      "customer": "Naveen",
+      "amount": 350,
+      "tx_type": "payment"
+    }
+  },
+  {
+    "id": 45,
+    "category": "full_settlement",
+    "language": "hi-Latn",
+    "utterance": "Imran ka sab clear kar do",
+    "expected_intent": "full_settlement",
+    "expected": {
+      "customer": "Imran"
+    }
+  },
+  {
+    "id": 46,
+    "category": "full_settlement",
+    "language": "hi-Latn",
+    "utterance": "Meenakshi ka hisaab chukta ho gaya cash mein",
+    "expected_intent": "full_settlement",
+    "expected": {
+      "customer": "Meenakshi",
+      "mode": "cash"
+    }
+  },
+  {
+    "id": 47,
+    "category": "full_settlement",
+    "language": "hi-Latn",
+    "utterance": "Dinesh ka hisaab barabar kar do PhonePe se",
+    "expected_intent": "full_settlement",
+    "expected": {
+      "customer": "Dinesh",
+      "mode": "upi"
+    }
+  },
+  {
+    "id": 48,
+    "category": "full_settlement",
+    "language": "kn-Latn",
+    "utterance": "Basavaraj du ellaa clear maadi",
+    "expected_intent": "full_settlement",
+    "expected": {
+      "customer": "Basavaraj"
+    }
+  },
+  {
+    "id": 49,
+    "category": "full_settlement",
+    "language": "kn-Latn",
+    "utterance": "Kavitha avaru poora settle maadidru",
+    "expected_intent": "full_settlement",
+    "expected": {
+      "customer": "Kavitha"
+    }
+  },
+  {
+    "id": 50,
+    "category": "full_settlement",
+    "language": "en-IN",
+    "utterance": "Settle Prakash account completely in cash",
+    "expected_intent": "full_settlement",
+    "expected": {
+      "customer": "Prakash",
+      "mode": "cash"
+    }
+  },
+  {
+    "id": 51,
+    "category": "full_settlement",
+    "language": "hi-IN",
+    "utterance": "रेखा का पूरा हिसाब चुकता कर दो",
+    "expected_intent": "full_settlement",
+    "expected": {
+      "customer": "Rekha"
+    }
+  },
+  {
+    "id": 52,
+    "category": "bad_debt_write_off",
+    "language": "hi-Latn",
+    "utterance": "Tariq ka hisaab band karo, bad debt write off",
+    "expected_intent": "write_off",
+    "expected": {
+      "customer": "Tariq",
+      "write_off": true
+    }
+  },
+  {
+    "id": 53,
+    "category": "bad_debt_write_off",
+    "language": "en-IN",
+    "utterance": "Write off Yogesh unpaid balance permanently",
+    "expected_intent": "write_off",
+    "expected": {
+      "customer": "Yogesh",
+      "write_off": true
+    }
+  },
+  {
+    "id": 54,
+    "category": "bad_debt_write_off",
+    "language": "kn-Latn",
+    "utterance": "Raghu account close maadi write off",
+    "expected_intent": "write_off",
+    "expected": {
+      "customer": "Raghu",
+      "write_off": true
+    }
+  },
+  {
+    "id": 55,
+    "category": "bad_debt_write_off",
+    "language": "hi-Latn",
+    "utterance": "Shankar ka pura baaki maaf kar ke band karo",
+    "expected_intent": "write_off",
+    "expected": {
+      "customer": "Shankar",
+      "write_off": true
+    }
+  },
+  {
+    "id": 56,
+    "category": "bad_debt_write_off",
+    "language": "hi-Latn",
+    "utterance": "Manoj ka udhar write off kar do",
+    "expected_intent": "write_off",
+    "expected": {
+      "customer": "Manoj",
+      "write_off": true
+    }
+  },
+  {
+    "id": 57,
+    "category": "bad_debt_write_off",
+    "language": "en-IN",
+    "utterance": "Close and write off debts for Imran",
+    "expected_intent": "write_off",
+    "expected": {
+      "customer": "Imran",
+      "write_off": true
+    }
+  },
+  {
+    "id": 58,
+    "category": "bad_debt_write_off",
+    "language": "kn-IN",
+    "utterance": "ರಘು ಸಾಲ ಮನ್ನಾ ಮಾಡಿ ರೈಟ್ ಆಫ್ ಮಾಡಿ",
+    "expected_intent": "write_off",
+    "expected": {
+      "customer": "Raghu",
+      "write_off": true
+    }
+  },
+  {
+    "id": 59,
+    "category": "advance_deposit",
+    "language": "hi-Latn",
+    "utterance": "Zoya ka 1000 advance rakho",
+    "expected_intent": "advance",
+    "expected": {
+      "customer": "Zoya",
+      "amount": 1000,
+      "tx_type": "payment"
+    }
+  },
+  {
+    "id": 60,
+    "category": "advance_deposit",
+    "language": "kn-Latn",
+    "utterance": "Shankar 1500 advance mungaada kottru",
+    "expected_intent": "advance",
+    "expected": {
+      "customer": "Shankar",
+      "amount": 1500,
+      "tx_type": "payment"
+    }
+  },
+  {
+    "id": 61,
+    "category": "advance_deposit",
+    "language": "en-IN",
+    "utterance": "Keep 2000 deposit advance for Bhavna via UPI",
+    "expected_intent": "advance",
+    "expected": {
+      "customer": "Bhavna",
+      "amount": 2000,
+      "tx_type": "payment",
+      "mode": "upi"
+    }
+  },
+  {
+    "id": 62,
+    "category": "advance_deposit",
+    "language": "hi-Latn",
+    "utterance": "Raghu ne 500 advance jama karwaya cash mein",
+    "expected_intent": "advance",
+    "expected": {
+      "customer": "Raghu",
+      "amount": 500,
+      "tx_type": "payment",
+      "mode": "cash"
+    }
+  },
+  {
+    "id": 63,
+    "category": "advance_deposit",
+    "language": "kn-Latn",
+    "utterance": "Ganesh 1000 advance deposit kotta",
+    "expected_intent": "advance",
+    "expected": {
+      "customer": "Ganesh",
+      "amount": 1000,
+      "tx_type": "payment"
+    }
+  },
+  {
+    "id": 64,
+    "category": "advance_deposit",
+    "language": "hi-Latn",
+    "utterance": "Sunil ka 2500 advance deposit likho",
+    "expected_intent": "advance",
+    "expected": {
+      "customer": "Sunil",
+      "amount": 2500,
+      "tx_type": "payment"
+    }
+  },
+  {
+    "id": 65,
+    "category": "advance_deposit",
+    "language": "en-IN",
+    "utterance": "Record 500 advance from Rekha",
+    "expected_intent": "advance",
+    "expected": {
+      "customer": "Rekha",
+      "amount": 500,
+      "tx_type": "payment"
+    }
+  },
+  {
+    "id": 66,
+    "category": "product_return",
+    "language": "hi-Latn",
+    "utterance": "Farida ne wo biscuit wapas kiya, 40 kam karo",
+    "expected_intent": "return",
+    "expected": {
+      "customer": "Farida",
+      "amount": 40,
+      "tx_type": "adjustment",
+      "reason": "return"
+    }
+  },
+  {
+    "id": 67,
+    "category": "product_return",
+    "language": "kn-Latn",
+    "utterance": "Ganesh biscuit packet return maadidru, 60 kadime maadi",
+    "expected_intent": "return",
+    "expected": {
+      "customer": "Ganesh",
+      "amount": 60,
+      "tx_type": "adjustment",
+      "reason": "return"
+    }
+  },
+  {
+    "id": 68,
+    "category": "product_return",
+    "language": "en-IN",
+    "utterance": "Shanta returned 1L oil, reduce 140 from account",
+    "expected_intent": "return",
+    "expected": {
+      "customer": "Shanta",
+      "amount": 140,
+      "tx_type": "adjustment",
+      "reason": "return"
+    }
+  },
+  {
+    "id": 69,
+    "category": "product_return",
+    "language": "hi-Latn",
+    "utterance": "Vandana ka soap wapas aaya, 35 rupaye return adjust karo",
+    "expected_intent": "return",
+    "expected": {
+      "customer": "Vandana",
+      "amount": 35,
+      "tx_type": "adjustment",
+      "reason": "return"
+    }
+  },
+  {
+    "id": 70,
+    "category": "product_return",
+    "language": "hi-IN",
+    "utterance": "मल्लिका ने आटा वापस किया 120 कम करो",
+    "expected_intent": "return",
+    "expected": {
+      "customer": "Mallika",
+      "amount": 120,
+      "tx_type": "adjustment",
+      "reason": "return"
+    }
+  },
+  {
+    "id": 71,
+    "category": "product_return",
+    "language": "hi-Latn",
+    "utterance": "Savitri ka kharab doodh return, 55 minus karo",
+    "expected_intent": "return",
+    "expected": {
+      "customer": "Savitri",
+      "amount": 55,
+      "tx_type": "adjustment",
+      "reason": "return"
+    }
+  },
+  {
+    "id": 72,
+    "category": "product_return",
+    "language": "kn-Latn",
+    "utterance": "Harish soap packet wapas kotta 45 kadime maadi",
+    "expected_intent": "return",
+    "expected": {
+      "customer": "Harish",
+      "amount": 45,
+      "tx_type": "adjustment",
+      "reason": "return"
+    }
+  },
+  {
+    "id": 73,
+    "category": "discount_adjustment",
+    "language": "hi-Latn",
+    "utterance": "Chillar chhodo, Zoya ke khate se 10 discount kam karo",
+    "expected_intent": "discount",
+    "expected": {
+      "customer": "Zoya",
+      "amount": 10,
+      "tx_type": "adjustment",
+      "reason": "discount"
+    }
+  },
+  {
+    "id": 74,
+    "category": "discount_adjustment",
+    "language": "en-IN",
+    "utterance": "Give 25 rupees discount adjustment to Bhavna",
+    "expected_intent": "discount",
+    "expected": {
+      "customer": "Bhavna",
+      "amount": 25,
+      "tx_type": "adjustment",
+      "reason": "discount"
+    }
+  },
+  {
+    "id": 75,
+    "category": "discount_adjustment",
+    "language": "kn-Latn",
+    "utterance": "Geetha ge 15 rupayi discount maadi",
+    "expected_intent": "discount",
+    "expected": {
+      "customer": "Geetha",
+      "amount": 15,
+      "tx_type": "adjustment",
+      "reason": "discount"
+    }
+  },
+  {
+    "id": 76,
+    "category": "discount_adjustment",
+    "language": "hi-Latn",
+    "utterance": "Padma ji ko 20 rupaye chhoot de do khate mein",
+    "expected_intent": "discount",
+    "expected": {
+      "customer": "Padma",
+      "amount": 20,
+      "tx_type": "adjustment",
+      "reason": "discount"
+    }
+  },
+  {
+    "id": 77,
+    "category": "discount_adjustment",
+    "language": "en-IN",
+    "utterance": "Round off 12 rupees discount on Karthik ledger",
+    "expected_intent": "discount",
+    "expected": {
+      "customer": "Karthik",
+      "amount": 12,
+      "tx_type": "adjustment",
+      "reason": "discount"
+    }
+  },
+  {
+    "id": 78,
+    "category": "discount_adjustment",
+    "language": "kn-Latn",
+    "utterance": "Harish 30 rupayi chillar discount haaki",
+    "expected_intent": "discount",
+    "expected": {
+      "customer": "Harish",
+      "amount": 30,
+      "tx_type": "adjustment",
+      "reason": "discount"
+    }
+  },
+  {
+    "id": 79,
+    "category": "discount_adjustment",
+    "language": "hi-Latn",
+    "utterance": "Chillar chhodo 50 discount likho Farhan",
+    "expected_intent": "discount",
+    "expected": {
+      "customer": "Farhan",
+      "amount": 50,
+      "tx_type": "adjustment",
+      "reason": "discount"
+    }
+  },
+  {
+    "id": 80,
+    "category": "correction_readback",
+    "language": "hi-Latn",
+    "utterance": "Nahi nahi, 430 likho, 340 nahi",
+    "expected_intent": "correction",
+    "expected": {
+      "amount": 430
+    }
+  },
+  {
+    "id": 81,
+    "category": "correction_readback",
+    "language": "kn-Latn",
+    "utterance": "Alla, 430 antha bardu, 340 alla",
+    "expected_intent": "correction",
+    "expected": {
+      "amount": 430
+    }
+  },
+  {
+    "id": 82,
+    "category": "correction_readback",
+    "language": "en-IN",
+    "utterance": "No, make it 520 instead",
+    "expected_intent": "correction",
+    "expected": {
+      "amount": 520
+    }
+  },
+  {
+    "id": 83,
+    "category": "correction_readback",
+    "language": "hi-Latn",
+    "utterance": "20 nahi 50",
+    "expected_intent": "correction",
+    "expected": {
+      "amount": 50
+    }
+  },
+  {
+    "id": 84,
+    "category": "correction_readback",
+    "language": "kn-Latn",
+    "utterance": "Alla 50 rupayi",
+    "expected_intent": "correction",
+    "expected": {
+      "amount": 50
+    }
+  },
+  {
+    "id": 85,
+    "category": "correction_readback",
+    "language": "hi-Latn",
+    "utterance": "Nahi 500 likho 200 nahi",
+    "expected_intent": "correction",
+    "expected": {
+      "amount": 500
+    }
+  },
+  {
+    "id": 86,
+    "category": "correction_readback",
+    "language": "en-IN",
+    "utterance": "Not 100 write 250",
+    "expected_intent": "correction",
+    "expected": {
+      "amount": 250
+    }
+  },
+  {
+    "id": 87,
+    "category": "guarded_undo",
+    "language": "kn-Latn",
+    "utterance": "Last entry delete maadi",
+    "expected_intent": "undo",
+    "expected": {
+      "guard": true
+    }
+  },
+  {
+    "id": 88,
+    "category": "guarded_undo",
+    "language": "hi-Latn",
+    "utterance": "Pichla entry hatao, galat ho gaya",
+    "expected_intent": "undo",
+    "expected": {
+      "guard": true
+    }
+  },
+  {
+    "id": 89,
+    "category": "guarded_undo",
+    "language": "en-IN",
+    "utterance": "Undo the last transaction for Imran",
+    "expected_intent": "undo",
+    "expected": {
+      "guard": true
+    }
+  },
+  {
+    "id": 90,
+    "category": "guarded_undo",
+    "language": "hi-IN",
+    "utterance": "पिछली एंट्री डिलीट करो",
+    "expected_intent": "undo",
+    "expected": {
+      "guard": true
+    }
+  },
+  {
+    "id": 91,
+    "category": "guarded_undo",
+    "language": "kn-IN",
+    "utterance": "ಹಿಂದಿನ ಎಂಟ್ರಿ ಡಿಲೀಟ್ ಮಾಡಿ",
+    "expected_intent": "undo",
+    "expected": {
+      "guard": true
+    }
+  },
+  {
+    "id": 92,
+    "category": "guarded_undo",
+    "language": "hi-Latn",
+    "utterance": "Last entry delete karo",
+    "expected_intent": "undo",
+    "expected": {
+      "guard": true
+    }
+  },
+  {
+    "id": 93,
+    "category": "guarded_undo",
+    "language": "en-IN",
+    "utterance": "Undo last",
+    "expected_intent": "undo",
+    "expected": {
+      "guard": true
+    }
+  },
+  {
+    "id": 94,
+    "category": "balance_inquiry",
+    "language": "kn-Latn",
+    "utterance": "Savitri akka ge eshtu baaki ide?",
+    "expected_intent": "balance_inquiry",
+    "expected": {
+      "customer": "Savitri"
+    }
+  },
+  {
+    "id": 95,
+    "category": "balance_inquiry",
+    "language": "hi-Latn",
+    "utterance": "Imran ka kitna baaki hai?",
+    "expected_intent": "balance_inquiry",
+    "expected": {
+      "customer": "Imran"
+    }
+  },
+  {
+    "id": 96,
+    "category": "balance_inquiry",
+    "language": "en-IN",
+    "utterance": "What is Kavitha's pending balance?",
+    "expected_intent": "balance_inquiry",
+    "expected": {
+      "customer": "Kavitha"
+    }
+  },
+  {
+    "id": 97,
+    "category": "balance_inquiry",
+    "language": "hi-IN",
+    "utterance": "दिनेश का हिसाब कितना है?",
+    "expected_intent": "balance_inquiry",
+    "expected": {
+      "customer": "Dinesh"
+    }
+  },
+  {
+    "id": 98,
+    "category": "balance_inquiry",
+    "language": "kn-IN",
+    "utterance": "ಬಸವರಾಜ್ ಬ್ಯಾಲೆನ್ಸ್ ಎಷ್ಟು ಇದೆ?",
+    "expected_intent": "balance_inquiry",
+    "expected": {
+      "customer": "Basavaraj"
+    }
+  },
+  {
+    "id": 99,
+    "category": "balance_inquiry",
+    "language": "hi-Latn",
+    "utterance": "Deepak ka balance kitna hai",
+    "expected_intent": "balance_inquiry",
+    "expected": {
+      "customer": "Deepak"
+    }
+  },
+  {
+    "id": 100,
+    "category": "balance_inquiry",
+    "language": "en-IN",
+    "utterance": "Check balance for Ramesh",
+    "expected_intent": "balance_inquiry",
+    "expected": {
+      "customer": "Ramesh"
+    }
+  },
+  {
+    "id": 101,
+    "category": "shop_summary",
+    "language": "hi-Latn",
+    "utterance": "Aaj kitna udhar gaya?",
+    "expected_intent": "shop_summary",
+    "expected": {}
+  },
+  {
+    "id": 102,
+    "category": "shop_summary",
+    "language": "en-IN",
+    "utterance": "Who owes the most in the shop?",
+    "expected_intent": "shop_summary",
+    "expected": {}
+  },
+  {
+    "id": 103,
+    "category": "shop_summary",
+    "language": "hi-Latn",
+    "utterance": "Sabse zyada baaki kiska hai?",
+    "expected_intent": "shop_summary",
+    "expected": {}
+  },
+  {
+    "id": 104,
+    "category": "shop_summary",
+    "language": "kn-Latn",
+    "utterance": "Ivattu eshtu udhar aagide matte collection eshtu?",
+    "expected_intent": "shop_summary",
+    "expected": {}
+  },
+  {
+    "id": 105,
+    "category": "shop_summary",
+    "language": "en-IN",
+    "utterance": "Show today's UPI and cash collection summary",
+    "expected_intent": "shop_summary",
+    "expected": {}
+  },
+  {
+    "id": 106,
+    "category": "shop_summary",
+    "language": "hi-Latn",
+    "utterance": "Total dukaan ka kitna udhaar baaki hai?",
+    "expected_intent": "shop_summary",
+    "expected": {}
+  },
+  {
+    "id": 107,
+    "category": "shop_summary",
+    "language": "hi-IN",
+    "utterance": "आज का हिसाब किताब समरी दिखाओ",
+    "expected_intent": "shop_summary",
+    "expected": {}
+  },
+  {
+    "id": 108,
+    "category": "cash_book_in",
+    "language": "hi-Latn",
+    "utterance": "cash box mein 2000 daalo",
+    "expected_intent": "cash_in",
+    "expected": {
+      "amount": 2000
+    }
+  },
+  {
+    "id": 109,
+    "category": "cash_book_in",
+    "language": "kn-Latn",
+    "utterance": "cash box ge 1000 haaki",
+    "expected_intent": "cash_in",
+    "expected": {
+      "amount": 1000
+    }
+  },
+  {
+    "id": 110,
+    "category": "cash_book_in",
+    "language": "hi-Latn",
+    "utterance": "galle mein 500 jama karo",
+    "expected_intent": "cash_in",
+    "expected": {
+      "amount": 500
+    }
+  },
+  {
+    "id": 111,
+    "category": "cash_book_in",
+    "language": "en-IN",
+    "utterance": "cash in 1500",
+    "expected_intent": "cash_in",
+    "expected": {
+      "amount": 1500
+    }
+  },
+  {
+    "id": 112,
+    "category": "cash_book_in",
+    "language": "kn-IN",
+    "utterance": "ಗಲ್ಲಾಪೆಟ್ಟಿಗೆಗೆ 200 ಹಾಕಿ",
+    "expected_intent": "cash_in",
+    "expected": {
+      "amount": 200
+    }
+  },
+  {
+    "id": 113,
+    "category": "cash_book_in",
+    "language": "hi-IN",
+    "utterance": "कैश बॉक्स में 1000 डालो",
+    "expected_intent": "cash_in",
+    "expected": {
+      "amount": 1000
+    }
+  },
+  {
+    "id": 114,
+    "category": "cash_book_in",
+    "language": "hi-Latn",
+    "utterance": "cash drawer mein 800 rakho",
+    "expected_intent": "cash_in",
+    "expected": {
+      "amount": 800
+    }
+  },
+  {
+    "id": 115,
+    "category": "cash_book_out",
+    "language": "hi-Latn",
+    "utterance": "500 kharch ke liye nikala",
+    "expected_intent": "cash_out",
+    "expected": {
+      "amount": 500
+    }
+  },
+  {
+    "id": 116,
+    "category": "cash_book_out",
+    "language": "kn-Latn",
+    "utterance": "500 kharchige tegedukonde",
+    "expected_intent": "cash_out",
+    "expected": {
+      "amount": 500
+    }
+  },
+  {
+    "id": 117,
+    "category": "cash_book_out",
+    "language": "hi-Latn",
+    "utterance": "cash box se 1000 nikaalo",
+    "expected_intent": "cash_out",
+    "expected": {
+      "amount": 1000
+    }
+  },
+  {
+    "id": 118,
+    "category": "cash_book_out",
+    "language": "en-IN",
+    "utterance": "cash out 400",
+    "expected_intent": "cash_out",
+    "expected": {
+      "amount": 400
+    }
+  },
+  {
+    "id": 119,
+    "category": "cash_book_out",
+    "language": "kn-Latn",
+    "utterance": "cash box inda 300 tegiri",
+    "expected_intent": "cash_out",
+    "expected": {
+      "amount": 300
+    }
+  },
+  {
+    "id": 120,
+    "category": "cash_book_out",
+    "language": "hi-IN",
+    "utterance": "खर्च के लिए 200 निकाला",
+    "expected_intent": "cash_out",
+    "expected": {
+      "amount": 200
+    }
+  },
+  {
+    "id": 121,
+    "category": "cash_book_out",
+    "language": "hi-Latn",
+    "utterance": "galle se 600 nikalo",
+    "expected_intent": "cash_out",
+    "expected": {
+      "amount": 600
+    }
+  },
+  {
+    "id": 122,
+    "category": "cash_book_balance",
+    "language": "hi-Latn",
+    "utterance": "cash box mein kitna hai",
+    "expected_intent": "cash_balance",
+    "expected": {}
+  },
+  {
+    "id": 123,
+    "category": "cash_book_balance",
+    "language": "kn-Latn",
+    "utterance": "cash box nalli eshtu ide",
+    "expected_intent": "cash_balance",
+    "expected": {}
+  },
+  {
+    "id": 124,
+    "category": "cash_book_balance",
+    "language": "en-IN",
+    "utterance": "what is cash drawer balance",
+    "expected_intent": "cash_balance",
+    "expected": {}
+  },
+  {
+    "id": 125,
+    "category": "cash_book_balance",
+    "language": "hi-Latn",
+    "utterance": "galla mein kitna hai",
+    "expected_intent": "cash_balance",
+    "expected": {}
+  },
+  {
+    "id": 126,
+    "category": "cash_book_balance",
+    "language": "kn-Latn",
+    "utterance": "ivattu cash eshtu ide",
+    "expected_intent": "cash_balance",
+    "expected": {}
+  },
+  {
+    "id": 127,
+    "category": "cash_book_balance",
+    "language": "hi-IN",
+    "utterance": "कैश बॉक्स में कितना है",
+    "expected_intent": "cash_balance",
+    "expected": {}
+  },
+  {
+    "id": 128,
+    "category": "cash_book_balance",
+    "language": "kn-IN",
+    "utterance": "ಗಲ್ಲಾಪೆಟ್ಟಿಗೆಯಲ್ಲಿ ಎಷ್ಟು ಇದೆ",
+    "expected_intent": "cash_balance",
+    "expected": {}
+  },
+  {
+    "id": 129,
+    "category": "compound_multi_tx",
+    "language": "kn-Latn",
+    "utterance": "Ramesh 500 kotta, Suresh ge 300 udhar haaki",
+    "expected_intent": "compound_tx",
+    "expected": {
+      "count": 2
+    }
+  },
+  {
+    "id": 130,
+    "category": "compound_multi_tx",
+    "language": "hi-Latn",
+    "utterance": "Anil 1000 diya aur Sunil ko 200 udhar",
+    "expected_intent": "compound_tx",
+    "expected": {
+      "count": 2
+    }
+  },
+  {
+    "id": 131,
+    "category": "compound_multi_tx",
+    "language": "en-IN",
+    "utterance": "Ramesh 500 payment and Suresh 300 credit",
+    "expected_intent": "compound_tx",
+    "expected": {
+      "count": 2
+    }
+  },
+  {
+    "id": 132,
+    "category": "compound_multi_tx",
+    "language": "kn-Latn",
+    "utterance": "Basavaraj 400 kottru, Kavitha ge 250 udhar",
+    "expected_intent": "compound_tx",
+    "expected": {
+      "count": 2
+    }
+  },
+  {
+    "id": 133,
+    "category": "compound_multi_tx",
+    "language": "hi-Latn",
+    "utterance": "Imran ne 300 PhonePe kiya aur Dinesh ko 450 udhar likho",
+    "expected_intent": "compound_tx",
+    "expected": {
+      "count": 2
+    }
+  },
+  {
+    "id": 134,
+    "category": "compound_multi_tx",
+    "language": "kn-Latn",
+    "utterance": "Ganesh 200 kotta mattu Harish ge 150 udhar haaki",
+    "expected_intent": "compound_tx",
+    "expected": {
+      "count": 2
+    }
+  },
+  {
+    "id": 135,
+    "category": "compound_multi_tx",
+    "language": "hi-Latn",
+    "utterance": "Deepak 600 diya, Farhan ko 100 udhar",
+    "expected_intent": "compound_tx",
+    "expected": {
+      "count": 2
+    }
+  },
+  {
+    "id": 136,
+    "category": "multi_turn_continuation",
+    "language": "hi-Latn",
+    "utterance": "Udhar likh do Farhan",
+    "expected_intent": "multi_turn_credit",
+    "expected": {
+      "customer": "Farhan"
+    }
+  },
+  {
+    "id": 137,
+    "category": "multi_turn_continuation",
+    "language": "hi-Latn",
+    "utterance": "Kal dega Farhan",
+    "expected_intent": "multi_turn_promise",
+    "expected": {
+      "customer": "Farhan"
+    }
+  },
+  {
+    "id": 138,
+    "category": "multi_turn_continuation",
+    "language": "kn-Latn",
+    "utterance": "Udri bardu Manjunath",
+    "expected_intent": "multi_turn_credit",
+    "expected": {
+      "customer": "Manjunath"
+    }
+  },
+  {
+    "id": 139,
+    "category": "multi_turn_continuation",
+    "language": "hi-Latn",
+    "utterance": "450 udhar",
+    "expected_intent": "partial_amount",
+    "expected": {
+      "amount": 450
+    }
+  },
+  {
+    "id": 140,
+    "category": "multi_turn_continuation",
+    "language": "kn-Latn",
+    "utterance": "500 kottru",
+    "expected_intent": "partial_amount",
+    "expected": {
+      "amount": 500
+    }
+  },
+  {
+    "id": 141,
+    "category": "multi_turn_continuation",
+    "language": "hi-Latn",
+    "utterance": "Pooja",
+    "expected_intent": "partial_name",
+    "expected": {
+      "customer": "Pooja"
+    }
+  },
+  {
+    "id": 142,
+    "category": "multi_turn_continuation",
+    "language": "kn-Latn",
+    "utterance": "Manjunatha",
+    "expected_intent": "partial_name",
+    "expected": {
+      "customer": "Manjunatha"
+    }
+  },
+  {
+    "id": 143,
+    "category": "disambiguation",
+    "language": "hi-Latn",
+    "utterance": "1",
+    "expected_intent": "disambig_choice",
+    "expected": {
+      "choice": 1
+    }
+  },
+  {
+    "id": 144,
+    "category": "disambiguation",
+    "language": "hi-Latn",
+    "utterance": "pehla wala",
+    "expected_intent": "disambig_choice",
+    "expected": {
+      "choice": 1
+    }
+  },
+  {
+    "id": 145,
+    "category": "disambiguation",
+    "language": "hi-Latn",
+    "utterance": "dusra wala",
+    "expected_intent": "disambig_choice",
+    "expected": {
+      "choice": 2
+    }
+  },
+  {
+    "id": 146,
+    "category": "disambiguation",
+    "language": "kn-Latn",
+    "utterance": "ondu",
+    "expected_intent": "disambig_choice",
+    "expected": {
+      "choice": 1
+    }
+  },
+  {
+    "id": 147,
+    "category": "disambiguation",
+    "language": "kn-Latn",
+    "utterance": "eradu",
+    "expected_intent": "disambig_choice",
+    "expected": {
+      "choice": 2
+    }
+  },
+  {
+    "id": 148,
+    "category": "disambiguation",
+    "language": "hi-Latn",
+    "utterance": "paan shop",
+    "expected_intent": "disambig_landmark",
+    "expected": {
+      "landmark": "paan shop"
+    }
+  },
+  {
+    "id": 149,
+    "category": "disambiguation",
+    "language": "en-IN",
+    "utterance": "second one",
+    "expected_intent": "disambig_choice",
+    "expected": {
+      "choice": 2
+    }
+  },
+  {
+    "id": 150,
+    "category": "dynamic_names",
+    "language": "hi-Latn",
+    "utterance": "Debashis er kach theke 600 pelam",
+    "expected_intent": "dynamic_name",
+    "expected": {
+      "customer": "Debashis",
+      "amount": 600
+    }
+  },
+  {
+    "id": 151,
+    "category": "dynamic_names",
+    "language": "kn-Latn",
+    "utterance": "Vignesh 250 kottru",
+    "expected_intent": "dynamic_name",
+    "expected": {
+      "customer": "Vignesh",
+      "amount": 250
+    }
+  },
+  {
+    "id": 152,
+    "category": "dynamic_names",
+    "language": "hi-Latn",
+    "utterance": "Gurpreet kal 1000 dega",
+    "expected_intent": "dynamic_name",
+    "expected": {
+      "customer": "Gurpreet",
+      "amount": 1000
+    }
+  },
+  {
+    "id": 153,
+    "category": "dynamic_names",
+    "language": "en-IN",
+    "utterance": "Put 410 on Prakash account as credit",
+    "expected_intent": "dynamic_name",
+    "expected": {
+      "customer": "Prakash",
+      "amount": 410
+    }
+  },
+  {
+    "id": 154,
+    "category": "dynamic_names",
+    "language": "hi-Latn",
+    "utterance": "Farhan ne 300 PhonePe kiya",
+    "expected_intent": "dynamic_name",
+    "expected": {
+      "customer": "Farhan",
+      "amount": 300
+    }
+  },
+  {
+    "id": 155,
+    "category": "dynamic_names",
+    "language": "kn-Latn",
+    "utterance": "Basavaraj ge 450 udri bariyiri",
+    "expected_intent": "dynamic_name",
+    "expected": {
+      "customer": "Basavaraj",
+      "amount": 450
+    }
+  },
+  {
+    "id": 156,
+    "category": "dynamic_names",
+    "language": "hi-Latn",
+    "utterance": "Deepak ko 200 cash loan diya",
+    "expected_intent": "dynamic_name",
+    "expected": {
+      "customer": "Deepak",
+      "amount": 200
+    }
+  },
+  {
+    "id": 157,
+    "category": "payment_promises",
+    "language": "hi-Latn",
+    "utterance": "Ramesh kal 500 dega",
+    "expected_intent": "promise_record",
+    "expected": {
+      "customer": "Ramesh",
+      "amount": 500
+    }
+  },
+  {
+    "id": 158,
+    "category": "payment_promises",
+    "language": "kn-Latn",
+    "utterance": "Suresh naale 200 kodtini andru",
+    "expected_intent": "promise_record",
+    "expected": {
+      "customer": "Suresh",
+      "amount": 200
+    }
+  },
+  {
+    "id": 159,
+    "category": "payment_promises",
+    "language": "en-IN",
+    "utterance": "Prakash will pay 600 on Saturday",
+    "expected_intent": "promise_record",
+    "expected": {
+      "customer": "Prakash",
+      "amount": 600
+    }
+  },
+  {
+    "id": 160,
+    "category": "payment_promises",
+    "language": "hi-Latn",
+    "utterance": "Rekha Sunday ko 250 dene ka wada kiya",
+    "expected_intent": "promise_record",
+    "expected": {
+      "customer": "Rekha",
+      "amount": 250
+    }
+  },
+  {
+    "id": 161,
+    "category": "payment_promises",
+    "language": "hi-Latn",
+    "utterance": "Kiska promise pending hai",
+    "expected_intent": "promise_query",
+    "expected": {}
+  },
+  {
+    "id": 162,
+    "category": "payment_promises",
+    "language": "kn-Latn",
+    "utterance": "Yaara promise ide",
+    "expected_intent": "promise_query",
+    "expected": {}
+  },
+  {
+    "id": 163,
+    "category": "payment_promises",
+    "language": "en-IN",
+    "utterance": "Check pending promises",
+    "expected_intent": "promise_query",
+    "expected": {}
+  },
+  {
+    "id": 164,
+    "category": "anomaly_safety",
+    "language": "hi-Latn",
+    "utterance": "Meenakshi ko 50000 udhar likh do",
+    "expected_intent": "anomaly_safety",
+    "expected": {
+      "amount": 50000
+    }
+  },
+  {
+    "id": 165,
+    "category": "anomaly_safety",
+    "language": "en-IN",
+    "utterance": "Put 75000 credit for Ramesh",
+    "expected_intent": "anomaly_safety",
+    "expected": {
+      "amount": 75000
+    }
+  },
+  {
+    "id": 166,
+    "category": "anomaly_safety",
+    "language": "kn-Latn",
+    "utterance": "Suresh ge 40000 udhar haaki",
+    "expected_intent": "anomaly_safety",
+    "expected": {
+      "amount": 40000
+    }
+  },
+  {
+    "id": 167,
+    "category": "anomaly_safety",
+    "language": "hi-Latn",
+    "utterance": "Continue anyway",
+    "expected_intent": "rule_override",
+    "expected": {}
+  },
+  {
+    "id": 168,
+    "category": "anomaly_safety",
+    "language": "kn-Latn",
+    "utterance": "Niyam meeri continue maadi",
+    "expected_intent": "rule_override",
+    "expected": {}
+  },
+  {
+    "id": 169,
+    "category": "anomaly_safety",
+    "language": "hi-Latn",
+    "utterance": "Phir bhi karo",
+    "expected_intent": "rule_override",
+    "expected": {}
+  },
+  {
+    "id": 170,
+    "category": "anomaly_safety",
+    "language": "en-IN",
+    "utterance": "Override and continue",
+    "expected_intent": "rule_override",
+    "expected": {}
+  },
+  {
+    "id": 171,
+    "category": "noise_immunity",
+    "language": "hi-Latn",
+    "utterance": "kyunki tum hi ho ab tum hi ho zindagi ab tum hi ho",
+    "expected_intent": "noise_silent",
+    "expected": {
+      "silent": true
+    }
+  },
+  {
+    "id": 172,
+    "category": "noise_immunity",
+    "language": "hi-Latn",
+    "utterance": "Radio City 91.1 FM superhit gaana bajao",
+    "expected_intent": "noise_silent",
+    "expected": {
+      "silent": true
+    }
+  },
+  {
+    "id": 173,
+    "category": "noise_immunity",
+    "language": "hi-Latn",
+    "utterance": "Match kaun jeeta bhai score kya hua",
+    "expected_intent": "noise_silent",
+    "expected": {
+      "silent": true
+    }
+  },
+  {
+    "id": 174,
+    "category": "noise_immunity",
+    "language": "hi-Latn",
+    "utterance": "Chai banao teen cup auto gaadi roko",
+    "expected_intent": "noise_silent",
+    "expected": {
+      "silent": true
+    }
+  },
+  {
+    "id": 175,
+    "category": "noise_immunity",
+    "language": "kn-Latn",
+    "utterance": "Singara siriye belakina kavithe",
+    "expected_intent": "noise_silent",
+    "expected": {
+      "silent": true
+    }
+  },
+  {
+    "id": 176,
+    "category": "noise_immunity",
+    "language": "hi-Latn",
+    "utterance": "Parle ji aapka 20 hua tum hi ho",
+    "expected_intent": "noise_command",
+    "expected": {
+      "amount": 20
+    }
+  },
+  {
+    "id": 177,
+    "category": "noise_immunity",
+    "language": "kn-Latn",
+    "utterance": "Doodh packet aapka 30 hua rowdy baby",
+    "expected_intent": "noise_command",
+    "expected": {
+      "amount": 30
+    }
+  }
+]

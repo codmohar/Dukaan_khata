@@ -112,7 +112,7 @@ SONG_AND_NOISE_PATTERNS = [
     # Kannada / South Indian song phrases
     re.compile(r"\b(?:singara\s*siriye|belakina\s*kavithe|nenapirali|sanju\s*weds\s*geetha|kannada\s*haadu|geethe|haadugalu|chinna\s*chinna\s*aasa|rowdy\s*baby|butta\s*bomma|saranga\s*dariya|jimikki\s*kammal|enjoy\s*enjaami)\b", re.I),
     # Radio, FM, DJ, and music player announcements
-    re.compile(r"\b(?:radio\s*mirchi|red\s*fm|radio\s*city|big\s*fm|superhit\s*gaana|gana\s*bajao|gaana\s*lagao|music\s*play|song\s*chalao|dj\s*remix|bhajan|aarti|kirtan)\b", re.I),
+    re.compile(r"\b(?:(?:radio\s*city|radio\s*mirchi|red\s*fm|big\s*fm)(?:\s*\d+(?:\.\d+)?\s*(?:fm)?)?|superhit\s*gaana|gana\s*bajao|gaana\s*bajao|gaana\s*lagao|music\s*play|song\s*chalao|dj\s*remix|bhajan|aarti|kirtan)\b", re.I),
     # Ambient non-accounting gossip, cricket scores, tea/weather talk
     re.compile(r"\b(?:kya\s*haal\s*chaal|kaise\s*ho|kya\s*chal\s*raha|match\s*kaun\s*jeeta|score\s*kya\s*hua|aaj\s*baarish|bahut\s*garmi|chai\s*piyenge|chai\s*banao|chai\s*lao|auto\s*auto|gaadi\s*roko|phone\s*aaya|call\s*kat\s*gaya|aur\s*batao|sab\s*badhiya)\b", re.I),
 ]
@@ -153,7 +153,7 @@ CHATTER_PATTERNS = [
     re.compile(r"\b(?:kaunsa|marigold|parle|maggi|lays|kurkure|shampoo|brush|paste)\b", re.I),
     re.compile(r"\b(?:change\s*hai|khulla\s*hai|chillar\s*hai|chillar\s*illa)\b", re.I),
     re.compile(r"\b(?:thoda\s*kam|kam\s*karo|discount\s*do|bargain)\b", re.I),
-    re.compile(r"\b(?:main\s*\d+|maine\s*\d+|maine\s*phonepe|maine\s*gpay|maine\s*paytm|maine\s*de\s*diya|main\s*de\s*raha|maine\s*bhej|maine\s*online)\b", re.I),
+    re.compile(r"\b(?:main\s*\d+|maine\s*\d+|maine\s*phonepe|maine\s*gpay|maine\s*paytm|maine\s*de\s*diya|main\s*de\s*raha|maine\s*bhej|maine\s*online|naanu\s*\d+|naanu\s*kodtini)\b", re.I),
 ]
 
 # Core Intent Regex Patterns with strict word boundaries across 14 Indian languages
@@ -214,23 +214,23 @@ LOAN_DIRECTION_PATTERN = re.compile(
 
 # Paid Walk-In Sale (ambient counter talk with exact cash/change handed)
 PAID_SALE_PATTERN = re.compile(
-    r"\b(?:ye\s*lo\s*\d+|ye\s*lo\s*bhaiya|change\s*wapas|wapas\s*ye\s*lo|note\s*diya|itna\s*bana.*de\s*diya|ye\s*lo)\b|"
-    r"(?:ये\s*लो|ये\s*लीजिए|वापस\s*लो|चिल्लर\s*वापस)",
+    r"\b(?:ye\s*lo\s*\d+|ye\s*lo\s*bhaiya|change\s*wapas|wapas\s*ye\s*lo|note\s*diya|itna\s*bana.*de\s*diya|ye\s*lo|here\s*is|google\s*pay\s*kar\s*diya|gpay\s*kar\s*diya|phonepe\s*kar\s*diya|paytm\s*kar\s*diya|poore\s*ho\s*gaye)\b|"
+    r"(?:ये\s*लो|ये\s*लीजिए|वापस\s*लो|चिल्लर\s*वापस|पूरे\s*हो\s*गए)",
     re.I,
 )
 
 # Full Settlement Intent ("Sab clear", "Ella clear maadi", "Hisaab chukta")
 SETTLE_PATTERN = re.compile(
-    r"\b(?:sab\s*clear|ellaa\s*clear|ella\s*clear|hisaab\s*chukta|hisab\s*chukta|hisaab\s*barabar|settle|clear\s*kar\s*do|clear\s*maadi)\b|"
-    r"(?:सब\s*क्लियर|हिसाब\s*चुकता|हिसाब\s*बराबर|पूरा\s*क्लियर|क्लियर\s*कर\s*दो)|"
-    r"(?:ಎಲ್ಲಾ\s*ಕ್ಲಿಯರ್|ಲೆಕ್ಕ\s*ಚುಕ್ತಾ)",
+    r"\b(?:sab\s*clear|ellaa\s*clear|ella\s*clear|hisaab\s*chukta|hisab\s*chukta|hisaab\s*barabar|settle|clear\s*kar\s*do|clear\s*maadi|write\s*off|bad\s*debt|baaki\s*maaf|band\s*karo|saala\s*manna)\b|"
+    r"(?:सब\s*क्लियर|हिसाब\s*चुकता|हिसाब\s*बराबर|पूरा\s*क्लियर|क्लियर\s*कर\s*दो|राइट\s*ऑफ|माफ)|"
+    r"(?:ಎಲ್ಲಾ\s*ಕ್ಲಿಯರ್|ಲೆಕ್ಕ\s*ಚುಕ್ತಾ|ಸಾಲ\s*ಮನ್ನಾ|ರೈಟ್\s*ಆಫ್)",
     re.I,
 )
 
 # Undo Intent ("Last entry delete maadi", "Pichla entry hatao", "Undo last")
 UNDO_PATTERN = re.compile(
-    r"\b(?:undo|delete\s*maadi|pichla\s*hatao|last\s*entry\s*delete|delete\s*last|last\s*hatao|pichli\s*entry|undo\s*last)\b|"
-    r"(?:पिछली\s*एंट्री\s*हटाओ|पिछला\s*हटाओ|लास्ट\s*एंट्री\s*डिलीट|अंडू)|"
+    r"\b(?:undo|delete\s*maadi|pichla\s*hatao|last\s*entry\s*delete|delete\s*last|last\s*hatao|pichli\s*entry|undo\s*last|last\s*entry|delete\s*karo)\b|"
+    r"(?:पिछली\s*एंट्री|पिछली\s*एंट्री\s*हटाओ|पिछली\s*एंट्री\s*डिलीट|पिछला\s*हटाओ|लास्ट\s*एंट्री\s*डिलीट|अंडू|डिलीट\s*करो)|"
     r"(?:ಹಿಂದಿನ\s*ಎಂಟ್ರಿ\s*ಡಿಲೀಟ್|ಡಿಲೀಟ್\s*ಮಾಡಿ)",
     re.I,
 )
@@ -245,13 +245,13 @@ REMINDER_PATTERN = re.compile(
 
 # Adjustments: Returns & Discounts
 RETURN_PATTERN = re.compile(
-    r"\b(?:wapas|vaapas|return|vaapasi)\b|"
+    r"\b(?:wapas|vaapas|return|returned|returns|vaapasi|reduce|minus)\b|"
     r"(?:वापस|वापसी|रिटर्न)|"
     r"(?:ವಾಪಸ್|ರಿಟರ್ನ್)",
     re.I,
 )
 DISCOUNT_PATTERN = re.compile(
-    r"\b(?:discount|chillar\s*chhodo|chhod\s*do|round\s*off)\b|"
+    r"\b(?:discount|chillar\s*chhodo|chhod\s*do|round\s*off|chhoot|chhut|chut|choot)\b|"
     r"(?:डिस्काउंट|छूट|चिल्लर\s*छोड़ो|राउंड\s*ऑफ)|"
     r"(?:ರಿಯಾಯಿತಿ|ಡಿಸ್ಕೌಂಟ್)",
     re.I,
@@ -262,6 +262,48 @@ ADVANCE_PATTERN = re.compile(
     r"\b(?:advance|deposit|mungaada|mungada)\b|"
     r"(?:एडवांस|डिपॉजिट|अग्रिम)|"
     r"(?:ಮುಂಗಡ|ಅಡ್ವಾನ್ಸ್)",
+    re.I,
+)
+
+# Cash Drawer / Galla / Cash Book Patterns
+CASH_BALANCE_PATTERN = re.compile(
+    r"\b(?:cash\s*balance|drawer\s*balance|today'?s\s*cash|aaj\s*ka\s*cash|ivattu\s*cash)\b|"
+    r"(?:\b(?:cash\s*box|drawer|galla|petti)\b.*?\b(?:kitna|eshtu|entha|balance|baaki)\b)|"
+    r"(?:\b(?:kitna|eshtu|entha|balance|baaki)\b.*?\b(?:cash\s*box|drawer|galla|petti)\b)|"
+    r"(?:कैश\s*बैलेंस|गल्ले\s*में\s*कितना|कैश\s*बॉक्स\s*में\s*कितना|आज\s*का\s*कैश)|"
+    r"(?:ಕ್ಯಾಶ್\s*ಬ್ಯಾಲೆನ್ಸ್|ಗಲ್ಲಾಪೆಟ್ಟಿಗೆಯಲ್ಲಿ\s*ಎಷ್ಟು|ಕ್ಯಾಶ್\s*ಬಾಕ್ಸ್\s*ಬ್ಯಾಲೆನ್ಸ್)",
+    re.I,
+)
+
+CASH_IN_PATTERN = re.compile(
+    r"\b(?:cash\s*in|cash\s*deposit)\b|"
+    r"(?:\b(?:cash\s*box|drawer|galla|petti)\b.*?\b(?:daal|daalo|jama|rakh|rakho|haaki|haaku)\b)|"
+    r"(?:\b(?:daal|daalo|jama|rakh|rakho|haaki|haaku)\b.*?\b(?:cash\s*box|drawer|galla|petti)\b)|"
+    r"(?:कैश\s*इन|कैश\s*बॉक्स\s*में\s*डालो|गल्ले\s*में\s*डालो|कैश\s*जमा\s*बॉक्स)|"
+    r"(?:ಕ್ಯಾಶ್\s*ಇನ್|ಕ್ಯಾಶ್\s*ಬಾಕ್ಸ್‌ಗೆ\s*ಹಾಕಿ|ಗಲ್ಲಾಪೆಟ್ಟಿಗೆಗೆ\s*ಹಾಕಿ)",
+    re.I,
+)
+
+CASH_OUT_PATTERN = re.compile(
+    r"\b(?:cash\s*out|cash\s*withdraw(?:al)?)\b|"
+    r"(?:\b(?:cash\s*box|drawer|galla|petti)\b.*?\b(?:nikaal|nikaalo|nikal|nikala|tegiri|tegedu|tegedukonde|kharch|kharchu|kharchige)\b)|"
+    r"(?:\b(?:nikaal|nikaalo|nikal|nikala|tegiri|tegedu|tegedukonde|kharch|kharchu|kharchige)\b.*?\b(?:cash\s*box|drawer|galla|petti)\b)|"
+    r"(?:\b\d+\s*(?:kharch|expense|kharchige)\b.*?\b(?:nikal|nikaal|nikaalo|nikala|tegedu|tegedukonde)\b)|"
+    r"(?:\b(?:nikal|nikaal|nikaalo|nikala|tegedu|tegedukonde)\b.*?\b(?:kharch|expense|kharchige)\b)|"
+    r"(?:कैश\s*आउट|कैश\s*बॉक्स\s*से\s*निकालो|गल्ले\s*से\s*निकालो|खर्च\s*के\s*लिए\s*निकाला)|"
+    r"(?:ಕ್ಯಾಶ್\s*ಔಟ್|ಕ್ಯಾಶ್\s*ಬಾಕ್ಸ್\s*ಇಂದ\s*ತೆಗೆಯಿರಿ|ಖರ್ಚಿಗೆ\s*ತೆಗೆದೆ)",
+    re.I,
+)
+
+# Cash Change Calculation (explicit change given, NOT ledger payment)
+CHANGE_CALC_PATTERN = re.compile(
+    r"\b(?:change\s*(?:do|kodi|wapas|karo|banta|de\s*do|kitna|eshtu)|"
+    r"wapas\s*(?:kitna|do|karo|dena|kodi)|"
+    r"chillar\s*(?:wapas|kodi|do)|"
+    r"kitna\s*wapas\s*(?:dena|karna|hoga)|"
+    r"eshtu\s*wapas\s*kodbeku)\b|"
+    r"(?:चेंज\s*दो|वापस\s*दो|कितना\s*वापस|चिल्लर\s*दो)|"
+    r"(?:ಚೇಂಜ್\s*ಕೊಡಿ|ವಾಪಸ್\s*ಕೊಡಿ|ಎಷ್ಟು\s*ವಾಪಸ್)",
     re.I,
 )
 
@@ -405,6 +447,13 @@ STOPWORDS = {
     "bariyiri", "bari", "bariyiro", "haakri", "haakiro",
     "sell", "becho", "bechna", "kharido", "kharid", "buy", "liya", "liye", "diye", "packet", "piece", "kilo", "kg", "gm", "litre", "ltr", "rate", "bhav", "price", "cost",
     "phonepe", "gpay", "paytm", "upi", "bhim", "cash", "online", "qr", "cheque", "pelam", "loan", "cashloan", "er",
+    "galla", "petti", "box", "drawer", "kharch", "kharcha", "kharchu", "chillar", "change",
+    "daalo", "rakh", "rakho", "haaku", "tegiri", "tegedu", "tegedukonde", "nikal", "nikalo", "nikaalo", "nikala", "wapas", "vaapas", "return", "discount",
+    "give", "here", "is", "keep", "put", "take", "google", "pay", "rupee", "rupees", "for", "the", "from", "with",
+    "alli", "chuka", "chukaya", "baad", "bad", "baaki", "baki", "chhoot", "chhut", "chut", "choot",
+    "not", "make", "it", "instead", "write", "anta", "antha", "pichla", "pichli", "pichle",
+    "what", "pending", "balance", "fm", "radio", "city", "superhit", "gaana", "bajao", "match", "score", "saala", "saal",
+    "out", "of", "today", "by", "check", "show", "list", "find", "kadime", "kam", "kharab", "adjust", "permanently", "unpaid", "close", "off", "debts", "debt",
     # Kirana conversational shop talk stopwords
     "ake", "aake", "aakar", "pucha", "puchi", "puche", "pucho", "bol", "bola", "boli", "bole", "bolo",
     "lena", "lene", "dena", "dene", "hae", "hain", "and", "ok", "the", "tumhara", "tumara",
@@ -428,9 +477,10 @@ STOPWORDS = {
     "उधार", "उधारी", "जमा", "लिखो", "लिख", "डाल", "डालो", "दिया", "दिए", "दे", "लिया",
     "लिए", "ले", "करो", "कर", "दो", "दी", "हो", "गया", "गई", "गए", "है", "हैं", "था",
     "थी", "थे", "खाता", "हिसाब", "सब", "क्लियर", "फोनपे", "कैश", "नकद", "कृपया", "बोलो", "बताओ",
+    "पिछली", "पिछला", "एंट्री", "डिलीट", "हटाओ", "कितना", "कितने", "बैलेंस", "छूट",
     # Kannada stopwords
     "ಗೆ", "ಇಂದ", "ರೂಪಾಯಿ", "ರೂ", "ಉದ್ರಿ", "ಉಧಾರ್", "ಜಮಾ", "ಬರೆ", "ಹಾಕಿ", "ಕೊಟ್ರು",
-    "ಕೊಟ್ಟ", "ಆಗಿದೆ", "ಆಯ್ತು", "ಇದೆ", "ಮಾಡಿದೆ", "ಖಾತೆ", "ಲೆಕ್ಕ"
+    "ಕೊಟ್ಟ", "ಆಗಿದೆ", "ಆಯ್ತು", "ಇದೆ", "ಮಾಡಿದೆ", "ಖಾತೆ", "ಲೆಕ್ಕ", "ಬ್ಯಾಲೆನ್ಸ್", "ಎಷ್ಟು", "ಸಾಲ", "ಮನ್ನಾ", "ರೈಟ್", "ಆಫ್", "ಹಿಂದಿನ", "ಮಾಡಿ"
 }
 
 
@@ -466,7 +516,7 @@ def _extract_name_tokens(text: str) -> List[str]:
         # Strip attached postpositions/suffixes (e.g. Rameshge -> Ramesh, Lakshmige -> Lakshmi, Manjunathavarige -> Manjunath, Deepakko -> Deepak)
         cleaned = w
         if len(cleaned) > 4:
-            for suf in ["avarige", "inda", "ige", "ge", "ne", "ko", "ka", "ki", "ke", "er"]:
+            for suf in ["avarige", "inda", "ige", "ge", "er"]:
                 if cleaned.lower().endswith(suf) and len(cleaned) > len(suf) + 2:
                     cleaned = cleaned[:-len(suf)]
                     break
@@ -530,8 +580,8 @@ def _pick_best_match(matches: List[Dict[str, Any]], query_name: str) -> Tuple[Op
             genuine_matches.append(m)
             continue
 
-        # 5. High fuzzy score (at least 0.65 similarity for minor spelling/transliteration differences)
-        if m_score >= 0.65:
+        # 5. High fuzzy score (at least 0.80 similarity for minor spelling/transliteration differences)
+        if m_score >= 0.80 and abs(len(m_name) - len(clean_q)) <= 2:
             genuine_matches.append(m)
             continue
 
@@ -552,13 +602,23 @@ def _pick_best_match(matches: List[Dict[str, Any]], query_name: str) -> Tuple[Op
 
 
 def extract_corrected_amount(text: str) -> Optional[float]:
-    """If utterance has correction like '20 nahi 50' or '50 likho 20 nahi' or 'alla 50', extract the intended target amount."""
+    """If utterance has correction like '20 nahi 50' or '50 likho 20 nahi' or 'alla 50' or 'Not 100 write 250' or 'No, make it 520 instead', extract the intended target amount."""
     lower = text.lower()
+    # Pattern: "Not 100 write 250"
+    match_not_write = re.search(r"\bnot\s*(\d+(?:\.\d+)?).*?\b(?:write|bardu|likho|make\s*it|instead)?\s*(\d+(?:\.\d+)?)\b", lower)
+    if match_not_write and match_not_write.group(2):
+        return float(match_not_write.group(2))
+
+    # Pattern: "No, make it 520 instead" or "520 instead"
+    match_instead = re.search(r"\b(?:make\s*it|likho|bardu)?\s*(\d+(?:\.\d+)?)\s*instead\b", lower)
+    if match_instead:
+        return float(match_instead.group(1))
+
     match_corr = re.search(r"(\d+(?:\.\d+)?)\s*(?:nahi|nahin|alla|not)\s*(\d+(?:\.\d+)?)", lower)
     if match_corr:
         return float(match_corr.group(2))
 
-    match_corr_rev = re.search(r"(\d+(?:\.\d+)?)\s*(?:likho|likh|bardu|karo|bana|hua|aaythu)\s*[,]?\s*(\d+(?:\.\d+)?)\s*(?:nahi|nahin|alla|not)", lower)
+    match_corr_rev = re.search(r"(\d+(?:\.\d+)?).*?(?:likho|likh|bardu|karo|bana|hua|aaythu|antha).*?(\d+(?:\.\d+)?)\s*(?:nahi|nahin|alla|not)", lower)
     if match_corr_rev:
         return float(match_corr_rev.group(1))
 
@@ -567,6 +627,26 @@ def extract_corrected_amount(text: str) -> Optional[float]:
         return float(match_after_nahi.group(1))
 
     return None
+
+
+def _detect_compound_clauses(text: str) -> List[str]:
+    """Detect if utterance contains multiple distinct customer accounting clauses joined by
+    conjunctions ('aur', 'mattu', 'and', 'hagu') or punctuation (',', ';').
+    Returns a list of clauses if 2 or more valid clauses are found, else empty list.
+    """
+    raw_clauses = re.split(r"[,;]|\b(?:aur|mattu|and|hagu)\b", text, flags=re.I)
+    cleaned_clauses = [c.strip() for c in raw_clauses if c.strip()]
+    if len(cleaned_clauses) < 2:
+        return []
+
+    valid = []
+    for c in cleaned_clauses:
+        amt = extract_indian_amount(c)
+        tokens = _extract_name_tokens(c)
+        if amt and tokens:
+            valid.append(c)
+
+    return valid if len(valid) >= 2 else []
 
 
 async def try_fast_path(
@@ -596,7 +676,7 @@ async def try_fast_path(
         try:
             async with SessionLocal() as s_lookup:
                 last_d_row = (await s_lookup.execute(
-                    sa_text("SELECT id FROM transactions WHERE shop_id = :sid AND status = 'draft' ORDER BY created_at DESC LIMIT 1"),
+                    sa_text("SELECT id FROM transactions WHERE shop_id = :sid AND status = 'draft' AND created_at > (now() - interval '10 minutes') ORDER BY created_at DESC LIMIT 1"),
                     {"sid": tools.to_uuid(shop_id)}
                 )).scalar()
                 if last_d_row:
@@ -631,8 +711,8 @@ async def try_fast_path(
     is_advance = bool(ADVANCE_PATTERN.search(text))
     is_promise_rec = bool(PROMISE_RECORD_PATTERN.search(text))
     is_promise_query = bool(PROMISE_QUERY_PATTERN.search(text))
-    is_inquiry = bool(INQUIRY_PATTERN.search(text)) or any(w in lower for w in ["pucha", "puch raha", "puchi", "puche", "lena hai", "chahiye", "beku", "kitne ka", "kya rate", "aaya", "aayi", "ake", "aake"])
-    is_bill_total = bool(BILL_TOTAL_PATTERN.search(text)) or bool(detected_item and amount and not (is_credit or is_payment or is_inquiry))
+    is_inquiry = bool(INQUIRY_PATTERN.search(text))
+    is_bill_total = bool(BILL_TOTAL_PATTERN.search(text)) or bool(detected_item and amount and not (is_credit or is_payment or is_inquiry or PAID_SALE_PATTERN.search(text)))
 
     # Anti-Hallucination Guard: If background song or radio chatter was heard and no explicit ledger command or bill is present:
     if had_song_or_noise and not (is_credit or is_payment or is_bill_total or is_promise_rec or is_promise_query or (amount and name_tokens)):
@@ -837,7 +917,7 @@ async def try_fast_path(
     # 0E. INITIAL COUNTER BILL TOTAL / THE KIRANA TRILEMMA TRIGGER
     # (e.g. "Parle ji aapka 20 hua", "Aapka 50 hua", "Kul 120 bana", "Total 150 hua", "ye lo Parle-G tumhara hua 15")
     # ---------------------------------------------------------
-    if (amount or active_bill_amt) and (is_bill_total or any(w in lower for w in ["hua", "hue", "bana", "aaythu", "bill", "total", "kul"])) and not (is_credit or is_payment or is_return or is_discount or is_advance or is_promise_rec or is_inquiry):
+    if (amount or active_bill_amt) and (is_bill_total or any(w in lower for w in ["hua", "hue", "bana", "aaythu", "bill", "total", "kul"])) and not (is_credit or is_payment or is_return or is_discount or is_advance or is_promise_rec or is_inquiry or PAID_SALE_PATTERN.search(text)):
         target_amt = amount or active_bill_amt
         target_item = detected_item or (cache and cache.pending_bill_item) or (sess and getattr(sess, "pending_bill_item", None))
 
@@ -902,7 +982,7 @@ async def try_fast_path(
 
     for pat in CHATTER_PATTERNS:
         if pat.search(text):
-            if "maine" in lower or "main " in lower or "bhaiya" in lower or not amount:
+            if "maine" in lower or "main " in lower or "naanu" in lower or "bhaiya" in lower or not amount:
                 return FastPathResult(handled=True, reply="[SILENT]")
 
     # ---------------------------------------------------------
@@ -919,9 +999,177 @@ async def try_fast_path(
             return FastPathResult(handled=True, reply=msg)
 
     # ---------------------------------------------------------
+    # 2A. CHANGE CALCULATION (Explicit cash change handed back at counter)
+    # (e.g. "50 change kodi", "500 diye 150 change do", "50 change do", "chillar wapas do")
+    # Must NOT create or alter customer credit/payment ledger!
+    # ---------------------------------------------------------
+    if CHANGE_CALC_PATTERN.search(text) and not is_inquiry:
+        all_amts = re.findall(r"\b\d+(?:\.\d+)?\b", text)
+        calc_change = None
+        if len(all_amts) >= 2:
+            try:
+                a1, a2 = float(all_amts[0]), float(all_amts[1])
+                calc_change = abs(a1 - a2) if max(a1, a2) > min(a1, a2) else min(a1, a2)
+            except Exception:
+                calc_change = amount
+        elif amount:
+            calc_change = amount
+
+        ch_amt_str = f"₹{calc_change:,.0f}" if calc_change else "change"
+        if lang.startswith("kn"):
+            msg = f"{ch_amt_str} change wapas kodbeku (Nagadu chillar lekka, graahakara khate badalaagilla)."
+        elif lang.startswith("hi"):
+            msg = f"{ch_amt_str} change wapas dena hai (Nagad change calculation, customer credit khate mein koi badlav nahi hua hai)."
+        else:
+            msg = f"Return {ch_amt_str} change (Cash change calculation, customer credit ledger unchanged)."
+        return FastPathResult(handled=True, reply=msg, events=[{"type": "change_calc", "change_amount": calc_change}])
+
+    # ---------------------------------------------------------
+    # 2B. CASH BOOK: CASH BALANCE INQUIRY
+    # (e.g. "Cash box mein kitna hai", "Ivattu cash eshtu ide", "drawer balance")
+    # ---------------------------------------------------------
+    if CASH_BALANCE_PATTERN.search(text) and not (CREDIT_PATTERN.search(text) or PAYMENT_PATTERN.search(text)):
+        async with SessionLocal() as s:
+            res = await tools.get_cash_balance(s, shop_id)
+            bal = res.get("cash_balance", 0.0)
+            c_in = res.get("today_cash_in", 0.0)
+            c_out = res.get("today_cash_out", 0.0)
+            if lang.startswith("kn"):
+                msg = f"Dukaan cash box baaki: ₹{bal:,.0f} (Indina jama: ₹{c_in:,.0f}, Kharchu: ₹{c_out:,.0f})."
+            elif lang.startswith("hi"):
+                msg = f"Shop cash box balance: ₹{bal:,.0f} (Aaj jama: ₹{c_in:,.0f}, Aaj kharch: ₹{c_out:,.0f})."
+            else:
+                msg = f"Cash drawer balance: ₹{bal:,.0f} (Today in: ₹{c_in:,.0f}, Today out: ₹{c_out:,.0f})."
+            return FastPathResult(handled=True, reply=msg, events=[{**res, "type": "cash_balance"}])
+
+    # ---------------------------------------------------------
+    # 2C. CASH BOOK: CASH INFLOW (DEPOSIT TO DRAWER)
+    # (e.g. "Cash box mein 1000 daalo", "Cash in 500", "Galla petti ge 200 haaki")
+    # ---------------------------------------------------------
+    if amount and CASH_IN_PATTERN.search(text):
+        async with SessionLocal() as s:
+            res = await tools.record_cash_in(
+                s,
+                shop_id,
+                amount=amount,
+                reason="deposit",
+                description=text,
+                payment_mode="cash",
+            )
+            new_bal = res.get("cash_balance", 0.0)
+            if lang.startswith("kn"):
+                msg = f"Cash box ge ₹{amount:,.0f} jama aagide. Hosa cash balance: ₹{new_bal:,.0f}."
+            elif lang.startswith("hi"):
+                msg = f"Shop cash box mein ₹{amount:,.0f} jama ho gaya. Naya cash balance: ₹{new_bal:,.0f}."
+            else:
+                msg = f"Recorded ₹{amount:,.0f} cash-in. New cash drawer balance: ₹{new_bal:,.0f}."
+            return FastPathResult(handled=True, reply=msg, events=[{**res, "type": "cash_in"}])
+
+    # ---------------------------------------------------------
+    # 2D. CASH BOOK: CASH OUTFLOW (EXPENSE / WITHDRAWAL)
+    # (e.g. "Cash box se 500 nikaalo", "500 kharch ke liye nikala", "Cash out 1000")
+    # ---------------------------------------------------------
+    if amount and CASH_OUT_PATTERN.search(text):
+        async with SessionLocal() as s:
+            res = await tools.record_cash_out(
+                s,
+                shop_id,
+                amount=amount,
+                reason="expense",
+                description=text,
+                payment_mode="cash",
+            )
+            new_bal = res.get("cash_balance", 0.0)
+            if lang.startswith("kn"):
+                msg = f"Cash box inda ₹{amount:,.0f} kharchige tegedukollalaagide. Hosa cash balance: ₹{new_bal:,.0f}."
+            elif lang.startswith("hi"):
+                msg = f"Shop cash box se ₹{amount:,.0f} kharch ke liye nikaal liya gaya. Naya cash balance: ₹{new_bal:,.0f}."
+            else:
+                msg = f"Recorded ₹{amount:,.0f} cash-out. New cash drawer balance: ₹{new_bal:,.0f}."
+            return FastPathResult(handled=True, reply=msg, events=[{**res, "type": "cash_out"}])
+
+    # ---------------------------------------------------------
+    # 2E. COMPOUND MULTI-TRANSACTION SPLITTING
+    # (e.g. "Ramesh 500 kotta, Suresh ge 300 udhar haaki", "Anil 1000 diya aur Sunil ko 200 udhar")
+    # ---------------------------------------------------------
+    compound_clauses = _detect_compound_clauses(text)
+    if compound_clauses:
+        async with SessionLocal() as s:
+            created_drafts = []
+            clause_summaries = []
+            all_events = []
+            for cl in compound_clauses:
+                cl_amt = extract_indian_amount(cl)
+                cl_names = _extract_name_tokens(cl)
+                if not cl_amt or not cl_names:
+                    continue
+                cl_cname = " ".join(t.capitalize() for t in cl_names[:2])
+                cl_loan = bool(LOAN_DIRECTION_PATTERN.search(cl))
+                cl_credit = bool(CREDIT_PATTERN.search(cl)) or cl_loan
+                cl_payment = (bool(PAYMENT_PATTERN.search(cl)) and not cl_loan) or bool(_detect_payment_mode(cl) and not cl_credit)
+                cl_return = bool(RETURN_PATTERN.search(cl))
+                cl_discount = bool(DISCOUNT_PATTERN.search(cl))
+                cl_advance = bool(ADVANCE_PATTERN.search(cl))
+                cl_mode = _detect_payment_mode(cl)
+
+                tx_t = "adjustment" if (cl_return or cl_discount) else ("payment" if (cl_payment or cl_advance) else "credit")
+                adj_r = "return" if cl_return else ("discount" if cl_discount else None)
+                cl_note = "Cash Loan" if cl_loan else ("Advance / Deposit" if cl_advance else None)
+
+                # Search or create customer
+                search_res = await tools.search_customers(s, shop_id, cl_cname)
+                matches = search_res.get("matches", [])
+                best, _ = _pick_best_match(matches, cl_cname)
+                if best:
+                    target_cid = best["customer_id"]
+                    display_name = best["name"]
+                    cur_b = float(best.get("balance", 0))
+                else:
+                    new_c = await tools.create_customer(s, shop_id, name=cl_cname)
+                    target_cid = new_c["customer_id"]
+                    display_name = cl_cname
+                    cur_b = 0.0
+
+                d_res = await tools.create_draft(
+                    s,
+                    shop_id,
+                    customer_id=target_cid,
+                    type=tx_t,
+                    amount=cl_amt,
+                    payment_mode=cl_mode,
+                    adjustment_reason=adj_r,
+                    note=cl_note,
+                    transcript=cl,
+                    language=lang,
+                )
+                draft_id = d_res.get("draft_id")
+                if draft_id:
+                    created_drafts.append(draft_id)
+                    all_events.append({**d_res, "tx_type": tx_t, "type": "draft"})
+                    clause_summaries.append(f"{display_name} ke ₹{cl_amt:,.0f} {tx_t}")
+
+            if created_drafts:
+                if sess:
+                    sess.pending_draft_ids = created_drafts
+                    sess.last_draft_id = created_drafts[-1]
+                if cache:
+                    cache.last_draft_id = created_drafts[-1]
+
+                summary_str = " aur ".join(clause_summaries)
+                if lang.startswith("kn"):
+                    msg = f"{len(created_drafts)} transactions draft aagide: {' mattu '.join(clause_summaries)}. Confirm maadla?"
+                elif lang.startswith("hi"):
+                    msg = f"{len(created_drafts)} transactions ke drafts ban gaye hain: {summary_str}. Confirm karein?"
+                else:
+                    msg = f"{len(created_drafts)} draft transactions created: {summary_str}. Please confirm."
+
+                return FastPathResult(handled=True, reply=msg, events=all_events)
+
+    # ---------------------------------------------------------
     # 3. CORRECTION AFTER READ-BACK (e.g. "Nahi 430 likho, 340 nahi" / "alla 430 bardu")
     # ---------------------------------------------------------
-    if active_draft_id and amount and not name_tokens and (CANCEL_PATTERN.search(text) or any(w in lower for w in ["likho", "bardu", "karo", "maadi"])):
+    target_corr_amt = corrected_amt or amount
+    if active_draft_id and target_corr_amt and not name_tokens and (CANCEL_PATTERN.search(text) or corrected_amt or any(w in lower for w in ["likho", "bardu", "karo", "maadi", "instead", "write", "make"])):
         async with SessionLocal() as s:
             old_t = await s.get(Transaction, uuid.UUID(active_draft_id))
             if old_t and str(old_t.shop_id) == shop_id:
@@ -936,7 +1184,7 @@ async def try_fast_path(
                     shop_id,
                     customer_id=target_cid,
                     type=tx_type,
-                    amount=amount,
+                    amount=target_corr_amt,
                     payment_mode=payment_mode,
                     transcript=text,
                     language=lang,
@@ -948,11 +1196,11 @@ async def try_fast_path(
                 bal = float(new_draft.get("projected_balance", 0))
 
                 if new_draft.get("rule_warnings"):
-                    msg = _format_rule_warning_msg(new_draft, cname, amount, lang)
+                    msg = _format_rule_warning_msg(new_draft, cname, target_corr_amt, lang)
                 elif lang.startswith("kn"):
-                    msg = f"Tiddupaadi maadlaagide: {cname} avarige ₹{amount:,.0f} {tx_type} draft aagide (naya baaki ₹{bal:,.0f}). Confirm maadla?"
+                    msg = f"Tiddupaadi maadlaagide: {cname} avarige ₹{target_corr_amt:,.0f} {tx_type} draft aagide (naya baaki ₹{bal:,.0f}). Confirm maadla?"
                 else:
-                    msg = f"Sudhaar diya gaya hai: {cname} ke naam ₹{amount:,.0f} {tx_type} draft ban gaya hai (naya balance ₹{bal:,.0f}). Confirm karein?"
+                    msg = f"Sudhaar diya gaya hai: {cname} ke naam ₹{target_corr_amt:,.0f} {tx_type} draft ban gaya hai (naya balance ₹{bal:,.0f}). Confirm karein?"
 
                 return FastPathResult(
                     handled=True,
@@ -961,22 +1209,44 @@ async def try_fast_path(
                 )
 
     # ---------------------------------------------------------
-    # 4. OVERRIDE OR CONFIRM ACTIVE DRAFT
+    # 4. OVERRIDE OR CONFIRM ACTIVE DRAFT(S)
     # ---------------------------------------------------------
     is_override_speech = bool(OVERRIDE_PATTERN.search(text)) or "continue" in lower
-    if active_draft_id and (CONFIRM_PATTERN.search(text) or is_override_speech):
+    has_pending_multi = bool(sess and getattr(sess, "pending_draft_ids", None))
+    if (active_draft_id or has_pending_multi) and (CONFIRM_PATTERN.search(text) or is_override_speech) and not (amount and name_tokens) and not (is_return or is_discount):
         async with SessionLocal() as s:
-            if is_override_speech:
-                # Explicitly override any shop rule warnings first
-                await tools.override_rule_warnings(s, shop_id, active_draft_id)
+            d_ids = (sess and sess.pending_draft_ids) or ([active_draft_id] if active_draft_id else [])
+            confirmed_events = []
+            conf_msgs = []
+            unresolved_err = None
 
-            out = await tools.confirm_draft(s, shop_id, active_draft_id)
-            if out.get("confirmed"):
-                cname = out.get("customer", "Customer")
-                bal = out.get("new_balance", 0)
-                amt = out.get("amount", 0)
-                ttype = out.get("type", "transaction")
+            for d_id in d_ids:
+                if is_override_speech:
+                    await tools.override_rule_warnings(s, shop_id, d_id)
+                out = await tools.confirm_draft(s, shop_id, d_id)
+                if out.get("confirmed"):
+                    cname = out.get("customer", "Customer")
+                    bal = out.get("new_balance", 0)
+                    amt = out.get("amount", 0)
+                    ttype = out.get("type", "transaction")
+                    confirmed_events.append({**out, "type": "confirmed"})
+                    conf_msgs.append(f"{cname} (₹{amt:,.0f} {ttype}, baaki ₹{bal:,.0f})")
+                elif "Unresolved Dukaan Rule warnings" in out.get("error", ""):
+                    unresolved_err = out
+
+            if unresolved_err and not confirmed_events:
+                draft_tx = await s.get(Transaction, uuid.UUID(d_ids[0]))
+                r_warns = draft_tx.rule_warnings if draft_tx else []
+                r_text = " aur ".join(f"\"{w.get('rule_text') or w.get('message')}\"" for w in r_warns) if r_warns else "dukaan rule"
+                if lang.startswith("kn"):
+                    msg = f"⚠️ Niyam meeirsalilla: {r_text}. Khaatrigolisalu 'Continue anyway' antha heli athava amount badalisi."
+                else:
+                    msg = f"⚠️ Entry par aapka dukaan niyam laga hai: {r_text}. Confirm karne ke liye 'Continue anyway' boliye ya amount change kijiye."
+                return FastPathResult(handled=True, reply=msg)
+
+            if confirmed_events:
                 if sess:
+                    sess.pending_draft_ids = None
                     sess.last_draft_id = None
                     sess.active_customer_id = None
                     sess.active_customer_name = None
@@ -986,34 +1256,42 @@ async def try_fast_path(
                     cache.reset_active_transaction()
 
                 override_note = " (niyam override karke)" if is_override_speech else ""
-                if lang.startswith("kn"):
-                    msg = f"Khaatrigolislaagide! ₹{amt:,.0f} {ttype} {cname} avarige daakhalagide. Naya baaki ₹{bal:,.0f}."
+                if len(confirmed_events) > 1:
+                    if lang.startswith("kn"):
+                        msg = f"Khaatrigolislaagide! Sabhi {len(confirmed_events)} transactions daakhalagide: {', '.join(conf_msgs)}."
+                    else:
+                        msg = f"Confirm ho gaya{override_note}! Sabhi {len(confirmed_events)} transactions record ho gaye: {', '.join(conf_msgs)}."
                 else:
-                    msg = f"Confirm ho gaya{override_note}! ₹{amt:,.0f} {ttype} record ho gaya. {cname} ka naya balance ₹{bal:,.0f} hai."
+                    ev0 = confirmed_events[0]
+                    cname = ev0.get("customer", "Customer")
+                    bal = ev0.get("new_balance", 0)
+                    amt = ev0.get("amount", 0)
+                    ttype = ev0.get("type", "transaction")
+                    if lang.startswith("kn"):
+                        msg = f"Khaatrigolislaagide! ₹{amt:,.0f} {ttype} {cname} avarige daakhalagide. Naya baaki ₹{bal:,.0f}."
+                    else:
+                        msg = f"Confirm ho gaya{override_note}! ₹{amt:,.0f} {ttype} record ho gaya. {cname} ka naya balance ₹{bal:,.0f} hai."
 
                 return FastPathResult(
                     handled=True,
                     reply=msg,
-                    events=[{**out, "type": "confirmed"}],
+                    events=confirmed_events,
                 )
-            elif "Unresolved Dukaan Rule warnings" in out.get("error", ""):
-                # Unresolved rule warning reminder: tell the written rule text!
-                draft_tx = await s.get(Transaction, uuid.UUID(active_draft_id))
-                r_warns = draft_tx.rule_warnings if draft_tx else []
-                r_text = " aur ".join(f"\"{w.get('rule_text') or w.get('message')}\"" for w in r_warns) if r_warns else "dukaan rule"
-                if lang.startswith("kn"):
-                    msg = f"⚠️ Niyam meeirsalilla: {r_text}. Khaatrigolisalu 'Continue anyway' antha heli athava amount badalisi."
-                else:
-                    msg = f"⚠️ Entry par aapka dukaan niyam laga hai: {r_text}. Confirm karne ke liye 'Continue anyway' boliye ya amount change kijiye."
-                return FastPathResult(handled=True, reply=msg)
 
     # ---------------------------------------------------------
-    # 5. CANCEL ACTIVE DRAFT
+    # 5. CANCEL ACTIVE DRAFT(S)
     # ---------------------------------------------------------
-    if active_draft_id and CANCEL_PATTERN.search(text):
+    has_pending_multi = bool(sess and getattr(sess, "pending_draft_ids", None))
+    if (active_draft_id or has_pending_multi) and CANCEL_PATTERN.search(text):
         async with SessionLocal() as s:
-            out = await tools.cancel_draft(s, shop_id, active_draft_id)
+            d_ids = (sess and sess.pending_draft_ids) or ([active_draft_id] if active_draft_id else [])
+            cancelled_events = []
+            for d_id in d_ids:
+                out = await tools.cancel_draft(s, shop_id, d_id)
+                cancelled_events.append({**out, "type": "cancelled"})
+
             if sess:
+                sess.pending_draft_ids = None
                 sess.last_draft_id = None
                 sess.active_customer_id = None
                 sess.active_customer_name = None
@@ -1023,14 +1301,14 @@ async def try_fast_path(
                 cache.reset_active_transaction()
 
             if lang.startswith("kn"):
-                msg = "Draft raddhugolislaagide."
+                msg = f"{len(cancelled_events)} draft(s) raddhugolislaagide."
             else:
-                msg = "Draft cancel kar diya gaya hai."
+                msg = f"{len(cancelled_events)} draft(s) cancel kar diye gaye hain."
 
             return FastPathResult(
                 handled=True,
                 reply=msg,
-                events=[{**out, "type": "cancelled"}],
+                events=cancelled_events,
             )
 
     # ---------------------------------------------------------
@@ -1087,7 +1365,7 @@ async def try_fast_path(
     # ---------------------------------------------------------
     # 8. FULL SETTLEMENT ("Sab clear", "Ella clear maadi", "Hisaab chukta")
     # ---------------------------------------------------------
-    if SETTLE_PATTERN.search(text) and not active_draft_id:
+    if SETTLE_PATTERN.search(text):
         target_name = " ".join(t.capitalize() for t in name_tokens[:2]) if name_tokens else None
         if not target_name and sess and sess.active_customer_name:
             target_name = sess.active_customer_name
@@ -1098,12 +1376,18 @@ async def try_fast_path(
                 matches = search_res.get("matches", [])
                 best, ambig = _pick_best_match(matches, target_name)
 
+                if not best and not ambig:
+                    new_c = await tools.create_customer(s, shop_id, name=target_name)
+                    best = {"customer_id": new_c["customer_id"], "name": target_name, "balance": 0.0}
+
                 if best:
+                    is_wo = bool(re.search(r"\b(?:write\s*off|bad\s*debt|maaf)\b", lower))
                     settle_res = await tools.settle_balance(
                         s,
                         shop_id,
                         customer_id=best["customer_id"],
                         payment_mode=payment_mode,
+                        is_write_off=is_wo,
                         language=lang,
                     )
                     if settle_res.get("already_settled"):
@@ -1117,15 +1401,17 @@ async def try_fast_path(
                         sess.last_draft_id = settle_res.get("draft_id")
 
                     s_amt = settle_res.get("amount", 0)
+                    action_label = "bad-debt write off" if is_wo else "clear"
                     if lang.startswith("kn"):
-                        msg = f"{best['name']} avara kul baaki ₹{s_amt:,.0f} clear maaduva draft tayaride. Confirm maadla?"
+                        msg = f"{best['name']} avara kul baaki ₹{s_amt:,.0f} {action_label} maaduva draft tayaride. Confirm maadla?"
                     else:
-                        msg = f"{best['name']} ka poora hisaab ₹{s_amt:,.0f} clear karne ka draft ban gaya hai. Confirm karein?"
+                        msg = f"{best['name']} ka poora hisaab ₹{s_amt:,.0f} {action_label} karne ka draft ban gaya hai. Confirm karein?"
 
+                    tx_t = "adjustment" if is_wo else "payment"
                     return FastPathResult(
                         handled=True,
                         reply=msg,
-                        events=[{**settle_res, "tx_type": "payment", "type": "draft"}],
+                        events=[{**settle_res, "tx_type": tx_t, "type": "draft"}],
                     )
 
     # ---------------------------------------------------------
@@ -1327,10 +1613,17 @@ async def try_fast_path(
                 best, ambig = _pick_best_match(matches, target_name)
                 if best:
                     bal = float(best.get("balance", 0))
-                    if lang.startswith("kn"):
-                        msg = f"{best['name']} avarinda kul ₹{bal:,.0f} baaki ide."
+                    if bal < 0:
+                        adv = abs(bal)
+                        if lang.startswith("kn"):
+                            msg = f"{best['name']} avarinda ₹{adv:,.0f} mungada (advance / deposit) jama ide."
+                        else:
+                            msg = f"{best['name']} ka ₹{adv:,.0f} advance / deposit jama hai."
                     else:
-                        msg = f"{best['name']} ka balance ₹{bal:,.0f} baaki hai."
+                        if lang.startswith("kn"):
+                            msg = f"{best['name']} avarinda kul ₹{bal:,.0f} baaki ide."
+                        else:
+                            msg = f"{best['name']} ka balance ₹{bal:,.0f} baaki hai."
                     return FastPathResult(handled=True, reply=msg)
                 elif ambig:
                     if sess:
@@ -1401,6 +1694,9 @@ async def try_fast_path(
                     })
 
                 # Promise warning & Rule warning check
+                proj_bal_str_kn = f"naya baaki ₹{proj_bal:,.0f}" if proj_bal >= 0 else f"naya balance ₹{abs(proj_bal):,.0f} mungada (advance)"
+                proj_bal_str_hi = f"naya balance ₹{proj_bal:,.0f}" if proj_bal >= 0 else f"naya balance ₹{abs(proj_bal):,.0f} advance deposit"
+
                 if draft_res.get("rule_warnings") and draft_res.get("pending_promise"):
                     msg = f"{_format_promise_warning_msg(draft_res, c_display, amount, lang)} {_format_rule_warning_msg(draft_res, c_display, amount, lang)}"
                 elif draft_res.get("pending_promise"):
@@ -1413,9 +1709,9 @@ async def try_fast_path(
                     else:
                         msg = f"⚠️ Alert: ₹{amount:,.0f} amount customer ke normal entry se 10 guna zyada hai! Confirm karein?"
                 elif lang.startswith("kn"):
-                    msg = f"{c_display} avarige ₹{amount:,.0f}{mode_str} {tx_label} draft aagide (naya baaki ₹{proj_bal:,.0f}). Confirm maadla?"
+                    msg = f"{c_display} avarige ₹{amount:,.0f}{mode_str} {tx_label} draft aagide ({proj_bal_str_kn}). Confirm maadla?"
                 else:
-                    msg = f"{c_display} ke naam ₹{amount:,.0f}{mode_str} {tx_label} draft ban gaya hai (naya balance ₹{proj_bal:,.0f}). Confirm karein?"
+                    msg = f"{c_display} ke naam ₹{amount:,.0f}{mode_str} {tx_label} draft ban gaya hai ({proj_bal_str_hi}). Confirm karein?"
 
                 return FastPathResult(
                     handled=True,
@@ -1582,6 +1878,9 @@ async def try_fast_path(
                         "draft_id": draft_res.get("draft_id"),
                     })
 
+                proj_bal_str_kn = f"naya baaki ₹{proj_bal:,.0f}" if proj_bal >= 0 else f"naya balance ₹{abs(proj_bal):,.0f} mungada (advance)"
+                proj_bal_str_hi = f"naya balance ₹{proj_bal:,.0f}" if proj_bal >= 0 else f"naya balance ₹{abs(proj_bal):,.0f} advance deposit"
+
                 # Promise warning & Rule warning check
                 if draft_res.get("rule_warnings") and draft_res.get("pending_promise"):
                     msg = f"{_format_promise_warning_msg(draft_res, cname, amount, lang)} {_format_rule_warning_msg(draft_res, cname, amount, lang)}"
@@ -1595,9 +1894,9 @@ async def try_fast_path(
                     else:
                         msg = f"⚠️ Alert: ₹{amount:,.0f} normal se 10x zyada hai! Confirm karein?"
                 elif lang.startswith("kn"):
-                    msg = f"{cname} avarige ₹{amount:,.0f}{mode_str} {tx_label} draft aagide (naya baaki ₹{proj_bal:,.0f}). Confirm maadla?"
+                    msg = f"{cname} avarige ₹{amount:,.0f}{mode_str} {tx_label} draft aagide ({proj_bal_str_kn}). Confirm maadla?"
                 else:
-                    msg = f"{cname} ke naam ₹{amount:,.0f}{mode_str} {tx_label} draft ban gaya hai (naya balance ₹{proj_bal:,.0f}). Confirm karein?"
+                    msg = f"{cname} ke naam ₹{amount:,.0f}{mode_str} {tx_label} draft ban gaya hai ({proj_bal_str_hi}). Confirm karein?"
 
                 return FastPathResult(
                     handled=True,

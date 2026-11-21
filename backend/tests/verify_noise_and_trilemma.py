@@ -6,6 +6,7 @@ import os
 
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+os.environ["DATABASE_URL"] = os.getenv("TEST_DATABASE_URL", "postgresql+asyncpg://postgres:postgrespassword@db:5432/dukaan")
 
 from app.agent.fast_engine import try_fast_path, clean_ambient_noise_and_songs, _extract_name_tokens, _extract_kirana_item
 from app.agent.pipeline import VoiceSession

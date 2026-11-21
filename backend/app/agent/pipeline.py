@@ -49,6 +49,7 @@ class VoiceSession:
         self.history: List[Dict[str, Any]] = []
         self.turn = 0
         self.last_draft_id: str | None = None
+        self.pending_draft_ids: List[str] | None = None
         self.draft_turn: Dict[str, int] = {}  # draft_id -> turn in which it was drafted
         self.undo_inspected_turn: int = 0     # turn in which last confirmed undo was inspected
 
@@ -434,6 +435,36 @@ class VoiceSession:
                 if out.get("confirmed"):
                     self.last_draft_id = None
                     events.append({"type": "confirmed", **out})
+                return out
+
+            if name == "record_cash_in":
+                out = await tools.record_cash_in(
+                    s,
+                    sid,
+                    amount=float(args["amount"]),
+                    reason=args.get("reason", "deposit"),
+                    description=args.get("description", ""),
+                )
+                if out.get("ok"):
+                    events.append({"type": "cash_in", **out})
+                return out
+
+            if name == "record_cash_out":
+                out = await tools.record_cash_out(
+                    s,
+                    sid,
+                    amount=float(args["amount"]),
+                    reason=args.get("reason", "expense"),
+                    description=args.get("description", ""),
+                )
+                if out.get("ok"):
+                    events.append({"type": "cash_out", **out})
+                return out
+
+            if name == "get_cash_balance":
+                out = await tools.get_cash_balance(s, sid)
+                if out.get("ok"):
+                    events.append({"type": "cash_balance", **out})
                 return out
 
             if name == "cancel_draft":

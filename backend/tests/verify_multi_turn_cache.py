@@ -15,6 +15,7 @@ import sys
 
 # Ensure backend app is importable
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+os.environ["DATABASE_URL"] = os.getenv("TEST_DATABASE_URL", "postgresql+asyncpg://postgres:postgrespassword@db:5432/dukaan")
 
 from app.agent.conversation_cache import ConversationState, ShopConversationCacheManager
 from app.agent.fast_engine import try_fast_path
