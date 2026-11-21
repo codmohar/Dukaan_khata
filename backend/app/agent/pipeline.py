@@ -332,6 +332,13 @@ class VoiceSession:
                     new_date=args.get("new_date"),
                 )
 
+            if name == "fulfil_entity_promise":
+                return await tools.fulfil_entity_promise(
+                    s,
+                    sid,
+                    entity_name=str(args["entity_name"]),
+                )
+
             if name == "search_shop_memory":
                 return await tools.search_shop_memory(
                     s,

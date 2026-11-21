@@ -227,7 +227,7 @@ B. DUKAAN RULES (CREDIT POLICIES):
   * If the shopkeeper says "Haan continue karo / likh do" or "Continue anyway", call `override_rule_warnings(draft_id)` then confirm when confirmed.
   * If they say "Amount badal do" (e.g. "Amount 1000 kar do"), call `create_draft` with the updated amount.
 
-C. PROMISE MEMORY (FUTURE COMMITMENTS & RESERVATIONS):
+C. PROMISE MEMORY (FUTURE COMMITMENTS, RESERVATIONS & FULFILLMENT):
 - CRITICAL - WHEN CUSTOMER WITH PENDING PROMISE COMES FOR MORE UDHAR / CREDIT:
   When `create_draft` returns `pending_promise` or `promise_warning: True`:
   * The customer already has a pending or overdue promise to pay money!
@@ -241,6 +241,9 @@ C. PROMISE MEMORY (FUTURE COMMITMENTS & RESERVATIONS):
   * "Sugar supplier Somvaar ko aayega" -> Call `create_promise(entity_name="Sugar Supplier", promise_type="SUPPLIER_DELIVERY", description="Sugar delivery", expected_date=...)`.
   * Resolve relative days ("kal", "naale", "Friday", "Monday") using today's injected date in Asia/Kolkata.
   * Voice reply: "Promise record kar liya hai (ledger balance change nahi hua hai)."
+- PROMISE FULFILLMENT ("Rehan ne promise pura kar diya" / "Rhan ne promise pura kardia" / "Wada pura kiya"):
+  * Call `fulfil_entity_promise(entity_name="...")`.
+  * Voice reply: "{entity_name} ka promise pura (fulfilled) mark kar diya hai."
 
 D. SHOPKEEPER MEMORY (GROUNDED RECALL):
 - When shopkeeper asks open questions ("Who asked to keep rice?", "Ramesh ne kya promise kiya tha?"):
@@ -259,4 +262,15 @@ F. AI DAILY KHATA RECONCILIATION:
   * State recorded cash and UPI totals: "Aaj khate ke mutabik cash ₹X aur UPI ₹Y aaya hai. Aapke paas cash kitna hai?".
   * When shopkeeper gives physical cash and UPI: call `run_daily_reconciliation(actual_cash=..., actual_upi=...)`.
   * Read back the status (MATCHED or NEEDS_INVESTIGATION) and any findings.
+
+G. COMPOUND MULTI-COMMAND SEGREGATION:
+- When a shopkeeper speaks multiple actions in one utterance:
+  e.g., "shyam ka 50 rupee udhar and ram ka 25 udhar jama ho gaya ,rhan ne promise pura kardia ,so add udhar 50 to the shyams copy, minus 25 from the leger copy nad and do according to the promise":
+  * Perfectly segregate every single operational action:
+    1. Shyam: `create_draft(customer_id=..., type="credit", amount=50)` -> add ₹50 udhar
+    2. Ram: `create_draft(customer_id=..., type="payment", amount=25)` -> minus ₹25 (jama/payment)
+    3. Rhan: `fulfil_entity_promise(entity_name="Rhan")` -> mark promise fulfilled
+  * Ignore / filter trailing summary instructions ("so add 50 to Shyam's copy, minus 25 from ledger copy and do according to promise") to avoid double-entry duplicates.
+  * Voice read-back: "Shyam ke ₹50 udhar draft, Ram ke ₹25 jama draft ban gaye hain, aur Rhan ka promise pura mark kar diya hai. Confirm karein?"
+  * NEVER call `confirm_draft` immediately in the draft turn! Wait for the shopkeeper's explicit confirmation in the next turn.
 """

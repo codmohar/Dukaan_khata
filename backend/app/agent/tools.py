@@ -1022,6 +1022,72 @@ async def update_promise(
         return {"error": str(e)}
 
 
+async def fulfil_entity_promise(
+    s: AsyncSession,
+    shop_id: str,
+    entity_name: str,
+    transcript: str | None = None,
+) -> dict:
+    """Mark any pending promise for entity_name (or customer) as fulfilled.
+    If no existing pending promise is found, creates a fulfilled promise record.
+    """
+    try:
+        sid = to_uuid(shop_id)
+        norm_name = normalize_customer_query(entity_name).title()
+
+        query = """
+            SELECT p.id, p.promised_amount, p.description, p.expected_date, p.entity_name
+            FROM promises p
+            LEFT JOIN customers c ON c.id = p.customer_id
+            WHERE p.shop_id = :sid AND p.status = 'PENDING'
+              AND (p.entity_name ILIKE :n OR similarity(p.entity_name, :n) > 0.35 OR (c.name IS NOT NULL AND similarity(c.name, :n) > 0.35))
+            ORDER BY similarity(p.entity_name, :n) DESC, p.created_at DESC
+            LIMIT 1
+        """
+        res = await s.execute(text(query), {"sid": sid, "n": norm_name})
+        row = res.mappings().first()
+
+        if row:
+            pid = row["id"]
+            await s.execute(
+                text("UPDATE promises SET status = 'FULFILLED', fulfilled_at = NOW() WHERE id = :pid"),
+                {"pid": pid},
+            )
+            await s.commit()
+            return {
+                "fulfilled": True,
+                "promise_id": str(pid),
+                "entity_name": row["entity_name"],
+                "promised_amount": float(row["promised_amount"]) if row["promised_amount"] else None,
+                "expected_date": str(row["expected_date"]),
+                "status": "FULFILLED",
+            }
+        else:
+            new_p = Promise(
+                id=uuid.uuid4(),
+                shop_id=sid,
+                entity_name=norm_name,
+                promise_type="PAYMENT_PROMISE",
+                description=f"Promise fulfilled by {norm_name}",
+                expected_date=date.today(),
+                status="FULFILLED",
+                fulfilled_at=datetime.now(timezone.utc),
+                source_transcript=transcript,
+            )
+            s.add(new_p)
+            await s.commit()
+            return {
+                "fulfilled": True,
+                "promise_id": str(new_p.id),
+                "entity_name": norm_name,
+                "promised_amount": None,
+                "expected_date": date.today().isoformat(),
+                "status": "FULFILLED",
+            }
+    except Exception as e:
+        return {"error": str(e)}
+
+
 async def search_shop_memory(
     s: AsyncSession,
     shop_id: str,
@@ -1541,6 +1607,17 @@ DECLARATIONS = [
                 "new_date": {"type": "string", "description": "Required if action is RESCHEDULE (YYYY-MM-DD)"},
             },
             "required": ["promise_id", "action"],
+        },
+    },
+    {
+        "name": "fulfil_entity_promise",
+        "description": "Mark an existing payment promise or commitment for a customer as fulfilled (wada pura kiya / promise fulfilled).",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "entity_name": {"type": "string", "description": "Customer or person name whose promise was fulfilled"},
+            },
+            "required": ["entity_name"],
         },
     },
     {

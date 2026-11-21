@@ -433,6 +433,20 @@ PROMISE_QUERY_PATTERN = re.compile(
     re.I,
 )
 
+# Promise Fulfillment Intent ("Rehan ne promise pura kar diya", "Rhan ne promise pura kardia", "Wada pura kiya")
+PROMISE_FULFIL_PATTERN = re.compile(
+    r"\b(?:"
+    r"promise\s*(?:pura|poora|complete|fulfilled|clear|chukta|settle|ho\s*gaya|nibhaya|paalana)|"
+    r"(?:pura|poora|complete|fulfilled|clear|chukta|settle|nibhaya)\s*(?:kar\s*diya|kardia|ho\s*gaya|aaythu|maadi|kiya)?\s*(?:promise|wada)|"
+    r"wada\s*(?:pura|poora|complete|fulfilled|clear|chukta|settle|nibhaya)|"
+    r"(?:wada|promise)\s*(?:pura\s*kardia|pura\s*kar\s*diya|pura\s*kiya|pura\s*ho\s*gaya|poora\s*maadi|poora\s*aaythu)|"
+    r"fulfilled\s*(?:the\s*)?promise|mark\s*promise\s*(?:as\s*)?fulfilled"
+    r")\b|"
+    r"(?:वादा\s*पूरा|प्रॉमिस\s*पूरा|प्रॉमिस\s*क्लियर|वादा\s*निभाया)|"
+    r"(?:ಪ್ರಾಮಿಸ್\s*ಪೂರ್ಣ|ಪ್ರಾಮಿಸ್\s*ಕ್ಲಿಯರ್|ಭರವಸೆ\s*ಈಡೇರಿಸಿದೆ)",
+    re.I,
+)
+
 # Payment Mode Regex
 UPI_PATTERN = re.compile(
     r"\b(?:phonepe|gpay|google\s*pay|paytm|upi|bhim|qr|online)\b|"
@@ -482,6 +496,10 @@ STOPWORDS = {
     "not", "make", "it", "instead", "write", "anta", "antha", "pichla", "pichli", "pichle",
     "what", "pending", "balance", "fm", "radio", "city", "superhit", "gaana", "bajao", "match", "score", "saala", "saal",
     "out", "of", "today", "by", "check", "show", "list", "find", "kadime", "kam", "kharab", "adjust", "permanently", "unpaid", "close", "off", "debts", "debt",
+    # Conversational filler, instructional & promise words
+    "like", "so", "to", "nad", "from", "the", "according", "then", "fir", "each", "dono", "donho", "pratyek",
+    "promise", "pura", "poora", "kardia", "kardiya", "nibhaya", "complete", "fulfilled", "clear", "settle",
+    "leger", "ledger", "minus", "plus", "sub", "waada", "wada",
     # Kirana conversational shop talk stopwords
     "ake", "aake", "aakar", "pucha", "puchi", "puche", "pucho", "bol", "bola", "boli", "bole", "bolo",
     "lena", "lene", "dena", "dene", "hae", "hain", "and", "ok", "the", "tumhara", "tumara",
@@ -508,10 +526,10 @@ STOPWORDS = {
     "लिए", "ले", "करो", "कर", "दो", "दी", "हो", "गया", "गई", "गए", "है", "हैं", "था",
     "थी", "थे", "खाता", "खाते", "खातों", "हिसाब", "पंद्रह", "पन्द्रह", "बीस", "पच्चीस", "तीस", "चालीस", "पचास", "साठ", "सत्तर", "अस्सी", "नब्बे", "गल्ला", "गल्ले", "बॉक्स", "पेटी", "काउंटर", "सब", "क्लियर", "फोनपे", "कैश", "नकद", "कृपया", "बोलो", "बताओ",
     "पिछली", "पिछला", "एंट्री", "डिलीट", "हटाओ", "कितना", "कितने", "बैलेंस", "छूट", "हुआ", "हुए", "हुई", "बना", "बने", "बनी", "रुपये", "रुपए", "रुपया", "पैसा", "पैसे", "ಆಯ್ತು", "ಆಗಿದೆ", "ಆಯಿತು", "ರೂಪಾಯಿ", "आपके", "आपकी", "तुम्हारा", "तुम्हारी", "तुम्हारे", "तेरे", "तेरी", "तेरा", "उनका", "उनकी", "उनके", "इनका", "इनकी", "इनके", "किसका", "किसकी", "किसके", "कॉपी", "ಖಾತೆ", "ನಿಮಗೆ",
-    "मुझे", "मुझको", "मुझसे", "हमें", "हमको", "हमारा", "हमारी", "हमारे", "मैं", "तू", "तुम", "आप", "कौन", "किसे", "किसको", "किसने", "किस", "सबका", "सबकी", "सबके", "सबको", "किसी", "किसिका", "दिखाओ", "दिखाइए", "बताइए", "बता", "दिखा", "लिस्ट", "बकाया", "देगा", "देंगे",
+    "मुझे", "मुझको", "मुझसे", "हमें", "हमको", "हमारा", "हमारी", "हमारे", "मैं", "तू", "तुम", "आप", "कौन", "किसे", "किसको", "किसने", "किस", "सबका", "सबकी", "सबके", "सबको", "किसी", "किसिका", "दिखाओ", "दिखाइए", "बताइए", "बता", "दिखा", "लिस्ट", "बकाया", "देगा", "देंगे", "वादा", "प्रॉमिस", "पूरा", "निभाया",
     # Kannada stopwords
     "ಗೆ", "ಇಂದ", "ರೂಪಾಯಿ", "ರೂ", "ಉದ್ರಿ", "ಉಧಾರ್", "ಜಮಾ", "ಬರೆ", "ಹಾಕಿ", "ಕೊಟ್ರು",
-    "ಕೊಟ್ಟ", "ಆಗಿದೆ", "ಆಯ್ತು", "ಇದೆ", "ಮಾಡಿದೆ", "ಖಾತೆ", "ಖಾತೆಗೆ", "ಖಾತೆಯಲ್ಲಿ", "ಲೆಕ್ಕ", "ಬ್ಯಾಲೆನ್ಸ್", "ಎಷ್ಟು", "ಸಾಲ", "ಮನ್ನಾ", "ರೈಟ್", "ಆಫ್", "ಹಿಂದಿನ", "ಮಾಡಿ",
+    "ಕೊಟ್ಟ", "ಆಗಿದೆ", "ಆಯ್ತು", "ಇದೆ", "ಮಾಡಿದೆ", "ಖಾತೆ", "ಖಾತೆಗೆ", "ಖಾತೆಯಲ್ಲಿ", "ಲೆಕ್ಕ", "ಬ್ಯಾಲೆನ್ಸ್", "ಎಷ್ಟು", "ಸಾಲ", "ಮನ್ನಾ", "ರೈಟ್", "ಆಫ್", "ಹಿಂದಿನ", "ಮಾಡಿ", "ಪ್ರಾಮಿಸ್", "ಪೂರ್ಣ", "ಪೂರ್ತಿ",
     "ನನಗೆ", "ನಮಗೆ", "ನಮ್ಮ", "ನನ್ನ", "ಯಾರು", "ಯಾರಿಗೆ", "ಯಾರದು", "ಯಾರಾದ್ರೂ", "ಯಾರಾರಿಗೆ", "ಎಲ್ಲರ", "ಎಲ್ಲರಿಗೂ", "ಹೇಳಿ", "ತೋರಿಸಿ", "ಪಟ್ಟಿ", "ಕೊಡಬೇಕು"
 }
 
@@ -545,13 +563,15 @@ def _extract_name_tokens(text: str) -> List[str]:
         ):
             continue
 
-        # Strip attached postpositions/suffixes (e.g. Rameshge -> Ramesh, Robinudar -> Robin, Robinudhar -> Robin, Deepakko -> Deepak, Ramka -> Ram, Sureshdu -> Suresh)
+        # Strip attached postpositions/suffixes (e.g. Rameshge -> Ramesh, Robinudar -> Robin, Robinudhar -> Robin, Deepakko -> Deepak, Ramka -> Ram, Sureshdu -> Suresh, Shyams -> Shyam)
         cleaned = w
         if len(cleaned) > 4:
-            for suf in ["avarige", "inda", "ige", "ge", "udhar", "udhaar", "udar", "udri", "khate", "khaate", "khata", "ka", "ke", "ki", "ko", "du", "ku", "er"]:
+            for suf in ["avarige", "inda", "ige", "ge", "udhar", "udhaar", "udar", "udri", "khate", "khaate", "khata", "ka", "ke", "ki", "ko", "du", "ku", "er", "'s"]:
                 if cleaned.lower().endswith(suf) and len(cleaned) > len(suf) + 2:
                     cleaned = cleaned[:-len(suf)]
                     break
+        if len(cleaned) > 4 and cleaned.lower().endswith("s") and not cleaned.lower().endswith(("sh", "as", "is", "us", "ss")):
+            cleaned = cleaned[:-1]
 
         if (
             cleaned.lower() not in STOPWORDS
@@ -664,24 +684,104 @@ def extract_corrected_amount(text: str) -> Optional[float]:
     return None
 
 
-def _detect_compound_clauses(text: str) -> List[str]:
-    """Detect if utterance contains multiple distinct customer accounting clauses joined by
-    conjunctions ('aur', 'mattu', 'and', 'hagu') or punctuation (',', ';').
-    Returns a list of clauses if 2 or more valid clauses are found, else empty list.
+def _parse_compound_actions(text: str) -> List[Dict[str, Any]]:
+    """Detect and segregate multiple accounting actions in a single compound utterance:
+    - Multiple customer drafts (credit, payment, adjustment, loan)
+    - Mixed drafts and promise fulfillments (e.g. 'shyam ka 50 udhar, ram ka 25 jama, rhan ne promise pura kardia')
+    - Shared amount with 'each' / 'dono' (e.g. 'Ramesh and Suresh 100 each udhar')
+    - Filter and deduplicate meta-commentary or redundant repeat instructions
     """
-    raw_clauses = re.split(r"[,;]|\b(?:aur|mattu|and|hagu)\b", text, flags=re.I)
-    cleaned_clauses = [c.strip() for c in raw_clauses if c.strip()]
-    if len(cleaned_clauses) < 2:
+    # 1. Pattern: "X and Y <amount> each <type>"
+    each_match = re.search(
+        r"([a-zA-Z\s\u0900-\u097F\u0C80-\u0CFF]+?)\s*(?:and|aur|mattu)\s*([a-zA-Z\s\u0900-\u097F\u0C80-\u0CFF]+?)\s+(\d+(?:\.\d+)?)\s*(?:each|pratyek|dono)\s*(?:ka\s*)?(udhar|jama|credit|payment|bardu)?",
+        text,
+        re.I,
+    )
+    if each_match:
+        n1 = _extract_name_tokens(each_match.group(1))
+        n2 = _extract_name_tokens(each_match.group(2))
+        amt = float(each_match.group(3))
+        ttype = "payment" if each_match.group(4) and any(w in each_match.group(4).lower() for w in ["jama", "payment"]) else "credit"
+        if n1 and n2 and amt:
+            return [
+                {"action": "draft", "customer": n1[0], "amount": amt, "tx_type": ttype, "payment_mode": None, "transcript": text},
+                {"action": "draft", "customer": n2[0], "amount": amt, "tx_type": ttype, "payment_mode": None, "transcript": text},
+            ]
+
+    raw_clauses = [c.strip() for c in re.split(r"[,;]|\b(?:aur|mattu|and|hagu)\b", text, flags=re.I) if c.strip()]
+    if len(raw_clauses) < 2:
         return []
 
-    valid = []
-    for c in cleaned_clauses:
-        amt = extract_indian_amount(c)
-        tokens = _extract_name_tokens(c)
-        if amt and tokens:
-            valid.append(c)
+    actions: List[Dict[str, Any]] = []
+    seen = set()
 
-    return valid if len(valid) >= 2 else []
+    for c in raw_clauses:
+        # Check promise fulfillment first
+        if PROMISE_FULFIL_PATTERN.search(c):
+            names = _extract_name_tokens(c)
+            cname = names[0] if names else "Customer"
+            key = (cname.lower(), "promise_fulfil", 0.0)
+            if key not in seen:
+                seen.add(key)
+                actions.append({
+                    "action": "promise_fulfil",
+                    "customer": cname,
+                    "transcript": c,
+                })
+            continue
+
+        amt = extract_indian_amount(c)
+        names = _extract_name_tokens(c)
+        if not amt or not names:
+            continue
+
+        cname = names[0]
+        if cname.lower().endswith("s") and len(cname) > 3 and not cname.lower().endswith(("sh", "as", "is", "us")):
+            cname = cname[:-1]
+
+        cl_loan = bool(LOAN_DIRECTION_PATTERN.search(c))
+        cl_return = bool(RETURN_PATTERN.search(c))
+        cl_discount = bool(DISCOUNT_PATTERN.search(c))
+        cl_advance = bool(ADVANCE_PATTERN.search(c))
+        cl_mode = _detect_payment_mode(c)
+
+        is_payment_clause = bool(
+            PAYMENT_PATTERN.search(c)
+            or cl_mode
+            or any(w in c.lower() for w in ["jama", "chuka", "minus", "diya", "kotta", "kottru"])
+        ) and not cl_loan
+
+        if cl_return or cl_discount:
+            tx_type = "adjustment"
+            adj_reason = "return" if cl_return else "discount"
+        elif is_payment_clause or cl_advance:
+            tx_type = "payment"
+            adj_reason = None
+        else:
+            tx_type = "credit"
+            adj_reason = None
+
+        key = (cname.lower(), tx_type, amt)
+        if key not in seen:
+            seen.add(key)
+            actions.append({
+                "action": "draft",
+                "customer": cname,
+                "amount": amt,
+                "tx_type": tx_type,
+                "payment_mode": cl_mode,
+                "adjustment_reason": adj_reason,
+                "note": "Cash Loan" if cl_loan else ("Advance / Deposit" if cl_advance else None),
+                "transcript": c,
+            })
+
+    return actions if len(actions) >= 2 else []
+
+
+def _detect_compound_clauses(text: str) -> List[str]:
+    """Compatibility wrapper returning clause strings for compound utterances."""
+    acts = _parse_compound_actions(text)
+    return [a.get("transcript", "") for a in acts if a.get("transcript")]
 
 
 async def try_fast_path(
@@ -1174,64 +1274,72 @@ async def try_fast_path(
             return FastPathResult(handled=True, reply=msg, events=[{**res, "type": "cash_out"}])
 
     # ---------------------------------------------------------
-    # 2E. COMPOUND MULTI-TRANSACTION SPLITTING
-    # (e.g. "Ramesh 500 kotta, Suresh ge 300 udhar haaki", "Anil 1000 diya aur Sunil ko 200 udhar")
+    # 2E. COMPOUND MULTI-TRANSACTION & ACTION SEGREGATION
+    # (e.g. "Ramesh 500 kotta, Suresh ge 300 udhar haaki", "Anil 1000 diya aur Sunil ko 200 udhar",
+    #       "shyam ka 50 rupee udhar and ram ka 25 udhar jama ho gaya ,rhan ne promise pura kardia")
     # ---------------------------------------------------------
-    compound_clauses = _detect_compound_clauses(text)
-    if compound_clauses:
+    compound_actions = _parse_compound_actions(text)
+    if compound_actions:
         async with SessionLocal() as s:
             created_drafts = []
             clause_summaries = []
             all_events = []
-            for cl in compound_clauses:
-                cl_amt = extract_indian_amount(cl)
-                cl_names = _extract_name_tokens(cl)
-                if not cl_amt or not cl_names:
-                    continue
-                cl_cname = " ".join(t.capitalize() for t in cl_names[:2])
-                cl_loan = bool(LOAN_DIRECTION_PATTERN.search(cl))
-                cl_credit = bool(CREDIT_PATTERN.search(cl)) or cl_loan
-                cl_payment = (bool(PAYMENT_PATTERN.search(cl)) and not cl_loan) or bool(_detect_payment_mode(cl) and not cl_credit)
-                cl_return = bool(RETURN_PATTERN.search(cl))
-                cl_discount = bool(DISCOUNT_PATTERN.search(cl))
-                cl_advance = bool(ADVANCE_PATTERN.search(cl))
-                cl_mode = _detect_payment_mode(cl)
+            for act in compound_actions:
+                act_type = act.get("action")
+                c_name = act.get("customer") or "Customer"
 
-                tx_t = "adjustment" if (cl_return or cl_discount) else ("payment" if (cl_payment or cl_advance) else "credit")
-                adj_r = "return" if cl_return else ("discount" if cl_discount else None)
-                cl_note = "Cash Loan" if cl_loan else ("Advance / Deposit" if cl_advance else None)
+                if act_type == "promise_fulfil":
+                    p_res = await tools.fulfil_entity_promise(s, shop_id, entity_name=c_name, transcript=act.get("transcript"))
+                    p_entity = p_res.get("entity_name") or c_name
+                    clause_summaries.append(f"{p_entity} ka promise pura")
+                    all_events.append({
+                        "type": "promise_card",
+                        "status": "FULFILLED",
+                        "entity_name": p_entity,
+                        "customer_name": p_entity,
+                        "amount": p_res.get("promised_amount"),
+                        "promise_id": p_res.get("promise_id"),
+                    })
 
-                # Search or create customer
-                search_res = await tools.search_customers(s, shop_id, cl_cname)
-                matches = search_res.get("matches", [])
-                best, _ = _pick_best_match(matches, cl_cname)
-                if best:
-                    target_cid = best["customer_id"]
-                    display_name = best["name"]
-                    cur_b = float(best.get("balance", 0))
-                else:
-                    new_c = await tools.create_customer(s, shop_id, name=cl_cname)
-                    target_cid = new_c["customer_id"]
-                    display_name = cl_cname
-                    cur_b = 0.0
+                elif act_type == "draft":
+                    cl_amt = act["amount"]
+                    tx_t = act["tx_type"]
+                    cl_mode = act.get("payment_mode")
+                    adj_r = act.get("adjustment_reason")
+                    cl_note = act.get("note")
 
-                d_res = await tools.create_draft(
-                    s,
-                    shop_id,
-                    customer_id=target_cid,
-                    type=tx_t,
-                    amount=cl_amt,
-                    payment_mode=cl_mode,
-                    adjustment_reason=adj_r,
-                    note=cl_note,
-                    transcript=cl,
-                    language=lang,
-                )
-                draft_id = d_res.get("draft_id")
-                if draft_id:
-                    created_drafts.append(draft_id)
-                    all_events.append({**d_res, "tx_type": tx_t, "type": "draft"})
-                    clause_summaries.append(f"{display_name} ke ₹{cl_amt:,.0f} {tx_t}")
+                    # Search or create customer
+                    search_res = await tools.search_customers(s, shop_id, c_name)
+                    matches = search_res.get("matches", [])
+                    best, _ = _pick_best_match(matches, c_name)
+                    if best:
+                        target_cid = best["customer_id"]
+                        display_name = best["name"]
+                        cur_b = float(best.get("balance", 0))
+                    else:
+                        new_c = await tools.create_customer(s, shop_id, name=c_name)
+                        target_cid = new_c["customer_id"]
+                        display_name = c_name
+                        cur_b = 0.0
+
+                    d_res = await tools.create_draft(
+                        s,
+                        shop_id,
+                        customer_id=target_cid,
+                        type=tx_t,
+                        amount=cl_amt,
+                        payment_mode=cl_mode,
+                        adjustment_reason=adj_r,
+                        note=cl_note,
+                        transcript=act.get("transcript"),
+                        language=lang,
+                    )
+                    draft_id = d_res.get("draft_id")
+                    if draft_id:
+                        created_drafts.append(draft_id)
+                        all_events.append({**d_res, "tx_type": tx_t, "type": "draft"})
+                        mode_s = f" ({cl_mode.upper()})" if cl_mode else ""
+                        clause_summaries.append(f"{display_name} ke ₹{cl_amt:,.0f} {tx_t}{mode_s}")
 
             if created_drafts:
                 if sess:
@@ -1240,15 +1348,15 @@ async def try_fast_path(
                 if cache:
                     cache.last_draft_id = created_drafts[-1]
 
-                summary_str = " aur ".join(clause_summaries)
-                if lang.startswith("kn"):
-                    msg = f"{len(created_drafts)} transactions draft aagide: {' mattu '.join(clause_summaries)}. Confirm maadla?"
-                elif lang.startswith("hi"):
-                    msg = f"{len(created_drafts)} transactions ke drafts ban gaye hain: {summary_str}. Confirm karein?"
-                else:
-                    msg = f"{len(created_drafts)} draft transactions created: {summary_str}. Please confirm."
+            summary_str = " aur ".join(clause_summaries)
+            if lang.startswith("kn"):
+                msg = f"{len(clause_summaries)} actions process aagide: {' mattu '.join(clause_summaries)}. Confirm maadla?"
+            elif lang.startswith("hi"):
+                msg = f"{len(clause_summaries)} actions process ho gaye hain: {summary_str}. Confirm karein?"
+            else:
+                msg = f"{len(clause_summaries)} actions processed: {summary_str}. Please confirm."
 
-                return FastPathResult(handled=True, reply=msg, events=all_events)
+            return FastPathResult(handled=True, reply=msg, events=all_events)
 
     # ---------------------------------------------------------
     # 3. CORRECTION AFTER READ-BACK (e.g. "Nahi 430 likho, 340 nahi" / "alla 430 bardu")
@@ -1585,6 +1693,41 @@ async def try_fast_path(
                     "expected_date": p_list[0].get("expected_date"),
                     "description": p_list[0].get("description"),
                     "status": p_list[0].get("status"),
+                }],
+            )
+
+    # ---------------------------------------------------------
+    # 8C. PROMISE FULFILLMENT ("Rehan ne promise pura kar diya", "Rhan ne promise pura kardia", "Wada pura kiya")
+    # ---------------------------------------------------------
+    if PROMISE_FULFIL_PATTERN.search(text) and not amount:
+        cust_name = " ".join(t.capitalize() for t in name_tokens[:2]) if name_tokens else None
+        if not cust_name and sess and sess.active_customer_name:
+            cust_name = sess.active_customer_name
+        if not cust_name and cache and cache.active_customer_name:
+            cust_name = cache.active_customer_name
+        if not cust_name:
+            cust_name = "Customer"
+
+        async with SessionLocal() as s:
+            f_res = await tools.fulfil_entity_promise(s, shop_id, entity_name=cust_name, transcript=text)
+            p_entity = f_res.get("entity_name") or cust_name
+            if lang.startswith("kn"):
+                msg = f"{p_entity} avara promise poorthi (fulfilled) daakhalagide."
+            elif lang.startswith("hi"):
+                msg = f"{p_entity} ji ka promise pura (fulfilled) mark kar diya hai."
+            else:
+                msg = f"Marked {p_entity}'s promise as fulfilled."
+
+            return FastPathResult(
+                handled=True,
+                reply=msg,
+                events=[{
+                    "type": "promise_card",
+                    "status": "FULFILLED",
+                    "entity_name": p_entity,
+                    "customer_name": p_entity,
+                    "amount": f_res.get("promised_amount"),
+                    "promise_id": f_res.get("promise_id"),
                 }],
             )
 
