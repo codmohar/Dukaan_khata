@@ -597,5 +597,23 @@ async def run_evaluation():
     print("\n✓ SUCCESS: Benchmark evaluation passed (>95% threshold achieved)!")
 
 
+async def cleanup_benchmark_shops():
+    from sqlalchemy import text as sa_text
+    try:
+        async with SessionLocal() as s:
+            await s.execute(sa_text("DELETE FROM shops WHERE name LIKE 'Benchmark Shop%'"))
+            await s.commit()
+        print("✓ Cleaned up benchmark test shops from database.", flush=True)
+    except Exception as ex:
+        print(f"Cleanup warning: {ex}", flush=True)
+
+
+async def main():
+    try:
+        await run_evaluation()
+    finally:
+        await cleanup_benchmark_shops()
+
+
 if __name__ == "__main__":
-    asyncio.run(run_evaluation())
+    asyncio.run(main())
