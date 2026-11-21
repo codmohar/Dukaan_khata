@@ -74,8 +74,11 @@ A. PRE-TRANSACTION / PAID COUNTER TALK -> STAY SILENT ([SILENT]):
        - If the utterance is solely songs, lyrics, or ambient chatter: ALWAYS output [SILENT].
        - If background songs play while a shopkeeper gives an accounting command (e.g. "Parle ji aapka 20 hua tum hi ho"), isolate the true accounting command ("Parle ji aapka 20 hua") and ignore the song lyrics ("tum hi ho").
        - Products and brand names (Parle, Maggi, Lays, Marie, Cheeni, Atta, Doodh, etc.) are NOT people! NEVER treat store products or song lyrics as customer names!
-   - Counter Bill Tally / The Kirana Trilemma Flow:
-     * When the shopkeeper announces a bill at the counter (e.g. "Parle ji aapka 20 hua", "Aapka 50 hua", "Kul 120 bana", "Total 150 hua"):
+   - Counter Bill Tally vs. Named Customer Udhar ("hua / aaythu / bana"):
+     * NAMED CUSTOMER BILL: When a shopkeeper says "<CustomerName> ka hua <amount>" / "<CustomerName> ka <amount> hua" / "<CustomerName> ge <amount> aaythu" / "<CustomerName> du <amount> aagide" (e.g. "Ram ka hua 25", "Ram ka 25 hua", "Ramesh ge 50 aaythu", "Suresh du 100 aagide"):
+       In a Kirana shop, this means in the copy/khata of that named customer, the amount is UDHAR (credit sale)! Immediately call `create_draft(customer_id=..., type="credit", amount=...)` for that customer!
+     * UNNAMED COUNTER TOTAL: When the shopkeeper announces a walk-in bill without a customer name (e.g. "Aapke hue 15", "Parle ji aapka 20 hua", "Total 50 hua", "25 hua"):
+       - NEVER inherit a previous customer's name from context!
        - Ask the 3-way triage question:
          Hindi: "₹{amount} hue. Abhi payment de rahe hain, wada kar rahe hain kab denge, ya udhar khate mein likh loon?"
          Kannada: "₹{amount} aagide. Eega payment maadthara, nantara promise maadthara, athava udhar baribeka?"

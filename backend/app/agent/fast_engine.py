@@ -172,8 +172,8 @@ PAYMENT_PATTERN = re.compile(
     re.I,
 )
 CONFIRM_PATTERN = re.compile(
-    r"\b(?:haan|theek|confirm|sari|houdu|haudu|karo|yes|done|maadi|ok|theek\s*hai|sahi\s*hai|right|aama|avunu|sare|athe|sheri|ho|thik\s*aahe|ha|barabar|hyan|thik\s*ache|haanji|thik\s*achhi|hoi|bhal|ji\s*haan)\b|"
-    r"(?:हाँ|हां|ठीक|ठीक\s*है|सही|सही\s*है|कन्फर्म|करो|कर\s*दो|हो\s*गया|डन)|"
+    r"\b(?:haan|theek|confirm|sari|houdu|haudu|karo|yes|done|maadi|ok|theek\s*hai|sahi\s*hai|right|aama|avunu|sare|athe|sheri|ho|thik\s*aahe|ha|barabar|hyan|thik\s*ache|haanji|thik\s*achhi|hoi|bhal|ji\s*haan|ho\s*gaya|ho\s*gayi|kar\s*do|bhejo|save)\b|"
+    r"(?:हाँ|हां|ठीक|ठीक\s*है|सही|सही\s*है|कन्फर्म|करो|कर\s*दो|हो\s*गया|डन|हुआ)|"
     r"(?:ಹೌದು|ಸರಿ|ಮಾಡಿ|ಆಯ್ತು|ಖಚಿತ)|"
     r"(?:ஆமா|சரி)|(?:అవును|సరే)|(?:അതെ|ശരി)|(?:हो|ठीक)|(?:હા|બરાબર)|(?:হ্যাঁ|ঠিক)|(?:ਹਾਂਜੀ)|(?:ହଁ)|(?:جی\s*ہاں)",
     re.I,
@@ -192,10 +192,20 @@ SUMMARY_PATTERN = re.compile(
     re.I,
 )
 BALANCE_PATTERN = re.compile(
-    r"\b(?:balance|kitna\s*baaki|eshtu\s*baaki|hisab|hisaab|baaki\s*ide|khata\s*batao|pending|evvalavu\s*baaki|entha\s*baaki|ethra\s*baaki|kiti\s*baaki|ketlu\s*baaki|koto\s*baki|kinna\s*baaki|kete\s*baki|koi\s*baki|kitna\s*baqi)\b|"
-    r"(?:बैलेंस|कितना\s*बाकी|हिसाब|खाता\s*बताओ|पेंडिंग|बाकी\s*कितना)|"
-    r"(?:ಬ್ಯಾಲೆನ್ಸ್|ಎಷ್ಟು\s*ಬಾಕಿ|ಲೆಕ್ಕ|ಬಾಕಿ\s*ಇದೆ)|"
-    r"(?:எவ்வளவு\s*பாக்கி)|(?:ఎంత\s*బాకీ)|(?:എത്ര\s*ബാക്കി)|(?:किती\s*बाकी)|(?:કેટલું\s*બાકી)|(?:কত\s*বাকি)|(?:ਕਿੰਨਾ\s*ਬਾਕੀ)|(?:କେତେ\s*ବାକି)|(?:کتنا\s*باقی)",
+    r"\b(?:balance|kitna\s*baaki|eshtu\s*baaki|hisab|hisaab|baaki\s*ide|khata\s*batao|pending|evvalavu\s*baaki|entha\s*baaki|ethra\s*baaki|kiti\s*baaki|ketlu\s*baaki|koto\s*baki|kinna\s*baaki|kete\s*baki|koi\s*baki|kitna\s*baqi|"
+    r"kitna\s*hua|kitna\s*bana|eshtu\s*aaythu|eshtu\s*aagide|entha\s*aindi|evvalavu\s*aachu|kitna\s*hua\s*hai|eshtu\s*aaytu)\b|"
+    r"(?:बैलेंस|कितना\s*बाकी|हिसाब|खाता\s*बताओ|पेंडिंग|बाकी\s*कितना|कितना\s*हुआ|कितना\s*बना)|"
+    r"(?:ಬ್ಯಾಲೆನ್ಸ್|ಎಷ್ಟು\s*ಬಾಕಿ|ಲೆಕ್ಕ|ಬಾಕಿ\s*ಇದೆ|ಎಷ್ಟು\s*ಆಯ್ತು|ಎಷ್ಟು\s*ಆಗಿದೆ)|"
+    r"(?:எவ்வளவு\s*பாக்கி)|(?:ఎంత\s*బాకీ)|(?:ఎത്ര\s*ബാക്കി)|(?:किती\s*बाकी)|(?:કેટલું\s*બાકી)|(?:কত\s*বাকি)|(?:ਕਿੰਨਾ\s*ਬਾਕੀ)|(?:କେତେ\s*ବାକି)|(?:کتنا\s*باقی)",
+    re.I,
+)
+
+# Named Customer Bill / Udhar Entry in Customer's Khata (e.g. 'Ram ka hua 25', 'Ram ka 25 hua', 'Ramesh ge 50 aaythu', 'Suresh du 100 aagide', 'Ram ka bana 25')
+NAMED_BILL_CREDIT_PATTERN = re.compile(
+    r"(?:\b(?:ka|ki|ke|ge|du|ku|de|da|la|er|hesaralli|khathage|khate|copy|kopi|account|naam)\b|(?:का|की|के|गे|ದು|ಹೆಸರಲ್ಲಿ|ಖಾತೆಗೆ|खाते|कॉपी|नाम)).*?"
+    r"(?:\b(?:hua|hue|hui|bana|bane|bani|hoya|aaythu|aagide|aaitu|aaytu|agide|zhala|holo|aindi|aachu)\b|(?:हुआ|हुए|हुई|बना|बने|ಹೋಯಾ|ಆಯ್ತು|ಆಗಿದೆ))|"
+    r"(?:\b(?:hua|hue|hui|bana|bane|bani|hoya|aaythu|aagide|aaitu|aaytu|agide|zhala|holo|aindi|aachu)\b|(?:हुआ|हुए|हुई|बना|बने|ಹೋಯಾ|ಆಯ್ತು|ಆಗಿದೆ)).*?"
+    r"(?:\b(?:ka|ki|ke|ge|du|ku|de|da|la|er|hesaralli|khathage|khate|copy|kopi|account|naam)\b|(?:का|की|के|गे|ದು|ಹೆಸರಲ್ಲಿ|ಖಾತೆಗೆ|खाते|कॉपी|नाम))",
     re.I,
 )
 GREETING_PATTERN = re.compile(
@@ -442,7 +452,7 @@ STOPWORDS = {
     "aaye", "gaya", "gayi", "gaye", "hua", "hui", "hue", "raha", "rahe", "rahi", "raho", "khata", "ledger", "entry",
     "record", "karna", "sab", "clear", "ella", "ellaa", "maadi", "chukta", "barabar",
     "kal", "naale", "parso", "naadiddu", "today", "tomorrow", "yesterday", "dega", "degi", "denge", "dunga", "wada", "kodtini", "kodtane", "kodtare",
-    "aapka", "apka", "kul", "total", "bill", "bana", "itna", "hoya", "aaythu", "aagide", "aaitu", "tum", "hi", "ho",
+    "aapka", "apka", "aapke", "apke", "aapki", "apki", "aap", "tum", "hi", "ho", "tumhara", "tumara", "tumhare", "tumhari", "tere", "teri", "tera", "unka", "unki", "unke", "inka", "inki", "inke", "kiska", "kiski", "kiske", "apna", "apni", "apne", "mera", "meri", "mere", "hamara", "hamari", "hamare", "kul", "total", "bill", "bana", "itna", "hoya", "aaythu", "aagide", "aaitu",
     "nahi", "nahin", "alla", "beda", "nako", "no", "mat", "cancel", "hatao",
     "bariyiri", "bari", "bariyiro", "haakri", "haakiro",
     "sell", "becho", "bechna", "kharido", "kharid", "buy", "liya", "liye", "diye", "packet", "piece", "kilo", "kg", "gm", "litre", "ltr", "rate", "bhav", "price", "cost",
@@ -450,7 +460,7 @@ STOPWORDS = {
     "galla", "petti", "box", "drawer", "kharch", "kharcha", "kharchu", "chillar", "change",
     "daalo", "rakh", "rakho", "haaku", "tegiri", "tegedu", "tegedukonde", "nikal", "nikalo", "nikaalo", "nikala", "wapas", "vaapas", "return", "discount",
     "give", "here", "is", "keep", "put", "take", "google", "pay", "rupee", "rupees", "for", "the", "from", "with",
-    "alli", "chuka", "chukaya", "baad", "bad", "baaki", "baki", "chhoot", "chhut", "chut", "choot",
+    "alli", "chuka", "chukaya", "baad", "bad", "baaki", "baki", "chhoot", "chhut", "chut", "choot", "du", "de", "di", "kitna", "kitne", "eshtu", "entha", "evvalavu",
     "not", "make", "it", "instead", "write", "anta", "antha", "pichla", "pichli", "pichle",
     "what", "pending", "balance", "fm", "radio", "city", "superhit", "gaana", "bajao", "match", "score", "saala", "saal",
     "out", "of", "today", "by", "check", "show", "list", "find", "kadime", "kam", "kharab", "adjust", "permanently", "unpaid", "close", "off", "debts", "debt",
@@ -458,7 +468,7 @@ STOPWORDS = {
     "ake", "aake", "aakar", "pucha", "puchi", "puche", "pucho", "bol", "bola", "boli", "bole", "bolo",
     "lena", "lene", "dena", "dene", "hae", "hain", "and", "ok", "the", "tumhara", "tumara",
     "ye", "yeh", "wo", "woh", "lo", "gi", "yelo", "lelo",
-    "nimma", "nimmadu", "tago", "thago", "tagoli", "thagoli", "kodbeku", "barbeku", "kelida", "kelidru", "kelidare",
+    "nimma", "nimmadu", "nimmage", "nimmanna", "nimdu", "namma", "nammad", "nanna", "nannadu", "avara", "avardu", "avargella", "ivara", "ivardu", "ivargella", "yaara", "yaardu", "thamma", "copy", "kopi", "bahi", "chopdi", "chotha", "account", "galat", "galti", "thappu", "tappu", "sahi", "tago", "thago", "tagoli", "thagoli", "kodbeku", "barbeku", "kelida", "kelidru", "kelidare",
     "iga", "eega", "ivaga", "nantara", "aamele",
     "banda", "bandu", "bandru", "bandidare", "parle", "parleg", "parle-g",
     # 14 languages markers & postpositions
@@ -477,7 +487,7 @@ STOPWORDS = {
     "उधार", "उधारी", "जमा", "लिखो", "लिख", "डाल", "डालो", "दिया", "दिए", "दे", "लिया",
     "लिए", "ले", "करो", "कर", "दो", "दी", "हो", "गया", "गई", "गए", "है", "हैं", "था",
     "थी", "थे", "खाता", "हिसाब", "सब", "क्लियर", "फोनपे", "कैश", "नकद", "कृपया", "बोलो", "बताओ",
-    "पिछली", "पिछला", "एंट्री", "डिलीट", "हटाओ", "कितना", "कितने", "बैलेंस", "छूट",
+    "पिछली", "पिछला", "एंट्री", "डिलीट", "हटाओ", "कितना", "कितने", "बैलेंस", "छूट", "हुआ", "हुए", "हुई", "बना", "बने", "बनी", "रुपये", "रुपए", "रुपया", "पैसा", "पैसे", "ಆಯ್ತು", "ಆಗಿದೆ", "ಆಯಿತು", "ರೂಪಾಯಿ", "आपके", "आपकी", "तुम्हारा", "तुम्हारी", "तुम्हारे", "तेरे", "तेरी", "तेरा", "उनका", "उनकी", "उनके", "इनका", "इनकी", "इनके", "किसका", "किसकी", "किसके", "कॉपी", "ಖಾತೆ", "ನಿಮಗೆ",
     # Kannada stopwords
     "ಗೆ", "ಇಂದ", "ರೂಪಾಯಿ", "ರೂ", "ಉದ್ರಿ", "ಉಧಾರ್", "ಜಮಾ", "ಬರೆ", "ಹಾಕಿ", "ಕೊಟ್ರು",
     "ಕೊಟ್ಟ", "ಆಗಿದೆ", "ಆಯ್ತು", "ಇದೆ", "ಮಾಡಿದೆ", "ಖಾತೆ", "ಲೆಕ್ಕ", "ಬ್ಯಾಲೆನ್ಸ್", "ಎಷ್ಟು", "ಸಾಲ", "ಮನ್ನಾ", "ರೈಟ್", "ಆಫ್", "ಹಿಂದಿನ", "ಮಾಡಿ"
@@ -516,7 +526,7 @@ def _extract_name_tokens(text: str) -> List[str]:
         # Strip attached postpositions/suffixes (e.g. Rameshge -> Ramesh, Lakshmige -> Lakshmi, Manjunathavarige -> Manjunath, Deepakko -> Deepak)
         cleaned = w
         if len(cleaned) > 4:
-            for suf in ["avarige", "inda", "ige", "ge", "er"]:
+            for suf in ["avarige", "inda", "ige", "ge", "ka", "ke", "ki", "ko", "du", "ku", "er"]:
                 if cleaned.lower().endswith(suf) and len(cleaned) > len(suf) + 2:
                     cleaned = cleaned[:-len(suf)]
                     break
@@ -704,14 +714,26 @@ async def try_fast_path(
     detected_item = _extract_kirana_item(text)
     payment_mode = _detect_payment_mode(text)
     is_loan = bool(LOAN_DIRECTION_PATTERN.search(text))
-    is_credit = bool(CREDIT_PATTERN.search(text)) or is_loan
-    is_payment = (bool(PAYMENT_PATTERN.search(text)) and not is_loan) or bool(payment_mode and not is_credit)
     is_return = bool(RETURN_PATTERN.search(text))
     is_discount = bool(DISCOUNT_PATTERN.search(text))
     is_advance = bool(ADVANCE_PATTERN.search(text))
     is_promise_rec = bool(PROMISE_RECORD_PATTERN.search(text))
     is_promise_query = bool(PROMISE_QUERY_PATTERN.search(text))
     is_inquiry = bool(INQUIRY_PATTERN.search(text))
+    is_payment = (bool(PAYMENT_PATTERN.search(text)) and not is_loan) or bool(payment_mode and not (bool(CREDIT_PATTERN.search(text)) or is_loan))
+
+    # Named Customer Bill / Udhar Entry in Customer Khata (e.g. "Ram ka hua 25", "Ram ka 25 hua", "Ramesh ge 50 aaythu", "Suresh du 100 aagide")
+    # In Indian Kirana shopkeeping, when a customer name is stated with "hua/bana/aaythu/aagide" and an amount,
+    # it means in the copy/khata of that customer, the amount is UDHAR (credit sale)!
+    is_named_bill_credit = bool(
+        name_tokens
+        and amount
+        and NAMED_BILL_CREDIT_PATTERN.search(text)
+        and not (is_payment or is_return or is_discount or is_advance or is_promise_rec or is_inquiry or PAID_SALE_PATTERN.search(text))
+    )
+    is_credit = bool(CREDIT_PATTERN.search(text)) or is_loan or is_named_bill_credit
+
+    # General / Walk-in Bill total:
     is_bill_total = bool(BILL_TOTAL_PATTERN.search(text)) or bool(detected_item and amount and not (is_credit or is_payment or is_inquiry or PAID_SALE_PATTERN.search(text)))
 
     # Anti-Hallucination Guard: If background song or radio chatter was heard and no explicit ledger command or bill is present:
@@ -953,23 +975,25 @@ async def try_fast_path(
     # 0E. INITIAL COUNTER BILL TOTAL / THE KIRANA TRILEMMA TRIGGER
     # (e.g. "Parle ji aapka 20 hua", "Aapka 50 hua", "Kul 120 bana", "Total 150 hua", "ye lo Parle-G tumhara hua 15")
     # ---------------------------------------------------------
-    if (amount or active_bill_amt) and (is_bill_total or any(w in lower for w in ["hua", "hue", "bana", "aaythu", "bill", "total", "kul"])) and not (is_credit or is_payment or is_return or is_discount or is_advance or is_promise_rec or is_inquiry or PAID_SALE_PATTERN.search(text)):
+    if (amount or (active_bill_amt and not (name_tokens or is_inquiry or BALANCE_PATTERN.search(text)))) and (is_bill_total or any(w in lower for w in ["hua", "hue", "bana", "aaythu", "bill", "total", "kul"])) and not (is_credit or is_payment or is_return or is_discount or is_advance or is_promise_rec or is_inquiry or PAID_SALE_PATTERN.search(text) or BALANCE_PATTERN.search(text)):
         target_amt = amount or active_bill_amt
         target_item = detected_item or (cache and cache.pending_bill_item) or (sess and getattr(sess, "pending_bill_item", None))
 
         target_cname = None
         if name_tokens:
             target_cname = " ".join(t.capitalize() for t in name_tokens[:2])
-        elif cache and cache.active_customer_name:
-            target_cname = cache.active_customer_name
-        elif sess and getattr(sess, "active_customer_name", None):
-            target_cname = sess.active_customer_name
+        else:
+            # If no customer name is spoken in this bill announcement (e.g. "25 hua", "Aapke hue 15", "50 aaythu"),
+            # NEVER inherit a previously active customer name from cache! Reset active customer name to prevent cross-customer leakage.
+            if cache:
+                cache.active_customer_name = None
+            if sess:
+                sess.active_customer_name = None
 
         if sess:
             sess.pending_bill_amount = target_amt
             sess.pending_bill_item = target_item
-            if target_cname:
-                sess.active_customer_name = target_cname
+            sess.active_customer_name = target_cname
         if cache:
             cache.set_bill_tally(amount=target_amt, product=target_item, customer_name=target_cname)
 
@@ -1249,7 +1273,7 @@ async def try_fast_path(
     # ---------------------------------------------------------
     is_override_speech = bool(OVERRIDE_PATTERN.search(text)) or "continue" in lower
     has_pending_multi = bool(sess and getattr(sess, "pending_draft_ids", None))
-    if (active_draft_id or has_pending_multi) and (CONFIRM_PATTERN.search(text) or is_override_speech) and not (amount and name_tokens) and not (is_return or is_discount):
+    if (active_draft_id or has_pending_multi) and (CONFIRM_PATTERN.search(text) or is_override_speech) and not (amount and name_tokens) and not BALANCE_PATTERN.search(text) and not (is_return or is_discount):
         async with SessionLocal() as s:
             d_ids = (sess and sess.pending_draft_ids) or ([active_draft_id] if active_draft_id else [])
             confirmed_events = []
