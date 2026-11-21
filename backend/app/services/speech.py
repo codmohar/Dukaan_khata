@@ -77,50 +77,114 @@ async def sarvam_stt(pcm: bytes, language: str = "kn-IN") -> str:
             res_data = response.json()
             return res_data.get("transcript", "").strip()
     except Exception as e:
-        log.warning("Sarvam STT failed: %s", e)
+        log.warning("Sarvam STT failed: %s; falling back to Gemini audio understanding", e)
         return ""
 
 
-async def sarvam_tts(text: str, language: str = "kn-IN") -> bytes:
-    """Synthesize text into speech audio WAV bytes using Sarvam AI Bulbul."""
-    if not settings.sarvam_api_key:
-        log.info("Sarvam API key not configured; returning fallback audio tone")
-        return generate_beep_wav(0.2)
-
-    lang_code = language if "-" in language else f"{language}-IN"
+async def gemini_stt(pcm: bytes, language: str = "kn-IN") -> str:
+    """Transcribe audio using Gemini multimodal understanding as high-accuracy fallback."""
+    if not settings.gemini_api_key:
+        return ""
     try:
-        async with httpx.AsyncClient(timeout=8.0) as client:
-            response = await client.post(
-                f"{SARVAM_BASE}/text-to-speech",
-                headers={"api-subscription-key": settings.sarvam_api_key},
+        if pcm[:4] == b"RIFF":
+            payload, mime = pcm, "audio/wav"
+        elif len(pcm) > 12 and pcm[4:8] == b"ftyp":
+            payload, mime = pcm, "audio/mp4"
+        elif pcm[:4] == b"OggS":
+            payload, mime = pcm, "audio/ogg"
+        elif pcm[:4] == b"\x1a\x45\xdf\xa3":
+            payload, mime = pcm, "audio/webm"
+        else:
+            payload, mime = pcm16_to_wav(pcm, rate=16000), "audio/wav"
+
+        wav_b64 = base64.b64encode(payload).decode("ascii")
+        prompt = (
+            f"You are a speech-to-text transcriber for an Indian Kirana grocery shop assistant. "
+            f"Transcribe the following spoken audio accurately into text in {language} (Kannada, Hindi, or Indian English). "
+            f"Only return the exact spoken words as plain text. Do not add quotes, notes, formatting, or timestamps. "
+            f"If there is only background silence, ambient static, music tone, or no human speech, reply with [SILENT]."
+        )
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key={settings.gemini_api_key}"
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            res = await client.post(
+                url,
                 json={
-                    "inputs": [text[:500]],
-                    "target_language_code": lang_code,
-                    "speaker": SARVAM_SPEAKER,
-                    "model": SARVAM_TTS_MODEL,
-                },
+                    "contents": [{
+                        "parts": [
+                            {"inline_data": {"mime_type": mime, "data": wav_b64}},
+                            {"text": prompt}
+                        ]
+                    }],
+                    "generationConfig": {"temperature": 0.0}
+                }
             )
-            response.raise_for_status()
-            audios = response.json().get("audios", [])
-            if audios:
-                return base64.b64decode(audios[0])
+            if res.status_code == 200:
+                data = res.json()
+                candidates = data.get("candidates", [])
+                if candidates:
+                    parts = candidates[0].get("content", {}).get("parts", [])
+                    if parts:
+                        text = parts[0].get("text", "").strip()
+                        if text and text != "[SILENT]":
+                            log.info("Gemini audio STT transcribed successfully: '%s'", text)
+                            return text
     except Exception as e:
-        log.warning("Sarvam TTS failed: %s; using fallback tone", e)
+        log.warning("Gemini audio STT fallback failed: %s", e)
+    return ""
+
+
+async def sarvam_tts(text: str, language: str = "kn-IN") -> bytes:
+    """Synthesize text into speech audio WAV bytes using Sarvam AI Bulbul, with Google TTS fallback."""
+    if settings.sarvam_api_key:
+        lang_code = language if "-" in language else f"{language}-IN"
+        try:
+            async with httpx.AsyncClient(timeout=8.0) as client:
+                response = await client.post(
+                    f"{SARVAM_BASE}/text-to-speech",
+                    headers={"api-subscription-key": settings.sarvam_api_key},
+                    json={
+                        "inputs": [text[:500]],
+                        "target_language_code": lang_code,
+                        "speaker": SARVAM_SPEAKER,
+                        "model": SARVAM_TTS_MODEL,
+                    },
+                )
+                if response.status_code == 200:
+                    audios = response.json().get("audios", [])
+                    if audios:
+                        return base64.b64decode(audios[0])
+        except Exception as e:
+            log.warning("Sarvam TTS failed: %s; trying Google TTS fallback", e)
+
+    # Google TTS fallback for natural spoken voice if Sarvam quota is exhausted
+    try:
+        short_lang = language.split("-")[0] if "-" in language else language
+        tts_url = f"https://translate.google.com/translate_tts?ie=UTF-8&q={httpx.URL('', params={'q': text[:200]}).params['q']}&tl={short_lang}&client=tw-ob"
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            resp = await client.get(tts_url, headers={"User-Agent": "Mozilla/5.0"})
+            if resp.status_code == 200 and len(resp.content) > 100:
+                return resp.content
+    except Exception as e:
+        log.warning("Google TTS fallback failed: %s", e)
 
     return generate_beep_wav(0.2)
 
 
 async def transcribe(pcm: bytes, language: str = "kn-IN") -> str:
-    """Route STT to configured provider (Gnani Prisma with Sarvam fallback, or Sarvam)."""
+    """Route STT to configured provider with automatic Gemini audio fallback."""
+    result = ""
     provider = settings.speech_provider.lower()
     if provider == "gnani":
         from .stt_gnani import transcribe_gnani
-        return await transcribe_gnani(pcm, language)
+        result = await transcribe_gnani(pcm, language)
     elif provider == "sarvam":
-        return await sarvam_stt(pcm, language)
-    else:
-        # Mock mode
-        return ""
+        result = await sarvam_stt(pcm, language)
+
+    # If primary provider returned empty (e.g. quota exhausted or no key), use Gemini Multimodal STT
+    if not result:
+        result = await gemini_stt(pcm, language)
+
+    return result
 
 
 async def synthesize(text: str, language: str = "kn-IN") -> bytes:

@@ -134,6 +134,7 @@ export function useVoice(language: string) {
 
   const isSpokenRef = useRef(false);
   const lastSubmittedTextRef = useRef("");
+  const currentTranscriptRef = useRef("");
 
   const ws = useRef<WebSocket | null>(null);
   const rec = useRef<{
@@ -308,12 +309,14 @@ export function useVoice(language: string) {
 
   // Stop current active utterance and submit to backend
   const stopUtterance = useCallback(() => {
+    const textToSend = currentTranscriptRef.current.trim();
     if (ws.current?.readyState === WebSocket.OPEN) {
-      ws.current.send(JSON.stringify({ type: "end_utterance" }));
+      ws.current.send(JSON.stringify({ type: "end_utterance", text: textToSend }));
     }
     setStatus("thinking");
     setWakeDetected(false);
     isSpokenRef.current = false;
+    currentTranscriptRef.current = "";
   }, []);
 
   // Initialize Persistent Microphone Stream with Continuous Web Audio VAD & Resampling
@@ -436,11 +439,13 @@ export function useVoice(language: string) {
             (isSpokenRef.current && now - lastVoice > SILENCE_MS) ||
             (utteranceStart > 0 && now - utteranceStart > MAX_UTTERANCE_MS)
           ) {
+            const textToSend = currentTranscriptRef.current.trim();
             if (ws.current?.readyState === WebSocket.OPEN) {
-              ws.current.send(JSON.stringify({ type: "end_utterance" }));
+              ws.current.send(JSON.stringify({ type: "end_utterance", text: textToSend }));
             }
             setStatus("thinking");
             isSpokenRef.current = false;
+            currentTranscriptRef.current = "";
             preRollChunks.length = 0;
           }
         }
@@ -493,6 +498,7 @@ export function useVoice(language: string) {
         const fullText = (finalStr || interimStr).trim();
         if (fullText) {
           setInterimText(fullText);
+          currentTranscriptRef.current = fullText;
         }
 
         const lower = fullText.toLowerCase();
@@ -517,11 +523,12 @@ export function useVoice(language: string) {
         }
 
         // Real-time final transcript submission
-        if (finalStr.trim() && (statusRef.current === "listening" || statusRef.current === "monitoring")) {
+        if (finalStr.trim()) {
           let cleanText = finalStr
             .replace(/^(hi|hey|hello|hai|namaste)?\s*khata\s*/i, "")
             .trim();
-          if (cleanText) {
+          if (cleanText && statusRef.current !== "speaking" && statusRef.current !== "offline") {
+            currentTranscriptRef.current = "";
             sendText(cleanText);
             setInterimText("");
             setWakeDetected(false);

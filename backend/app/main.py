@@ -717,23 +717,31 @@ async def ws_voice_endpoint(
                     continue
 
                 if kind == "end_utterance":
+                    client_text = str(ctl.get("text", "")).strip()
                     pcm = bytes(buf)
                     buf.clear()
-                    if len(pcm) < 3200:  # < 100 ms of audio: ignore noise
-                        await send_json({"type": "noop"})
-                        continue
-                    user_text = await sess.transcribe(pcm)
+                    if client_text:
+                        user_text = client_text
+                    else:
+                        if len(pcm) < 3200:  # < 100 ms of audio: ignore noise
+                            await send_json({"type": "noop"})
+                            continue
+                        user_text = await sess.transcribe(pcm)
 
                 elif kind == "audio_file":
-                    raw_b64 = ctl.get("data", "")
-                    if not raw_b64:
-                        await send_json({"type": "noop"})
-                        continue
-                    audio_bytes = base64.b64decode(raw_b64)
-                    if len(audio_bytes) < 1000:
-                        await send_json({"type": "noop"})
-                        continue
-                    user_text = await sess.transcribe(audio_bytes)
+                    client_text = str(ctl.get("text", "")).strip()
+                    if client_text:
+                        user_text = client_text
+                    else:
+                        raw_b64 = ctl.get("data", "")
+                        if not raw_b64:
+                            await send_json({"type": "noop"})
+                            continue
+                        audio_bytes = base64.b64decode(raw_b64)
+                        if len(audio_bytes) < 1000:
+                            await send_json({"type": "noop"})
+                            continue
+                        user_text = await sess.transcribe(audio_bytes)
 
                 elif kind == "text":
                     user_text = str(ctl.get("text", "")).strip()
