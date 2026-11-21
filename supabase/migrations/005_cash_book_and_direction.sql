@@ -27,3 +27,4 @@ ALTER TABLE transactions ADD CONSTRAINT transactions_adjustment_reason_check
 
 -- 4. Allow customer_id to be nullable for general shop-level transactions
 ALTER TABLE transactions ALTER COLUMN customer_id DROP NOT NULL;
+

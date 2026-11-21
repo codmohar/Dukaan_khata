@@ -744,16 +744,44 @@ async def try_fast_path(
         return FastPathResult(handled=True, reply=msg)
 
     # ---------------------------------------------------------
-    # 0B. MULTI-TURN COUNTER FLOW: PENDING BILL PAID IN CASH / UPI (Paid Sale -> Ambient [SILENT])
+    # 0B. MULTI-TURN COUNTER FLOW: PENDING BILL PAID IN CASH / UPI (Paid Sale -> Record Cash & Acknowledge!)
     # ---------------------------------------------------------
     is_bill_announcement = bool(BILL_TOTAL_PATTERN.search(text)) or any(w in lower for w in ["hua", "hue", "bana", "total", "bill", "aaythu", "aagide", "tumhara", "aapka"])
     if active_bill_amt and not is_bill_announcement and (PAID_SALE_PATTERN.search(text) or any(w in lower for w in ["abhi de", "cash", "phonepe", "gpay", "paytm", "online", "ye lo", "diya", "de diya", "kotru", "kottu", "le lo"])):
+        target_amt = float(active_bill_amt)
+        target_item = (cache and cache.pending_bill_item) or (sess and getattr(sess, "pending_bill_item", None)) or "Counter Sale"
         if cache:
             cache.reset_active_transaction()
         if sess:
             sess.pending_bill_amount = None
             sess.pending_bill_item = None
-        return FastPathResult(handled=True, reply="[SILENT]")
+
+        async with SessionLocal() as s:
+            cb_res = await tools.record_cash_in(
+                s,
+                shop_id,
+                amount=target_amt,
+                reason=f"{target_item} (Counter Cash Sale)",
+            )
+            new_bal = cb_res.get("new_balance")
+
+        if lang.startswith("kn"):
+            msg = f"₹{target_amt:,.0f} cash bantu. Galla ge jama aaythu."
+        elif lang.startswith("hi"):
+            msg = f"₹{target_amt:,.0f} prapt hue. Galle mein jama kar liya."
+        else:
+            msg = f"₹{target_amt:,.0f} cash received. Added to cash drawer."
+
+        return FastPathResult(
+            handled=True,
+            reply=msg,
+            events=[{
+                "type": "cash_in",
+                "amount": target_amt,
+                "reason": f"{target_item} (Counter Cash Sale)",
+                "new_balance": new_bal,
+            }],
+        )
 
     # ---------------------------------------------------------
     # 0C. MULTI-TURN COUNTER FLOW: PENDING BILL ASSIGNED TO CREDIT KHATA
@@ -854,6 +882,14 @@ async def try_fast_path(
                     msg = f"{c_display} ke naam ₹{bill_amt:,.0f} udhar draft ban gaya hai (naya balance ₹{proj_bal:,.0f}). Confirm karein?"
 
                 return FastPathResult(handled=True, reply=msg, events=draft_events)
+        else:
+            if lang.startswith("kn"):
+                msg = f"Yaara hesaralli ₹{bill_amt:,.0f} udhar baribeku?"
+            elif lang.startswith("hi"):
+                msg = f"Kiske naam ₹{bill_amt:,.0f} ka udhar likhna hai?"
+            else:
+                msg = f"Whose name should I record the ₹{bill_amt:,.0f} credit under?"
+            return FastPathResult(handled=True, reply=msg)
 
     # ---------------------------------------------------------
     # 0D. MULTI-TURN COUNTER FLOW: PENDING BILL ASSIGNED TO PAYMENT PROMISE

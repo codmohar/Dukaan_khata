@@ -54,7 +54,7 @@ export type Status =
   | "speaking"
   | "offline";
 
-const SILENCE_MS = 800; // 0.8s pause to auto-submit natural speech
+const SILENCE_MS = 1200; // 1.2s pause to allow natural speaking cadence
 const MAX_UTTERANCE_MS = 25000;
 
 function playChime(freq = 587.33, duration = 0.15) {
@@ -362,9 +362,10 @@ export function useVoice(language: string) {
 
       // Pre-roll buffer to preserve first syllables
       const preRollChunks: ArrayBufferLike[] = [];
-      let noiseFloor = 0.005;
+      let noiseFloor = 0.008;
       let lastVoice = Date.now();
       let utteranceStart = 0;
+      let consecutiveSpeechFrames = 0;
 
       node.onaudioprocess = (ev) => {
         const inputData = ev.inputBuffer.getChannelData(0);
@@ -387,13 +388,14 @@ export function useVoice(language: string) {
           curStatus === "connecting"
         ) {
           preRollChunks.length = 0;
+          consecutiveSpeechFrames = 0;
           return;
         }
 
         // Downsample input audio stream to 16kHz mono PCM16
         const pcm = downsampleTo16k(inputData, inputSampleRate);
 
-        // Monitoring State: Mic is live, waiting for voice
+        // Monitoring State: Mic is live, waiting for intentional human voice
         if (curStatus === "monitoring" || curStatus === "idle") {
           noiseFloor = 0.95 * noiseFloor + 0.05 * rms;
           preRollChunks.push(pcm.buffer.slice(0));
@@ -401,23 +403,30 @@ export function useVoice(language: string) {
             preRollChunks.shift();
           }
 
-          // Responsive Kirana VAD threshold
-          const vadThreshold = Math.max(0.006, noiseFloor * 1.3);
+          // Less Sensitive Noise Gate: Ignores fan hum, breathing, table bumps, distant background noise
+          const vadThreshold = Math.max(0.022, noiseFloor * 2.2);
 
           if (isHF && rms > vadThreshold) {
-            isSpokenRef.current = true;
-            utteranceStart = Date.now();
-            lastVoice = Date.now();
-            setStatus("listening");
+            consecutiveSpeechFrames++;
+            // Require sustained speech (at least 2 consecutive voice frames ~180ms)
+            if (consecutiveSpeechFrames >= 2) {
+              isSpokenRef.current = true;
+              utteranceStart = Date.now();
+              lastVoice = Date.now();
+              setStatus("listening");
 
-            // Flush pre-roll chunks so first syllable is never lost
-            if (ws.current?.readyState === WebSocket.OPEN) {
-              for (const chunk of preRollChunks) {
-                ws.current.send(chunk);
+              // Flush pre-roll chunks so first syllable is never lost
+              if (ws.current?.readyState === WebSocket.OPEN) {
+                for (const chunk of preRollChunks) {
+                  ws.current.send(chunk);
+                }
               }
+              preRollChunks.length = 0;
+              consecutiveSpeechFrames = 0;
+              return;
             }
-            preRollChunks.length = 0;
-            return;
+          } else {
+            consecutiveSpeechFrames = Math.max(0, consecutiveSpeechFrames - 1);
           }
         }
 
@@ -427,23 +436,31 @@ export function useVoice(language: string) {
             ws.current.send(pcm.buffer);
           }
 
-          const vadThreshold = Math.max(0.005, noiseFloor * 1.25);
-          if (rms > vadThreshold) {
+          const vadHoldThreshold = Math.max(0.016, noiseFloor * 1.6);
+          if (rms > vadHoldThreshold) {
             lastVoice = Date.now();
             isSpokenRef.current = true;
           }
 
           const now = Date.now();
-          // Pause detected for SILENCE_MS (800ms) -> Auto-submit!
+          // Pause detected for SILENCE_MS (1.2s) -> Auto-submit!
           if (
             (isSpokenRef.current && now - lastVoice > SILENCE_MS) ||
             (utteranceStart > 0 && now - utteranceStart > MAX_UTTERANCE_MS)
           ) {
+            const utteranceDuration = Date.now() - utteranceStart;
             const textToSend = currentTranscriptRef.current.trim();
-            if (ws.current?.readyState === WebSocket.OPEN) {
-              ws.current.send(JSON.stringify({ type: "end_utterance", text: textToSend }));
+
+            // Guard against accidental short noises (< 350ms)
+            if (utteranceDuration > 350 || textToSend.length > 0) {
+              if (ws.current?.readyState === WebSocket.OPEN) {
+                ws.current.send(JSON.stringify({ type: "end_utterance", text: textToSend }));
+              }
+              setStatus("thinking");
+            } else {
+              // Return to monitoring without submitting empty noise
+              setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
             }
-            setStatus("thinking");
             isSpokenRef.current = false;
             currentTranscriptRef.current = "";
             preRollChunks.length = 0;
