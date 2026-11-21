@@ -222,6 +222,10 @@ async def list_customers(
 @app.post("/customers", response_model=CustomerOut, status_code=201)
 async def create_customer_endpoint(body: CustomerIn, s: AsyncSession = Depends(get_session)):
     sid = await get_current_shop_id(None, s)
+    from app.agent.tools import transliterate_indic_to_latin, normalize_customer_query
+    raw_name = normalize_customer_query(body.name.strip())
+    lat = transliterate_indic_to_latin(raw_name)
+    clean_name = (lat or raw_name).strip().title()
     row = (
         await s.execute(
             text(
@@ -231,7 +235,7 @@ async def create_customer_endpoint(body: CustomerIn, s: AsyncSession = Depends(g
                 returning id, name, phone, landmark, created_at
                 """
             ),
-            {"shop": sid, "n": body.name.strip(), "p": body.phone, "l": body.landmark},
+            {"shop": sid, "n": clean_name, "p": body.phone, "l": body.landmark},
         )
     ).mappings().one()
     await s.commit()

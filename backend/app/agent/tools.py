@@ -249,8 +249,10 @@ async def create_customer(
     phone: str | None = None,
     landmark: str | None = None,
 ) -> dict:
-    """Add a new customer to the kirana shop's ledger (stripping trailing honorifics)."""
-    clean_name = normalize_customer_query(name).title()
+    """Add a new customer to the kirana shop's ledger (stripping trailing honorifics and saving in English only)."""
+    raw_clean = normalize_customer_query(name)
+    lat = transliterate_indic_to_latin(raw_clean)
+    clean_name = (lat or raw_clean).strip().title()
     if not clean_name:
         return {"error": "Customer name is required"}
     c = Customer(

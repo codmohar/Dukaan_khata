@@ -460,7 +460,7 @@ STOPWORDS = {
     "galla", "petti", "box", "drawer", "kharch", "kharcha", "kharchu", "chillar", "change",
     "daalo", "rakh", "rakho", "haaku", "tegiri", "tegedu", "tegedukonde", "nikal", "nikalo", "nikaalo", "nikala", "wapas", "vaapas", "return", "discount",
     "give", "here", "is", "keep", "put", "take", "google", "pay", "rupee", "rupees", "for", "the", "from", "with",
-    "alli", "chuka", "chukaya", "baad", "bad", "baaki", "baki", "chhoot", "chhut", "chut", "choot", "du", "de", "di", "kitna", "kitne", "eshtu", "entha", "evvalavu",
+    "alli", "chuka", "chukaya", "baad", "bad", "baaki", "baki", "chhoot", "chhut", "chut", "choot", "du", "de", "di", "kitna", "kitne", "eshtu", "entha", "evvalavu", "khate", "khaate", "khatege", "khathage", "udar",
     "not", "make", "it", "instead", "write", "anta", "antha", "pichla", "pichli", "pichle",
     "what", "pending", "balance", "fm", "radio", "city", "superhit", "gaana", "bajao", "match", "score", "saala", "saal",
     "out", "of", "today", "by", "check", "show", "list", "find", "kadime", "kam", "kharab", "adjust", "permanently", "unpaid", "close", "off", "debts", "debt",
@@ -486,11 +486,11 @@ STOPWORDS = {
     "का", "की", "के", "को", "ने", "से", "में", "पर", "रुपये", "रुपए", "रुपया", "रु",
     "उधार", "उधारी", "जमा", "लिखो", "लिख", "डाल", "डालो", "दिया", "दिए", "दे", "लिया",
     "लिए", "ले", "करो", "कर", "दो", "दी", "हो", "गया", "गई", "गए", "है", "हैं", "था",
-    "थी", "थे", "खाता", "हिसाब", "सब", "क्लियर", "फोनपे", "कैश", "नकद", "कृपया", "बोलो", "बताओ",
+    "थी", "थे", "खाता", "खाते", "खातों", "हिसाब", "सब", "क्लियर", "फोनपे", "कैश", "नकद", "कृपया", "बोलो", "बताओ",
     "पिछली", "पिछला", "एंट्री", "डिलीट", "हटाओ", "कितना", "कितने", "बैलेंस", "छूट", "हुआ", "हुए", "हुई", "बना", "बने", "बनी", "रुपये", "रुपए", "रुपया", "पैसा", "पैसे", "ಆಯ್ತು", "ಆಗಿದೆ", "ಆಯಿತು", "ರೂಪಾಯಿ", "आपके", "आपकी", "तुम्हारा", "तुम्हारी", "तुम्हारे", "तेरे", "तेरी", "तेरा", "उनका", "उनकी", "उनके", "इनका", "इनकी", "इनके", "किसका", "किसकी", "किसके", "कॉपी", "ಖಾತೆ", "ನಿಮಗೆ",
     # Kannada stopwords
     "ಗೆ", "ಇಂದ", "ರೂಪಾಯಿ", "ರೂ", "ಉದ್ರಿ", "ಉಧಾರ್", "ಜಮಾ", "ಬರೆ", "ಹಾಕಿ", "ಕೊಟ್ರು",
-    "ಕೊಟ್ಟ", "ಆಗಿದೆ", "ಆಯ್ತು", "ಇದೆ", "ಮಾಡಿದೆ", "ಖಾತೆ", "ಲೆಕ್ಕ", "ಬ್ಯಾಲೆನ್ಸ್", "ಎಷ್ಟು", "ಸಾಲ", "ಮನ್ನಾ", "ರೈಟ್", "ಆಫ್", "ಹಿಂದಿನ", "ಮಾಡಿ"
+    "ಕೊಟ್ಟ", "ಆಗಿದೆ", "ಆಯ್ತು", "ಇದೆ", "ಮಾಡಿದೆ", "ಖಾತೆ", "ಖಾತೆಗೆ", "ಖಾತೆಯಲ್ಲಿ", "ಲೆಕ್ಕ", "ಬ್ಯಾಲೆನ್ಸ್", "ಎಷ್ಟು", "ಸಾಲ", "ಮನ್ನಾ", "ರೈಟ್", "ಆಫ್", "ಹಿಂದಿನ", "ಮಾಡಿ"
 }
 
 
@@ -502,11 +502,11 @@ class FastPathResult:
 
 
 def _extract_name_tokens(text: str) -> List[str]:
-    """Dynamically extract any customer name: strips punctuation, numbers, honorifics,
-    transaction verbs (dena, lena, udhar, sell, buy), and attached postpositions.
-    Supports ALL names across all Indian languages without hardcoding selected names.
+    """Dynamically extract any customer name: strips punctuation, currency symbols, numbers,
+    honorifics, transaction verbs (dena, lena, udhar, sell, buy), and attached postpositions.
+    Always returns normalized English/Latin tokens for uniform database storage and recall.
     """
-    cleaned_punct = re.sub(r"[\u0964\u0965.,?!;:\"'()\[\]{}\-—_]", " ", text)
+    cleaned_punct = re.sub(r'''[₹$€£।॥.,?!;:"'()\[\]{}\-—_/\\]''', ' ', text)
     words = cleaned_punct.split()
     tokens = []
     for raw in words:
@@ -518,15 +518,15 @@ def _extract_name_tokens(text: str) -> List[str]:
             lower in STOPWORDS
             or lower in HONORIFICS
             or lower in KIRANA_ITEMS
-            or w.isdigit()
+            or any(ch.isdigit() for ch in w)
             or len(w) <= 1
         ):
             continue
 
-        # Strip attached postpositions/suffixes (e.g. Rameshge -> Ramesh, Lakshmige -> Lakshmi, Manjunathavarige -> Manjunath, Deepakko -> Deepak)
+        # Strip attached postpositions/suffixes (e.g. Rameshge -> Ramesh, Robinudar -> Robin, Robinudhar -> Robin, Deepakko -> Deepak, Ramka -> Ram, Sureshdu -> Suresh)
         cleaned = w
         if len(cleaned) > 4:
-            for suf in ["avarige", "inda", "ige", "ge", "ka", "ke", "ki", "ko", "du", "ku", "er"]:
+            for suf in ["avarige", "inda", "ige", "ge", "udhar", "udhaar", "udar", "udri", "khate", "khaate", "khata", "ka", "ke", "ki", "ko", "du", "ku", "er"]:
                 if cleaned.lower().endswith(suf) and len(cleaned) > len(suf) + 2:
                     cleaned = cleaned[:-len(suf)]
                     break
@@ -535,12 +535,15 @@ def _extract_name_tokens(text: str) -> List[str]:
             cleaned.lower() not in STOPWORDS
             and cleaned.lower() not in HONORIFICS
             and cleaned.lower() not in KIRANA_ITEMS
+            and not any(ch.isdigit() for ch in cleaned)
             and len(cleaned) > 1
         ):
-            tokens.append(cleaned)
+            lat = tools.transliterate_indic_to_latin(cleaned).strip()
+            final_token = lat.title() if lat else cleaned.title()
+            if final_token.lower() not in STOPWORDS and len(final_token) > 1:
+                tokens.append(final_token)
 
     return tokens
-
 
 def _detect_payment_mode(text: str) -> Optional[str]:
     if UPI_PATTERN.search(text):
