@@ -40,9 +40,9 @@ try:
             "00000000-0000-0000-0000-000000000001"
         )
         gemini_api_key: str = os.getenv("GEMINI_API_KEY", "")
-        gemini_model: str = os.getenv("GEMINI_MODEL", "gemini-3-flash-preview")
+        gemini_model: str = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
 
-        speech_provider: str = os.getenv("SPEECH_PROVIDER", "sarvam")  # "gnani" | "sarvam" | "mock"
+        speech_provider: str = os.getenv("SPEECH_PROVIDER", "gemini")  # "gemini" | "gnani" | "sarvam" | "mock"
         sarvam_api_key: str = os.getenv("SARVAM_API_KEY", "")
 
         gnani_api_key: str = os.getenv("GNANI_API_KEY", "")

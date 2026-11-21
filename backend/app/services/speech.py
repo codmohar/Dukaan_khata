@@ -7,6 +7,7 @@ import base64
 import io
 import logging
 import math
+import re
 import struct
 
 import httpx
@@ -99,13 +100,13 @@ async def gemini_stt(pcm: bytes, language: str = "kn-IN") -> str:
 
         wav_b64 = base64.b64encode(payload).decode("ascii")
         prompt = (
-            f"You are a speech-to-text transcriber for an Indian Kirana grocery shop assistant. "
-            f"Transcribe the following spoken audio accurately into text in {language} (Kannada, Hindi, or Indian English). "
+            f"You are an expert speech recognition model for Indian Kirana grocery shop conversations. "
+            f"Transcribe the following spoken voice audio accurately into text in {language} (Kannada, Hindi, or Indian English). "
             f"Only return the exact spoken words as plain text. Do not add quotes, notes, formatting, or timestamps. "
             f"If there is only background silence, ambient static, music tone, or no human speech, reply with [SILENT]."
         )
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key={settings.gemini_api_key}"
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        async with httpx.AsyncClient(timeout=30.0) as client:
             res = await client.post(
                 url,
                 json={
@@ -125,11 +126,15 @@ async def gemini_stt(pcm: bytes, language: str = "kn-IN") -> str:
                     parts = candidates[0].get("content", {}).get("parts", [])
                     if parts:
                         text = parts[0].get("text", "").strip()
-                        if text and text != "[SILENT]":
+                        # Clean up timestamps like "00:00" or "[00:00]"
+                        text = re.sub(r"^\[?\d+:\d+\]?\s*", "", text).strip()
+                        if text and text not in ("[SILENT]", "SILENT", "00:00", "0:00", "[BEEP]", "[BLANK_AUDIO]"):
                             log.info("Gemini audio STT transcribed successfully: '%s'", text)
                             return text
+            else:
+                log.warning("Gemini STT returned status %d: %s", res.status_code, res.text)
     except Exception as e:
-        log.warning("Gemini audio STT fallback failed: %s", e)
+        log.warning("Gemini audio STT fallback failed: %s (%s)", e, type(e).__name__)
     return ""
 
 
@@ -172,8 +177,11 @@ async def sarvam_tts(text: str, language: str = "kn-IN") -> bytes:
 
 async def transcribe(pcm: bytes, language: str = "kn-IN") -> str:
     """Route STT to configured provider with automatic Gemini audio fallback."""
-    result = ""
     provider = settings.speech_provider.lower()
+    if provider == "gemini":
+        return await gemini_stt(pcm, language)
+
+    result = ""
     if provider == "gnani":
         from .stt_gnani import transcribe_gnani
         result = await transcribe_gnani(pcm, language)
