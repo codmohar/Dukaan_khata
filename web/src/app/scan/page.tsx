@@ -125,6 +125,9 @@ export default function ScanPage() {
       setPreview(URL.createObjectURL(blob));
       const res = await scans.upload(blob, hint || undefined);
       setData(res);
+      api.customers().then(setCusts).catch(() => {});
+      const count = res.lines.filter((l) => l.include).length;
+      setDone(`✓ ${count} entries extracted and committed directly to the database & ledger!`);
     } catch (e) {
       setErr((e as Error).message);
     } finally {
@@ -153,9 +156,8 @@ export default function ScanPage() {
     if (!data) return;
     try {
       const r = await scans.approve(data.scan.id);
-      setDone(`✓ ${r.created} entries successfully approved and added to your khata ledger!`);
-      setData(null);
-      setPreview("");
+      setDone(`✓ ${r.created} entries confirmed in database and updated in your khata ledger!`);
+      api.customers().then(setCusts).catch(() => {});
     } catch (e) {
       setErr((e as Error).message);
     }
@@ -377,6 +379,18 @@ export default function ScanPage() {
           </div>
 
           <div className="space-y-4">
+            {data.scan.status === "approved" && (
+              <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-3.5 text-xs font-bold text-emerald-900 shadow-sm flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-[10px] text-white">✓</span>
+                  <span>All {included.length} entries are saved in the database and updated in your khata ledger!</span>
+                </div>
+                <a href="/" className="underline text-emerald-800 hover:text-emerald-950 font-bold ml-2">
+                  View Ledger →
+                </a>
+              </div>
+            )}
+
             {data.scan.warnings.map((w, i) => (
               <div key={i} className="rounded-xl border border-amber-300 bg-amber-50 p-3.5 text-xs font-semibold text-amber-900 shadow-sm">
                 ⚠️ {w}
@@ -395,23 +409,36 @@ export default function ScanPage() {
 
             <div className="card flex flex-wrap items-center justify-between gap-4 border border-slate-200 p-4 bg-slate-50">
               <div className="text-xs">
-                <span className="font-bold text-slate-800">{included.length}</span> entries selected to add.
+                <span className="font-bold text-slate-800">{included.length}</span> entries in database.
                 {unresolved > 0 && (
                   <span className="ml-2 font-bold text-amber-700">
-                    ⚠️ {unresolved} entry needs a customer assigned before approval.
+                    ⚠️ {unresolved} entry needs a customer assigned.
                   </span>
                 )}
               </div>
               <div className="flex items-center gap-2">
-                <button onClick={discard} className="btn-ghost text-xs py-2 px-3">
-                  Discard
+                <button
+                  onClick={discard}
+                  className="btn-ghost text-xs py-2 px-3 text-red-600 hover:bg-red-50"
+                  title="Discard this scan and delete created entries from database"
+                >
+                  ✕ Discard
+                </button>
+                <button
+                  onClick={() => {
+                    setData(null);
+                    setPreview("");
+                  }}
+                  className="btn bg-white border border-slate-300 text-slate-700 font-bold hover:bg-slate-100 text-xs py-2 px-3"
+                >
+                  📸 Scan Next Page
                 </button>
                 <button
                   onClick={approve}
-                  disabled={included.length === 0 || unresolved > 0}
+                  disabled={included.length === 0}
                   className="btn bg-emerald-600 text-white font-bold hover:bg-emerald-700 shadow-md text-xs py-2 px-4 disabled:opacity-50"
                 >
-                  ✓ Approve &amp; Commit to Ledger
+                  ✓ All Saved to Database
                 </button>
               </div>
             </div>
@@ -462,6 +489,11 @@ function LineCard({
               >
                 {line.type === "credit" ? "Udhar (Credit)" : "Jama (Payment)"}
               </span>
+              {line.transaction_id && (
+                <span className="rounded-full bg-emerald-100 border border-emerald-300 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
+                  ✓ In Database
+                </span>
+              )}
               {line.duplicate && (
                 <span className="rounded-full bg-amber-100 border border-amber-300 px-2 py-0.5 text-[10px] font-bold text-amber-800">
                   ⚠️ Possible duplicate

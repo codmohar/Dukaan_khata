@@ -251,6 +251,67 @@ export default function VoicePage() {
         </div>
       </div>
 
+      {/* Real-Time Cash In / Counter Sale Card */}
+      {voice.cashInCard && (
+        <div className="card mb-6 border-2 border-emerald-500 bg-emerald-50/95 shadow-md animate-in slide-in-from-top-4">
+          <div className="flex items-center justify-between">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-200 text-emerald-900 px-3 py-0.5 text-xs font-black uppercase">
+              💵 Cash Received • Counter Sale Recorded
+            </span>
+            <button
+              onClick={voice.clearCashInCard}
+              className="text-xs font-semibold text-slate-500 hover:text-slate-700"
+            >
+              Dismiss ✕
+            </button>
+          </div>
+          <div className="my-2.5">
+            <p className="text-2xl font-black text-slate-900">
+              {inr(voice.cashInCard.amount)}
+            </p>
+            <p className="text-xs font-bold text-emerald-800 mt-1">
+              📦 Item / Reason: {voice.cashInCard.reason || "Counter Cash Sale"}
+            </p>
+            {voice.cashInCard.new_balance && (
+              <p className="text-xs text-slate-600 mt-1">
+                💰 Updated Drawer Cash Balance: {inr(voice.cashInCard.new_balance)}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Multi-Draft Segregation Header when multiple actions are pending */}
+      {voice.drafts.length > 1 && (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-amber-100/90 border border-amber-300 p-3 shadow-sm animate-in slide-in-from-top-2">
+          <div>
+            <p className="text-sm font-black text-amber-950 flex items-center gap-1.5">
+              <span>⚡ Segregated Accounting Actions</span>
+              <span className="rounded-full bg-amber-300 text-amber-900 px-2 py-0.5 text-xs font-bold">
+                {voice.drafts.length} drafts ready
+              </span>
+            </p>
+            <p className="text-xs text-amber-800 mt-0.5">
+              Multiple actions segregated from your command. Confirm all at once or individually.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={voice.confirmAllDrafts}
+              className="rounded-xl bg-emerald-600 px-4 py-1.5 text-xs font-bold text-white shadow hover:bg-emerald-700 transition"
+            >
+              ✓ Confirm All ({voice.drafts.length})
+            </button>
+            <button
+              onClick={voice.cancelAllDrafts}
+              className="rounded-xl bg-white border border-slate-300 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
+            >
+              ✕ Cancel All
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Floating Pending Draft Confirmation Card */}
       {voice.draft && (
         <div

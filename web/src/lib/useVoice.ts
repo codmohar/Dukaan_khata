@@ -54,8 +54,8 @@ export type Status =
   | "speaking"
   | "offline";
 
-const SILENCE_MS = 1200; // 1.2s pause to allow natural speaking cadence
-const MAX_UTTERANCE_MS = 25000;
+const SILENCE_MS = 1800; // 1.8s pause to allow natural conversational dialogue cadence
+const MAX_UTTERANCE_MS = 30000;
 
 function playChime(freq = 587.33, duration = 0.15) {
   try {
@@ -115,6 +115,8 @@ export function useVoice(language: string) {
 
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [draft, setDraft] = useState<Draft | null>(null);
+  const [drafts, setDrafts] = useState<Draft[]>([]);
+  const [cashInCard, setCashInCard] = useState<any | null>(null);
   const [reminder, setReminder] = useState<Reminder | null>(null);
   const [promiseCard, setPromiseCard] = useState<any | null>(null);
   const [ruleCard, setRuleCard] = useState<any | null>(null);
@@ -135,6 +137,8 @@ export function useVoice(language: string) {
   const isSpokenRef = useRef(false);
   const lastSubmittedTextRef = useRef("");
   const currentTranscriptRef = useRef("");
+  const accumulatedTranscriptRef = useRef("");
+  const debounceSubmitRef = useRef<any>(null);
 
   const ws = useRef<WebSocket | null>(null);
   const rec = useRef<{
@@ -245,7 +249,14 @@ export function useVoice(language: string) {
                 setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
               }
             } else if (m.type === "draft") {
-              setDraft({ ...m, type: m.tx_type || m.type });
+              const d = { ...m, type: m.tx_type || m.type };
+              setDrafts((prev) => {
+                const filtered = prev.filter((x) => x.draft_id !== d.draft_id);
+                return [...filtered, d];
+              });
+              setDraft(d);
+            } else if (m.type === "cash_in") {
+              setCashInCard(m);
             } else if (m.type === "promise_card") {
               setPromiseCard(m);
             } else if (m.type === "rule_card") {
@@ -255,7 +266,16 @@ export function useVoice(language: string) {
             } else if (m.type === "reminder") {
               setReminder(m);
             } else if (m.type === "confirmed" || m.type === "cancelled") {
-              setDraft(null);
+              if (m.draft_id) {
+                setDrafts((prev) => {
+                  const next = prev.filter((x) => x.draft_id !== m.draft_id);
+                  setDraft(next.length > 0 ? next[next.length - 1] : null);
+                  return next;
+                });
+              } else {
+                setDrafts([]);
+                setDraft(null);
+              }
             } else if (m.type === "error") {
               setError(m.message);
               setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
@@ -307,17 +327,29 @@ export function useVoice(language: string) {
     };
   }, [language]);
 
-  // Stop current active utterance and submit to backend
+  // Stop current active utterance and submit to backend wholly
   const stopUtterance = useCallback(() => {
-    const textToSend = currentTranscriptRef.current.trim();
-    if (ws.current?.readyState === WebSocket.OPEN) {
-      ws.current.send(JSON.stringify({ type: "end_utterance", text: textToSend }));
+    clearTimeout(debounceSubmitRef.current);
+    const accumulated = accumulatedTranscriptRef.current.trim();
+    const current = currentTranscriptRef.current.trim();
+    const textToSend = (accumulated ? (accumulated + " " + current) : current).trim();
+    accumulatedTranscriptRef.current = "";
+    currentTranscriptRef.current = "";
+
+    if (textToSend) {
+      let cleanText = textToSend
+        .replace(/^(hi|hey|hello|hai|namaste)?\s*khata\s*/i, "")
+        .trim();
+      if (cleanText) {
+        sendText(cleanText);
+      }
+    } else if (ws.current?.readyState === WebSocket.OPEN) {
+      ws.current.send(JSON.stringify({ type: "end_utterance", text: "" }));
     }
     setStatus("thinking");
     setWakeDetected(false);
     isSpokenRef.current = false;
-    currentTranscriptRef.current = "";
-  }, []);
+  }, [sendText]);
 
   // Initialize Persistent Microphone Stream with Continuous Web Audio VAD & Resampling
   const startContinuousVAD = useCallback(async () => {
@@ -512,13 +544,22 @@ export function useVoice(language: string) {
           }
         }
 
-        const fullText = (finalStr || interimStr).trim();
-        if (fullText) {
-          setInterimText(fullText);
-          currentTranscriptRef.current = fullText;
+        if (finalStr.trim()) {
+          accumulatedTranscriptRef.current = (
+            (accumulatedTranscriptRef.current ? accumulatedTranscriptRef.current + " " : "") + finalStr.trim()
+          ).trim();
         }
 
-        const lower = fullText.toLowerCase();
+        const composite = (
+          (accumulatedTranscriptRef.current ? accumulatedTranscriptRef.current + " " : "") + interimStr.trim()
+        ).trim();
+
+        if (composite) {
+          setInterimText(composite);
+          currentTranscriptRef.current = composite;
+        }
+
+        const lower = composite.toLowerCase();
 
         // Check for wake words
         if (
@@ -539,17 +580,25 @@ export function useVoice(language: string) {
           }
         }
 
-        // Real-time final transcript submission
-        if (finalStr.trim()) {
-          let cleanText = finalStr
-            .replace(/^(hi|hey|hello|hai|namaste)?\s*khata\s*/i, "")
-            .trim();
-          if (cleanText && statusRef.current !== "speaking" && statusRef.current !== "offline") {
+        // Debounced submission: allows whole conversational dialogue (multi-turn exchange)
+        // to be taken wholly before sending to backend
+        clearTimeout(debounceSubmitRef.current);
+        if (accumulatedTranscriptRef.current.trim()) {
+          debounceSubmitRef.current = setTimeout(() => {
+            const wholeText = accumulatedTranscriptRef.current.trim();
+            accumulatedTranscriptRef.current = "";
             currentTranscriptRef.current = "";
-            sendText(cleanText);
-            setInterimText("");
-            setWakeDetected(false);
-          }
+            if (wholeText && statusRef.current !== "speaking" && statusRef.current !== "offline") {
+              let cleanText = wholeText
+                .replace(/^(hi|hey|hello|hai|namaste)?\s*khata\s*/i, "")
+                .trim();
+              if (cleanText) {
+                sendText(cleanText);
+                setInterimText("");
+                setWakeDetected(false);
+              }
+            }
+          }, 1500); // 1.5s natural pause captures the complete command wholly
         }
       };
 
@@ -665,15 +714,21 @@ export function useVoice(language: string) {
     stopUtterance();
   }, [stopUtterance]);
 
+  const clearCashInCard = useCallback(() => setCashInCard(null), []);
   const clearReminder = useCallback(() => setReminder(null), []);
   const clearPromiseCard = useCallback(() => setPromiseCard(null), []);
   const clearRuleCard = useCallback(() => setRuleCard(null), []);
   const clearReconcileResult = useCallback(() => setReconcileResult(null), []);
+  const confirmAllDrafts = useCallback(() => sendText("Haan confirm kar do"), [sendText]);
+  const cancelAllDrafts = useCallback(() => sendText("Cancel kar do"), [sendText]);
 
   return {
     status,
     msgs,
     draft,
+    drafts,
+    cashInCard,
+    clearCashInCard,
     reminder,
     clearReminder,
     promiseCard,
@@ -682,6 +737,8 @@ export function useVoice(language: string) {
     clearRuleCard,
     reconcileResult,
     clearReconcileResult,
+    confirmAllDrafts,
+    cancelAllDrafts,
     error,
     interimText,
     audioLevel,

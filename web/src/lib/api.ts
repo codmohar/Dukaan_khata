@@ -383,6 +383,7 @@ export type ScanLine = {
   candidates: Candidate[];
   duplicate: boolean;
   include: boolean;
+  transaction_id?: string | null;
 };
 export type ScanData = {
   scan: {
@@ -413,11 +414,12 @@ async function scanCall<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const scans = {
-  upload: (file: Blob, hint?: string) => {
+  upload: (file: Blob, hint?: string, autoCommit: boolean = true) => {
     const f = new FormData();
     f.append("file", file, "scan.jpg");
     if (hint) f.append("hint", hint);
-    return scanCall<ScanData>("/scans", { method: "POST", body: f });
+    if (autoCommit) f.append("auto_commit", "true");
+    return scanCall<ScanData>(`/scans?commit_now=${autoCommit ? "true" : "false"}`, { method: "POST", body: f });
   },
   editLine: (id: string, patch: Record<string, unknown>) =>
     scanCall<ScanLine>(`/scans/lines/${id}`, {
@@ -425,6 +427,7 @@ export const scans = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(patch),
     }),
-  approve: (id: string) => scanCall<{ created: number }>(`/scans/${id}/approve`, { method: "POST" }),
+  approve: (id: string, autoCreateCustomers: boolean = true) =>
+    scanCall<{ created: number }>(`/scans/${id}/approve?auto_create_customers=${autoCreateCustomers ? "true" : "false"}`, { method: "POST" }),
   reject: (id: string) => scanCall(`/scans/${id}/reject`, { method: "POST" }),
 };

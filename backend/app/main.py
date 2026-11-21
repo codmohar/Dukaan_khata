@@ -502,46 +502,48 @@ async def finalize_transaction(
 @app.get("/dashboard/stats", response_model=DashboardStats)
 async def get_dashboard_stats(s: AsyncSession = Depends(get_session)):
     sid = await get_current_shop_id(None, s)
-    one = (
-        await s.execute(
-            text(
-                """
-                select 
-                  coalesce((select sum(balance) from customer_balances where shop_id = :shop), 0) as out,
-                  coalesce(sum(amount) filter (where type = 'credit' and status = 'confirmed' and created_at::date = current_date), 0) as cr,
-                  coalesce(sum(amount) filter (where type = 'payment' and status = 'confirmed' and created_at::date = current_date), 0) as pay,
-                  (select count(*) from customers where shop_id = :shop) as cnt,
-                  count(*) filter (where status = 'draft') as drafts
-                from transactions 
-                where shop_id = :shop
-                """
-            ),
-            {"shop": sid},
-        )
-    ).mappings().one()
+    since_date = date.today() - timedelta(days=6)
+    since_ts = datetime.combine(since_date, datetime.min.time(), tzinfo=timezone.utc)
+    today_ts = datetime.combine(date.today(), datetime.min.time(), tzinfo=timezone.utc)
 
-    since = date.today() - timedelta(days=6)
-    daily_rows = (
-        await s.execute(
-            text(
-                """
-                select 
-                  created_at::date as d,
-                  coalesce(sum(amount) filter (where type = 'credit'), 0) as credit,
-                  coalesce(sum(amount) filter (where type = 'payment'), 0) as payment
-                from transactions
-                where shop_id = :shop and status = 'confirmed' and created_at::date >= :since
-                group by created_at::date
-                """
-            ),
-            {"shop": sid, "since": since},
-        )
-    ).mappings().all()
+    # 1. Total outstanding across all customers
+    tot_out = (await s.execute(
+        text("SELECT coalesce(sum(balance), 0) FROM customer_balances WHERE shop_id = :shop"),
+        {"shop": sid}
+    )).scalar() or Decimal("0.00")
+
+    # 2. Today's credit, today's payment, customer count, pending drafts
+    stats_row = (await s.execute(
+        text("""
+            SELECT
+                coalesce(sum(amount) filter (where type = 'credit' and status = 'confirmed' and created_at >= :today_ts), 0) as cr,
+                coalesce(sum(amount) filter (where type = 'payment' and status = 'confirmed' and created_at >= :today_ts), 0) as pay,
+                (SELECT count(*) FROM customers WHERE shop_id = :shop) as cnt,
+                count(*) filter (where status = 'draft') as drafts
+            FROM transactions
+            WHERE shop_id = :shop
+        """),
+        {"shop": sid, "today_ts": today_ts}
+    )).mappings().one()
+
+    # 3. Last 7 days breakdown
+    daily_rows = (await s.execute(
+        text("""
+            SELECT
+                created_at::date as d,
+                coalesce(sum(amount) filter (where type = 'credit'), 0) as credit,
+                coalesce(sum(amount) filter (where type = 'payment'), 0) as payment
+            FROM transactions
+            WHERE shop_id = :shop and status = 'confirmed' and created_at >= :since_ts
+            GROUP BY created_at::date
+        """),
+        {"shop": sid, "since_ts": since_ts}
+    )).mappings().all()
 
     daily_map = {r["d"]: r for r in daily_rows}
     series = []
     for i in range(7):
-        d = since + timedelta(days=i)
+        d = since_date + timedelta(days=i)
         r = daily_map.get(d)
         series.append({
             "date": d.isoformat(),
@@ -550,11 +552,11 @@ async def get_dashboard_stats(s: AsyncSession = Depends(get_session)):
         })
 
     return DashboardStats(
-        total_outstanding=one["out"],
-        credit_today=one["cr"],
-        payments_today=one["pay"],
-        customer_count=one["cnt"],
-        pending_drafts=one["drafts"],
+        total_outstanding=tot_out,
+        credit_today=stats_row["cr"],
+        payments_today=stats_row["pay"],
+        customer_count=stats_row["cnt"],
+        pending_drafts=stats_row["drafts"],
         last_7_days=series,
     )
 

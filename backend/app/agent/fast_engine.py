@@ -40,7 +40,9 @@ log = logging.getLogger("dukaan.agent.fast")
 # Products and brand names must NEVER be mistaken for customer names!
 KIRANA_ITEMS = {
     # Biscuits, Snacks & Packaged Foods
-    "parle", "parle-g", "parleg", "maggi", "lays", "kurkure", "marie", "mariegold", "goodday", "britannia",
+    "parle", "parle-g", "parleg", "parlegi", "parle-gi", "parle_g", "parlig", "parlee", "parleji",
+    "biskut", "biskoot", "biscit", "biscut",
+    "maggi", "magi", "meggi", "lays", "layz", "kurkure", "kurkura", "marie", "mariegold", "goodday", "britannia",
     "oreo", "monaco", "krackjack", "bourbon", "chips", "namkeen", "biscuit", "packet", "wafers", "mixture",
     "toast", "rusk", "bhujia", "sev", "chivda", "peanuts", "sing", "chana", "papad",
     # Chocolates & Confectionery
@@ -70,15 +72,15 @@ def _extract_kirana_item(text: str) -> Optional[str]:
     """Detect if any kirana product or brand is mentioned in the utterance."""
     lower = text.lower()
     for item in [
-        "parle-g", "parle gi", "parle", "parleg", "पारले", "maggi", "मैगी", "lays", "लेज", "kurkure", "कुरकुरे",
+        "parle-g", "parle gi", "parlegi", "parle-gi", "parle_g", "parleg", "parle", "पारले", "maggi", "मैगी", "lays", "लेज", "kurkure", "कुरकुरे",
         "goodday", "marie", "mariegold", "oreo", "5star", "dairymilk", "kitkat", "munch",
         "cheeni", "sugar", "चीनी", "sakre", "ಸಕ್ಕರೆ", "doodh", "milk", "दूध", "haalu", "ಹಾಲು",
         "atta", "aata", "आटा", "tel", "oil", "तेल", "enne", "ಎಣ್ಣೆ", "chawal", "rice", "चावल", "akki", "ಅಕ್ಕಿ",
-        "dal", "daal", "दाल", "bele", "ಬೇಳೆ", "biscuit", "बिस्कुट", "soap", "sabun", "साबुन", "soop", "ಸೋಪು",
+        "dal", "daal", "दाल", "bele", "ಬೇಳೆ", "biscuit", "biskoot", "biskut", "बिस्कुट", "soap", "sabun", "साबुन", "soop", "ಸೋಪು",
         "bread", "ब्रेड", "ghee", "घी", "thuppa", "ತುಪ್ಪ", "tea", "chai", "चाय", "chaha", "coffee", "kaapi", "ಕಾಫಿ"
     ]:
         if re.search(r"\b" + re.escape(item) + r"\b", lower):
-            if item in ("parle", "parle-g", "parle gi", "parleg", "पारले"):
+            if item in ("parle", "parle-g", "parle gi", "parlegi", "parle-gi", "parle_g", "parleg", "पारले"):
                 return "Parle-G"
             elif item in ("maggi", "मैगी"):
                 return "Maggi"
@@ -501,12 +503,21 @@ STOPWORDS = {
     "promise", "pura", "poora", "kardia", "kardiya", "nibhaya", "complete", "fulfilled", "clear", "settle",
     "leger", "ledger", "minus", "plus", "sub", "waada", "wada",
     # Kirana conversational shop talk stopwords
-    "ake", "aake", "aakar", "pucha", "puchi", "puche", "pucho", "bol", "bola", "boli", "bole", "bolo",
+    "ake", "aake", "aakar", "pucha", "puchha", "puchi", "puche", "pucho", "puchta", "puchti", "puchte", "puchna",
+    "bol", "bola", "boli", "bole", "bolo", "bolta", "bolti", "bolte", "bolna",
+    "kaha", "kahaa", "kah", "kahta", "kahti", "kahte", "kehta", "kehti", "kehte", "kahna", "kehna",
+    "shopekeeper", "shopkeeper", "dukaandar", "dukaandhar", "dukaandaar", "merchant", "counter", "cashier", "seller", "buyer", "customer", "graahak", "grahak",
+    "says", "say", "said", "saying", "tell", "tells", "told", "asking", "asked", "ask", "reply", "replied", "speaks", "speak", "spoke",
+    "chahiye", "chahie", "chahida", "chahiyen", "mangta", "mangti", "mangte", "mang", "beku", "venum", "kavali",
+    "mae", "mai", "main", "me", "my", "mine", "hum", "hume", "humein", "humko",
+    "hu", "hoon", "hun", "ho", "he", "she", "they", "we", "i", "you",
     "lena", "lene", "dena", "dene", "hae", "hain", "and", "ok", "the", "tumhara", "tumara",
-    "ye", "yeh", "wo", "woh", "lo", "gi", "yelo", "lelo",
+    "ye", "yeh", "wo", "woh", "lo", "gi", "yelo", "lelo", "then", "fir", "phir", "now", "later", "after",
+    "de", "raha", "rahe", "rahi", "dunga", "dungi", "denge", "deta", "deti", "dete",
+    "le", "lunga", "lungi", "lenge", "leta", "leti", "lete",
     "nimma", "nimmadu", "nimmage", "nimmanna", "nimdu", "namma", "nammad", "nanna", "nannadu", "avara", "avardu", "avargella", "ivara", "ivardu", "ivargella", "yaara", "yaardu", "thamma", "copy", "kopi", "bahi", "chopdi", "chotha", "account", "galat", "galti", "thappu", "tappu", "sahi", "tago", "thago", "tagoli", "thagoli", "kodbeku", "barbeku", "kelida", "kelidru", "kelidare",
     "iga", "eega", "ivaga", "nantara", "aamele",
-    "banda", "bandu", "bandru", "bandidare", "parle", "parleg", "parle-g",
+    "banda", "bandu", "bandru", "bandidare", "parle", "parleg", "parle-g", "parlegi", "parle-gi", "parle_g",
     # 14 languages markers & postpositions
     "kitta", "irundhu", "ku", "roobai", "vanginen", "kuduthen", "podunga", "ezhudhu",
     "nunchi", "ki", "rupayalu", "techukunnanu", "ichanu", "rayandi", "ochindi",
@@ -824,7 +835,7 @@ async def try_fast_path(
     # Resolve session attributes whether passed as VoiceSession or legacy parameters
     sess = session_or_shop_id if hasattr(session_or_shop_id, "shop_id") else None
     shop_id = sess.shop_id if sess else session_or_shop_id
-    lang = sess.language if sess else language
+    lang = (language or (sess.language if sess else "kn-IN")).lower()
     active_draft_id = sess.last_draft_id if sess else last_draft_id
     if not active_draft_id:
         try:
@@ -885,6 +896,143 @@ async def try_fast_path(
         return FastPathResult(handled=True, reply="[SILENT]")
 
     active_bill_amt = (cache and cache.pending_bill_amount) or (sess and getattr(sess, "pending_bill_amount", None))
+
+    # ---------------------------------------------------------
+    # 00. KIRANA COUNTER CONVERSATION & DIALOGUE CONTEXT RESOLVER
+    # Handles full multi-speaker conversational dialogue between customer & shopkeeper wholly:
+    # e.g. "Customer says parlegi chahie, then shopkeeper says apke hue 15, then customer says ok mae abhi de raha hu"
+    # or "parle-g chahiye, aapke hue 15, mai abhi de raha hu / kal de dunga / udhar likh do"
+    # ---------------------------------------------------------
+    has_dialog_markers = any(w in lower for w in [
+        "customer", "shopkeeper", "shopekeeper", "dukaandar", "dukaandarji",
+        "says", "said", "pucha", "bola", "kaha", "bol", "apke hue", "aapke hue",
+        "hue", "hua", "bana", "aaythu", "aagide", "chahie", "chahiye", "parle", "parleg", "parlegi"
+    ])
+    has_paying_intent = any(w in lower for w in [
+        "abhi de raha", "de raha hu", "de raha hoon", "de raha", "abhi de dunga", "abhi dunga",
+        "cash de raha", "ye lo", "ye lo 15", "phonepe kar", "gpay kar", "online kar", "de diya",
+        "paise de", "rokda de", "pay kar raha", "mae abhi de", "mai abhi de"
+    ])
+    has_promise_intent = any(w in lower for w in [
+        "kal de dunga", "kal dunga", "parso dunga", "parso de dunga", "naale kodtini",
+        "somvaar ko", "promise", "wada"
+    ])
+    has_credit_intent = any(w in lower for w in [
+        "udhar likh", "khate me", "khate mein", "likh lo", "likh do", "baad me dunga", "baaki"
+    ])
+    has_dispute_intent = any(w in lower for w in [
+        "udhar nahi diya", "udhar nahi dia", "maine to de diya tha", "maine nahi liya", "hisaab galat"
+    ])
+
+    if amount and has_dialog_markers and (has_paying_intent or has_promise_intent or has_credit_intent or has_dispute_intent):
+        target_amt = float(amount)
+        target_item = detected_item or "Counter Item"
+        target_cname = name_tokens[0] if name_tokens else None
+
+        if cache:
+            cache.pending_bill_amount = None
+            cache.pending_bill_item = None
+        if sess:
+            sess.pending_bill_amount = None
+            sess.pending_bill_item = None
+
+        # 1. Customer is paying now (Cash/UPI Sale)
+        if has_paying_intent:
+            if target_cname:
+                async with SessionLocal() as s:
+                    search_res = await tools.search_customers(s, shop_id, target_cname)
+                    best, _ = _pick_best_match(search_res.get("matches", []), target_cname)
+                    cid = best["id"] if best else (await tools.create_customer(s, shop_id, target_cname)).get("id")
+                    draft_res = await tools.create_draft(
+                        s, shop_id, customer_id=cid, type="payment", amount=target_amt,
+                        payment_mode=payment_mode or "cash", note=f"{target_item} Payment"
+                    )
+                msg = f"{target_cname} ke naam ₹{target_amt:,.0f} payment draft bana diya hai. Confirm karein?"
+                return FastPathResult(
+                    handled=True,
+                    reply=msg,
+                    events=[{**draft_res, "type": "draft", "tx_type": "payment", "customer": target_cname, "amount": target_amt}]
+                )
+            else:
+                async with SessionLocal() as s:
+                    cb_res = await tools.record_cash_in(
+                        s, shop_id, amount=target_amt, reason=f"{target_item} (Counter Cash Sale)"
+                    )
+                    new_bal = cb_res.get("new_balance")
+                if lang.startswith("kn"):
+                    msg = f"₹{target_amt:,.0f} praapthavaagide. {target_item} counter sale galla ge jama aaythu."
+                elif lang.startswith("hi"):
+                    msg = f"₹{target_amt:,.0f} prapt hue. {target_item} counter sale galle mein darj kar li gayi hai."
+                else:
+                    msg = f"₹{target_amt:,.0f} received. {target_item} counter sale recorded in cash drawer."
+                return FastPathResult(
+                    handled=True,
+                    reply=msg,
+                    events=[{"type": "cash_in", "amount": target_amt, "reason": f"{target_item} (Counter Cash Sale)", "new_balance": new_bal}]
+                )
+
+        # 2. Customer promises to pay later
+        elif has_promise_intent:
+            exp_date = _parse_relative_promise_date(text)
+            p_entity = target_cname or "Walk-in Customer"
+            async with SessionLocal() as s:
+                p_res = await tools.create_promise(
+                    s, shop_id, entity_name=p_entity, promise_type="PAYMENT_PROMISE",
+                    promised_amount=target_amt, expected_date=exp_date,
+                    description=f"{target_item} counter bill promise"
+                )
+            if lang.startswith("kn"):
+                msg = f"₹{target_amt:,.0f} {exp_date.strftime('%A')} koduvudagi promise record maadlaagide."
+            elif lang.startswith("hi"):
+                msg = f"₹{target_amt:,.0f} {exp_date.strftime('%A')} tak dene ka wada (promise) record kar liya hai."
+            else:
+                msg = f"Payment promise of ₹{target_amt:,.0f} due by {exp_date.isoformat()} has been recorded."
+            return FastPathResult(
+                handled=True,
+                reply=msg,
+                events=[{**p_res, "type": "promise_card", "amount": target_amt, "entity_name": p_entity, "expected_date": exp_date.isoformat()}]
+            )
+
+        # 3. Customer wants udhar / credit
+        elif has_credit_intent:
+            if target_cname:
+                async with SessionLocal() as s:
+                    search_res = await tools.search_customers(s, shop_id, target_cname)
+                    best, _ = _pick_best_match(search_res.get("matches", []), target_cname)
+                    cid = best["id"] if best else (await tools.create_customer(s, shop_id, target_cname)).get("id")
+                    draft_res = await tools.create_draft(
+                        s, shop_id, customer_id=cid, type="credit", amount=target_amt,
+                        note=f"{target_item} Udhar"
+                    )
+                msg = f"{target_cname} ke naam ₹{target_amt:,.0f} udhar draft bana diya hai. Confirm karein?"
+                return FastPathResult(
+                    handled=True,
+                    reply=msg,
+                    events=[{**draft_res, "type": "draft", "tx_type": "credit", "customer": target_cname, "amount": target_amt}]
+                )
+            else:
+                if sess:
+                    sess.pending_bill_amount = target_amt
+                    sess.pending_bill_item = target_item
+                if cache:
+                    cache.pending_bill_amount = target_amt
+                    cache.pending_bill_item = target_item
+                msg = f"{target_item} ke ₹{target_amt:,.0f} udhar kiske naam likhna hai? Customer ka naam batayein."
+                return FastPathResult(handled=True, reply=msg)
+
+        # 4. Dispute
+        elif has_dispute_intent:
+            if target_cname:
+                async with SessionLocal() as s:
+                    search_res = await tools.search_customers(s, shop_id, target_cname)
+                    best, _ = _pick_best_match(search_res.get("matches", []), target_cname)
+                    if best:
+                        bal_res = await tools.get_balance(s, shop_id, best["id"])
+                        bal = bal_res.get("balance", 0.0)
+                        msg = f"{target_cname} ji ka recorded balance ₹{bal:,.0f} hai. Pichli transactions check kar li gayi hain."
+                        return FastPathResult(handled=True, reply=msg)
+            msg = "Dispute note kar liya hai. Kripya customer ka naam batayein hisaab check karne ke liye."
+            return FastPathResult(handled=True, reply=msg)
 
     # ---------------------------------------------------------
     # 0A. MULTI-TURN COUNTER FLOW: PENDING BILL CORRECTION (e.g. "20 nahi 50" / "alla 50")

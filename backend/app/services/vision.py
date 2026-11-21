@@ -1,11 +1,21 @@
 """Reads photos of khata pages, UPI/payment screenshots and bills with Gemini vision -> structured JSON."""
-from typing import Literal
+import logging
+from typing import List, Literal
 
 from google import genai
 from google.genai import types
 from pydantic import BaseModel, Field
 
 from ..config import settings
+
+log = logging.getLogger("dukaan.vision")
+
+CANDIDATE_MODELS = [
+    "gemini-3.1-flash-lite",
+    "gemini-3.5-flash",
+    "gemini-3.6-flash",
+    "gemini-3.5-flash-lite",
+]
 
 
 class Line(BaseModel):
@@ -49,18 +59,49 @@ Rules:
 
 async def extract(image: bytes, mime: str, hint: str | None, today: str) -> Extraction:
     client = genai.Client(api_key=settings.gemini_api_key)
-    resp = await client.aio.models.generate_content(
-        model=settings.gemini_model,
-        contents=[
-            types.Part.from_bytes(data=image, mime_type=mime),
-            f"Today is {today}. Document type hint from the user: {hint or 'none'}. Extract every ledger entry.",
-        ],
-        config=types.GenerateContentConfig(
-            system_instruction=VISION_PROMPT,
-            response_mime_type="application/json",
-            response_schema=Extraction,
-            temperature=0,
-        ),
-    )
-    return Extraction.model_validate_json(resp.text)
+
+    # Validate and normalize mime type
+    valid_mime = mime if mime in ("image/jpeg", "image/png", "image/webp") else "image/jpeg"
+
+    # Build prioritized list of candidate vision models
+    models_to_try: List[str] = []
+    if settings.gemini_model and settings.gemini_model != "gemini-3.5-flash-lite":
+        models_to_try.append(settings.gemini_model)
+    for m in CANDIDATE_MODELS:
+        if m not in models_to_try:
+            models_to_try.append(m)
+
+    last_err: Exception | None = None
+    for model_name in models_to_try:
+        try:
+            log.info("Attempting ledger scan extraction with vision model: %s", model_name)
+            resp = await client.aio.models.generate_content(
+                model=model_name,
+                contents=[
+                    types.Part.from_bytes(data=image, mime_type=valid_mime),
+                    f"Today is {today}. Document type hint from the user: {hint or 'none'}. Extract every ledger entry.",
+                ],
+                config=types.GenerateContentConfig(
+                    system_instruction=VISION_PROMPT,
+                    response_mime_type="application/json",
+                    response_schema=Extraction,
+                    temperature=0,
+                ),
+            )
+            raw = (resp.text or "").strip()
+            if raw.startswith("```json"):
+                raw = raw[7:]
+            elif raw.startswith("```"):
+                raw = raw[3:]
+            if raw.endswith("```"):
+                raw = raw[:-3]
+            raw = raw.strip()
+            return Extraction.model_validate_json(raw)
+        except Exception as e:
+            log.warning("Vision model %s failed: %s", model_name, e)
+            last_err = e
+
+    if last_err:
+        raise last_err
+    raise RuntimeError("All vision models failed to process ledger image")
 
