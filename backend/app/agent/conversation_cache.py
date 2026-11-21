@@ -174,3 +174,4 @@ class ShopConversationCacheManager:
     def clear_cache(cls, shop_id: str):
         if shop_id in cls._caches:
             del cls._caches[shop_id]
+

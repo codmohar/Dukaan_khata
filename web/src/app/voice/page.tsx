@@ -217,6 +217,13 @@ export default function VoicePage() {
         )}
 
         <p className="mt-4 text-lg font-bold text-slate-800">{LABEL[voice.status]}</p>
+
+        {voice.interimText && (
+          <div className="mt-2.5 max-w-md w-full px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 font-semibold text-sm shadow-sm animate-pulse text-center">
+            🗣️ &ldquo;{voice.interimText}&rdquo;
+          </div>
+        )}
+
         <p className="text-xs text-slate-500 mt-1 max-w-md">
           {isListening
             ? "Speak naturally. Release button or pause speaking to submit."

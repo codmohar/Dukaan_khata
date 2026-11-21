@@ -54,12 +54,14 @@ export type Status =
   | "speaking"
   | "offline";
 
-const SILENCE_MS = 750; // 0.75s pause to auto-submit brisk kirana speech
+const SILENCE_MS = 800; // 0.8s pause to auto-submit natural speech
 const MAX_UTTERANCE_MS = 25000;
 
 function playChime(freq = 587.33, duration = 0.15) {
   try {
-    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = "sine";
@@ -72,6 +74,39 @@ function playChime(freq = 587.33, duration = 0.15) {
     osc.start();
     osc.stop(ctx.currentTime + duration);
   } catch {}
+}
+
+/**
+ * Resamples a Float32Array from inputSampleRate (typically 44100 or 48000 Hz)
+ * to 16000 Hz mono Int16 PCM for high-accuracy backend STT.
+ */
+function downsampleTo16k(buffer: Float32Array, inputSampleRate: number): Int16Array {
+  if (inputSampleRate === 16000) {
+    const pcm = new Int16Array(buffer.length);
+    for (let i = 0; i < buffer.length; i++) {
+      pcm[i] = Math.max(-32768, Math.min(32767, Math.round(buffer[i] * 32767)));
+    }
+    return pcm;
+  }
+  const ratio = inputSampleRate / 16000;
+  const newLength = Math.round(buffer.length / ratio);
+  const result = new Int16Array(newLength);
+  let offsetResult = 0;
+  let offsetBuffer = 0;
+  while (offsetResult < newLength) {
+    const nextOffsetBuffer = Math.round((offsetResult + 1) * ratio);
+    let accum = 0;
+    let count = 0;
+    for (let i = offsetBuffer; i < nextOffsetBuffer && i < buffer.length; i++) {
+      accum += buffer[i];
+      count++;
+    }
+    const sample = count > 0 ? accum / count : 0;
+    result[offsetResult] = Math.max(-32768, Math.min(32767, Math.round(sample * 32767)));
+    offsetResult++;
+    offsetBuffer = nextOffsetBuffer;
+  }
+  return result;
 }
 
 export function useVoice(language: string) {
@@ -87,6 +122,7 @@ export function useVoice(language: string) {
   const draftRef = useRef<Draft | null>(null);
 
   const [error, setError] = useState("");
+  const [interimText, setInterimText] = useState("");
   const [audioLevel, setAudioLevel] = useState(0); // 0-100 for soundwave visualizer
   const [handsFree, setHandsFree] = useState(true);
   const handsFreeRef = useRef(true);
@@ -95,6 +131,9 @@ export function useVoice(language: string) {
   const [wakeDetected, setWakeDetected] = useState(false);
   const [micActive, setMicActive] = useState(false);
   const micActiveRef = useRef(false);
+
+  const isSpokenRef = useRef(false);
+  const lastSubmittedTextRef = useRef("");
 
   const ws = useRef<WebSocket | null>(null);
   const rec = useRef<{
@@ -121,6 +160,20 @@ export function useVoice(language: string) {
   useEffect(() => {
     micActiveRef.current = micActive;
   }, [micActive]);
+
+  const sendText = useCallback((text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed || ws.current?.readyState !== WebSocket.OPEN) return;
+    if (trimmed === lastSubmittedTextRef.current) return;
+    lastSubmittedTextRef.current = trimmed;
+    setTimeout(() => {
+      lastSubmittedTextRef.current = "";
+    }, 2000);
+
+    setStatus("thinking");
+    setInterimText("");
+    ws.current.send(JSON.stringify({ type: "text", text: trimmed }));
+  }, []);
 
   // WebSocket Connection Lifecycle (single stable connection per language)
   useEffect(() => {
@@ -183,6 +236,7 @@ export function useVoice(language: string) {
             }
             if (m.type === "transcript") {
               setMsgs((x) => [...x, { role: "you", text: m.text }]);
+              setInterimText("");
             } else if (m.type === "reply") {
               setMsgs((x) => [...x, { role: "ai", text: m.text }]);
               // If no audio event accompanies reply, return to monitoring
@@ -221,7 +275,6 @@ export function useVoice(language: string) {
                 const a = new Audio("data:audio/wav;base64," + m.data);
                 setStatus("speaking");
                 a.onended = a.onerror = () => {
-                  // After speaking, immediately resume hands-free monitoring!
                   setStatus(micActiveRef.current && handsFreeRef.current ? "monitoring" : "idle");
                 };
                 a.play().catch(() => {
@@ -260,14 +313,19 @@ export function useVoice(language: string) {
     }
     setStatus("thinking");
     setWakeDetected(false);
+    isSpokenRef.current = false;
   }, []);
 
-  // Initialize Persistent Microphone Stream with Continuous Web Audio VAD
+  // Initialize Persistent Microphone Stream with Continuous Web Audio VAD & Resampling
   const startContinuousVAD = useCallback(async () => {
     setError("");
     if (rec.current) {
-      // Already running
       setMicActive(true);
+      if (rec.current.ctx.state === "suspended") {
+        try {
+          await rec.current.ctx.resume();
+        } catch {}
+      }
       if (statusRef.current === "idle" || statusRef.current === "connecting") {
         setStatus("monitoring");
       }
@@ -275,45 +333,44 @@ export function useVoice(language: string) {
     }
 
     try {
+      if (typeof window === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+        throw new Error("Microphone API not supported by this browser");
+      }
+
+      // Safe constraints without hardcoded sampleRate (prevents NotSupportedError on phones/desktops)
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           channelCount: 1,
           echoCancellation: true,
           noiseSuppression: true,
           autoGainControl: true,
-          sampleRate: 16000,
         },
       });
 
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)({
-        sampleRate: 16000,
-      });
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      const ctx = new AudioCtx();
       if (ctx.state === "suspended") {
         await ctx.resume();
       }
 
+      const inputSampleRate = ctx.sampleRate || 44100;
       const src = ctx.createMediaStreamSource(stream);
       const node = ctx.createScriptProcessor(4096, 1, 1);
 
-      // ~400ms circular pre-roll buffer to preserve beginning of words
-      const preRollChunks: ArrayBuffer[] = [];
-      let noiseFloor = 0.008;
-      let isSpoken = false;
+      // Pre-roll buffer to preserve first syllables
+      const preRollChunks: ArrayBufferLike[] = [];
+      let noiseFloor = 0.005;
       let lastVoice = Date.now();
       let utteranceStart = 0;
 
       node.onaudioprocess = (ev) => {
-        const f = ev.inputBuffer.getChannelData(0);
+        const inputData = ev.inputBuffer.getChannelData(0);
         let sum = 0;
-        const pcm = new Int16Array(f.length);
-        for (let i = 0; i < f.length; i++) {
-          sum += f[i] * f[i];
-          pcm[i] = Math.max(-1, Math.min(1, f[i])) * 0x7fff;
+        for (let i = 0; i < inputData.length; i++) {
+          sum += inputData[i] * inputData[i];
         }
-
-        const rms = Math.sqrt(sum / f.length);
-        // Level for visual soundwave (0-100)
-        const lvl = Math.min(100, Math.round(rms * 450));
+        const rms = Math.sqrt(sum / inputData.length);
+        const lvl = Math.min(100, Math.round(rms * 900));
         setAudioLevel(lvl);
 
         const curStatus = statusRef.current;
@@ -330,25 +387,27 @@ export function useVoice(language: string) {
           return;
         }
 
+        // Downsample input audio stream to 16kHz mono PCM16
+        const pcm = downsampleTo16k(inputData, inputSampleRate);
+
         // Monitoring State: Mic is live, waiting for voice
         if (curStatus === "monitoring" || curStatus === "idle") {
-          noiseFloor = 0.96 * noiseFloor + 0.04 * rms;
+          noiseFloor = 0.95 * noiseFloor + 0.05 * rms;
           preRollChunks.push(pcm.buffer.slice(0));
-          if (preRollChunks.length > 2) {
+          if (preRollChunks.length > 3) {
             preRollChunks.shift();
           }
 
-          // Dukaan Ambient Noise Immunity: Filter distant background customer chatter
-          const vadThreshold = Math.max(0.018, noiseFloor * 1.8);
+          // Responsive Kirana VAD threshold
+          const vadThreshold = Math.max(0.006, noiseFloor * 1.3);
 
           if (isHF && rms > vadThreshold) {
-            // Speech detected hands-free!
-            isSpoken = true;
+            isSpokenRef.current = true;
             utteranceStart = Date.now();
             lastVoice = Date.now();
             setStatus("listening");
 
-            // Flush pre-roll chunks so first syllable is never clipped
+            // Flush pre-roll chunks so first syllable is never lost
             if (ws.current?.readyState === WebSocket.OPEN) {
               for (const chunk of preRollChunks) {
                 ws.current.send(chunk);
@@ -365,22 +424,23 @@ export function useVoice(language: string) {
             ws.current.send(pcm.buffer);
           }
 
-          const vadThreshold = Math.max(0.015, noiseFloor * 1.5);
+          const vadThreshold = Math.max(0.005, noiseFloor * 1.25);
           if (rms > vadThreshold) {
             lastVoice = Date.now();
+            isSpokenRef.current = true;
           }
 
           const now = Date.now();
-          // Pause detected for SILENCE_MS (750ms) -> Auto-submit!
+          // Pause detected for SILENCE_MS (800ms) -> Auto-submit!
           if (
-            (isSpoken && now - lastVoice > SILENCE_MS) ||
-            now - utteranceStart > MAX_UTTERANCE_MS
+            (isSpokenRef.current && now - lastVoice > SILENCE_MS) ||
+            (utteranceStart > 0 && now - utteranceStart > MAX_UTTERANCE_MS)
           ) {
             if (ws.current?.readyState === WebSocket.OPEN) {
               ws.current.send(JSON.stringify({ type: "end_utterance" }));
             }
             setStatus("thinking");
-            isSpoken = false;
+            isSpokenRef.current = false;
             preRollChunks.length = 0;
           }
         }
@@ -394,30 +454,16 @@ export function useVoice(language: string) {
       if (statusRef.current === "idle" || statusRef.current === "connecting") {
         setStatus("monitoring");
       }
-    } catch (e) {
+    } catch (e: any) {
       console.warn("Microphone access prompt:", e);
-      setError("Please allow microphone access to enable Hands-Free voice intake.");
+      setError("Please allow microphone access to enable voice intake.");
       setMicActive(false);
     }
   }, []);
 
-  // Attempt auto-activation of mic on mount if browser already has permission
+  // Web Speech API for Instant Real-Time Transcripts & Wake-Word
   useEffect(() => {
-    if (typeof window !== "undefined" && navigator.mediaDevices) {
-      navigator.mediaDevices
-        .getUserMedia({ audio: true })
-        .then(() => {
-          startContinuousVAD();
-        })
-        .catch(() => {
-          // Needs initial user gesture (normal browser security policy)
-        });
-    }
-  }, [startContinuousVAD]);
-
-  // "Hi Khata" Web Speech wake-word recognizer running alongside VAD
-  useEffect(() => {
-    if (!wakeWordActive || typeof window === "undefined") return;
+    if (typeof window === "undefined") return;
     const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRec) return;
 
@@ -428,51 +474,85 @@ export function useVoice(language: string) {
       sr = new SpeechRec();
       sr.continuous = true;
       sr.interimResults = true;
-      sr.lang = "en-IN";
+      sr.lang = language || "hi-IN";
 
       sr.onresult = (ev: any) => {
+        let finalStr = "";
+        let interimStr = "";
+
         for (let i = ev.resultIndex; i < ev.results.length; i++) {
-          const text = ev.results[i][0].transcript.toLowerCase();
-          if (
-            text.includes("hi khata") ||
-            text.includes("hey khata") ||
-            text.includes("hello khata") ||
-            text.includes("hai khata") ||
-            text.includes("khata")
-          ) {
-            if (statusRef.current === "monitoring" || statusRef.current === "idle") {
-              playChime(659.25, 0.12);
-              setWakeDetected(true);
-              setStatus("listening");
-            }
-            break;
+          const res = ev.results[i];
+          const transcript = res[0]?.transcript || "";
+          if (res.isFinal) {
+            finalStr += transcript;
+          } else {
+            interimStr += transcript;
+          }
+        }
+
+        const fullText = (finalStr || interimStr).trim();
+        if (fullText) {
+          setInterimText(fullText);
+        }
+
+        const lower = fullText.toLowerCase();
+
+        // Check for wake words
+        if (
+          wakeWordActive &&
+          (lower.includes("hi khata") ||
+            lower.includes("hey khata") ||
+            lower.includes("hello khata") ||
+            lower.includes("hai khata") ||
+            lower.includes("namaste khata") ||
+            lower.includes("khata"))
+        ) {
+          if (statusRef.current === "monitoring" || statusRef.current === "idle") {
+            playChime(659.25, 0.12);
+            setWakeDetected(true);
+            setStatus("listening");
+            isSpokenRef.current = true;
+            return;
+          }
+        }
+
+        // Real-time final transcript submission
+        if (finalStr.trim() && (statusRef.current === "listening" || statusRef.current === "monitoring")) {
+          let cleanText = finalStr
+            .replace(/^(hi|hey|hello|hai|namaste)?\s*khata\s*/i, "")
+            .trim();
+          if (cleanText) {
+            sendText(cleanText);
+            setInterimText("");
+            setWakeDetected(false);
           }
         }
       };
 
-      sr.onerror = () => {
+      sr.onerror = (e: any) => {
+        if (e.error !== "no-speech" && e.error !== "aborted") {
+          console.warn("SpeechRecognition notice:", e.error);
+        }
         if (active && (statusRef.current === "monitoring" || statusRef.current === "idle")) {
           setTimeout(() => {
             try {
               if (active) sr.start();
             } catch {}
-          }, 1500);
+          }, 1200);
         }
       };
 
       sr.onend = () => {
-        if (active && (statusRef.current === "monitoring" || statusRef.current === "idle")) {
+        if (active && (statusRef.current === "monitoring" || statusRef.current === "idle" || statusRef.current === "listening")) {
           try {
             sr.start();
           } catch {}
         }
       };
 
-      if (statusRef.current === "monitoring" || statusRef.current === "idle") {
-        try {
-          sr.start();
-        } catch {}
-      }
+      try {
+        sr.start();
+      } catch {}
     } catch {}
 
     wakeRec.current = sr;
@@ -480,16 +560,24 @@ export function useVoice(language: string) {
     return () => {
       active = false;
       try {
-        sr?.stop();
+        sr?.abort();
       } catch {}
     };
-  }, [wakeWordActive]);
+  }, [language, wakeWordActive, sendText]);
 
-  const sendText = useCallback((text: string) => {
-    if (!text.trim() || ws.current?.readyState !== WebSocket.OPEN) return;
-    setStatus("thinking");
-    ws.current.send(JSON.stringify({ type: "text", text }));
-  }, []);
+  // Auto-attempt mic activation on mount
+  useEffect(() => {
+    if (typeof window !== "undefined" && navigator.mediaDevices) {
+      navigator.mediaDevices
+        .getUserMedia({ audio: true })
+        .then(() => {
+          startContinuousVAD();
+        })
+        .catch(() => {
+          // Normal: requires user click/gesture
+        });
+    }
+  }, [startContinuousVAD]);
 
   const playAudio = useCallback((base64Data: string) => {
     try {
@@ -509,6 +597,7 @@ export function useVoice(language: string) {
     setMsgs([]);
     setDraft(null);
     setError("");
+    setInterimText("");
     setStatus(micActive && handsFreeRef.current ? "monitoring" : "idle");
     setWakeDetected(false);
   }, [micActive]);
@@ -529,13 +618,23 @@ export function useVoice(language: string) {
   }, []);
 
   const start = useCallback(async () => {
+    setError("");
     if (!rec.current) {
       await startContinuousVAD();
+    } else if (rec.current.ctx.state === "suspended") {
+      try {
+        await rec.current.ctx.resume();
+      } catch {}
     }
-    if (statusRef.current === "monitoring" || statusRef.current === "idle") {
-      playChime(587.33, 0.12);
-      setStatus("listening");
-    }
+    playChime(587.33, 0.12);
+    isSpokenRef.current = true;
+    setStatus("listening");
+
+    try {
+      if (wakeRec.current && typeof wakeRec.current.start === "function") {
+        wakeRec.current.start();
+      }
+    } catch {}
   }, [startContinuousVAD]);
 
   const stop = useCallback(() => {
@@ -560,6 +659,7 @@ export function useVoice(language: string) {
     reconcileResult,
     clearReconcileResult,
     error,
+    interimText,
     audioLevel,
     handsFree,
     setHandsFree,
