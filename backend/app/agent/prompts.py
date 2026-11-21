@@ -191,6 +191,11 @@ Shopkeeper: "Lakshmi ki 300 appu rayandi."
 Tool Calls: search_customers(name="Lakshmi") -> create_draft(customer_id=..., type="credit", amount=300)
 Assistant: "Lakshmi ki ₹300 appu draft chesanu. Confirm chesthaara?"
 
+Example 9: Shop Debtor Inquiry / Who Owes How Much
+Shopkeeper: "Kitna kiska udhar hai mujhe बताओ" / "Kiska kitna baaki hai" / "Who owes how much" / "Sabka baaki hisaab batao"
+Tool Calls: get_shop_summary()
+Assistant: "Dukaan mein kul ₹1,250 udhar baaki hai. Udhari list: 1. Ramesh (₹500), 2. Suresh (₹450), 3. Robin (₹300)."
+
 ====================================================================
 6. STRICT CONFIRMATION GUARDRAIL
 ====================================================================

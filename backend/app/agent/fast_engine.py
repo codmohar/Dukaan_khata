@@ -191,6 +191,24 @@ SUMMARY_PATTERN = re.compile(
     r"(?:ಸಾರಾಂಶ|ಇವತ್ತಿನ\s*ಲೆಕ್ಕ|ಕಲೆಕ್ಷನ್|ಇವತ್ತು\s*ಎಷ್ಟು)",
     re.I,
 )
+DEBTORS_QUERY_PATTERN = re.compile(
+    r"\b(?:"
+    r"kiska\s*kitna|kitna\s*kiska|kis\s*kis\s*ka|kis\s*ka\s*kitna|kaun\s*kitna|kiske\s*kitne|"
+    r"kiska\s*(?:udhar|baaki|bakaya)|kitna\s*(?:udhar|baaki)\s*kiska|udhar\s*kiska|udhar\s*list|udhari\s*list|baaki\s*list|"
+    r"who\s*owes(?:\s*(?:how\s*much|money|what|the\s*most|the\s*shop))?|debtor[s]?\s*list|list\s*(?:all\s*)?(?:pending\s*)?balances?|"
+    r"sabka\s*(?:baaki|hisaab|udhar)|sabke\s*baaki|sabse\s*zyada\s*baaki|"
+    r"yaara\s*du\s*eshtu|yaaradu\s*eshtu|yaarige\s*eshtu|yaaru\s*eshtu|yaara\s*baaki|yaarige\s*udri|"
+    r"udri\s*patti|baaki\s*patti|ellara\s*baaki|ellara\s*lekka|"
+    r"yaarukku\s*evvalavu|yaar\s*evvalavu|evariki\s*entha|evaru\s*entha"
+    r")\b|"
+    r"(?:"
+    r"किसका\s*कितना|कितना\s*किसका|किस-किस\s*का|किस\s*का\s*कितना|कौन\s*कितना|किसके\s*कितने|"
+    r"किसका\s*उधार|किसका\s*बाकी|सबका\s*बाकी|सबका\s*उधार|सबका\s*हिसाब|उधारी\s*की\s*लिस्ट|उधार\s*की\s*लिस्ट|उधार\s*लिस्ट|उधारी\s*लिस्ट|बाकी\s*लिस्ट|"
+    r"ಯಾರದು\s*ಎಷ್ಟು|ಯಾರಿಗೆ\s*ಎಷ್ಟು|ಯಾರು\s*ಎಷ್ಟು|ಯಾರಾರಿಗೆ|ಎಲ್ಲರ\s*ಬಾಕಿ|ಎಲ್ಲರ\s*ಲೆಕ್ಕ|ಉದ್ರಿ\s*ಪಟ್ಟಿ|ಬಾಕಿ\s*ಪಟ್ಟಿ|"
+    r"யாருக்கு\s*எவ்வளவு|யார்\s*எவ்வளவு|ఎవరికి\s*ఎంత|ఎవరు\s*ఎంత"
+    r")",
+    re.I,
+)
 BALANCE_PATTERN = re.compile(
     r"\b(?:balance|kitna\s*baaki|eshtu\s*baaki|hisab|hisaab|baaki\s*ide|khata\s*batao|pending|evvalavu\s*baaki|entha\s*baaki|ethra\s*baaki|kiti\s*baaki|ketlu\s*baaki|koto\s*baki|kinna\s*baaki|kete\s*baki|koi\s*baki|kitna\s*baqi|"
     r"kitna\s*hua|kitna\s*bana|eshtu\s*aaythu|eshtu\s*aagide|entha\s*aindi|evvalavu\s*aachu|kitna\s*hua\s*hai|eshtu\s*aaytu)\b|"
@@ -482,15 +500,19 @@ STOPWORDS = {
     "tharu", "tanka", "pali", "dili", "likhi", "aasila",
     "naamot", "toka", "palu", "dilu", "likha",
     "khaate", "rupay", "ada", "kiya", "likhiye",
+    # Pronouns, Question markers & Inquiry tokens
+    "mujhe", "mujhko", "mujhse", "hume", "humein", "humko", "kaun", "kise", "kisko", "kiske", "kisne", "kis", "sabka", "sabki", "sabke", "sabko", "kisi", "kisika", "dikhao", "dikhaiye", "bataiye", "bakaya", "bata", "dikha", "patti", "thorisi", "nanage", "namage", "yaaru", "yaarige", "yaaradu", "yaaraadru", "yaaraarige", "ellaru", "ellara", "ellarigu",
     # Devanagari stopwords
     "का", "की", "के", "को", "ने", "से", "में", "पर", "रुपये", "रुपए", "रुपया", "रु",
     "उधार", "उधारी", "जमा", "लिखो", "लिख", "डाल", "डालो", "दिया", "दिए", "दे", "लिया",
     "लिए", "ले", "करो", "कर", "दो", "दी", "हो", "गया", "गई", "गए", "है", "हैं", "था",
     "थी", "थे", "खाता", "खाते", "खातों", "हिसाब", "पंद्रह", "पन्द्रह", "बीस", "पच्चीस", "तीस", "चालीस", "पचास", "साठ", "सत्तर", "अस्सी", "नब्बे", "गल्ला", "गल्ले", "बॉक्स", "पेटी", "काउंटर", "सब", "क्लियर", "फोनपे", "कैश", "नकद", "कृपया", "बोलो", "बताओ",
     "पिछली", "पिछला", "एंट्री", "डिलीट", "हटाओ", "कितना", "कितने", "बैलेंस", "छूट", "हुआ", "हुए", "हुई", "बना", "बने", "बनी", "रुपये", "रुपए", "रुपया", "पैसा", "पैसे", "ಆಯ್ತು", "ಆಗಿದೆ", "ಆಯಿತು", "ರೂಪಾಯಿ", "आपके", "आपकी", "तुम्हारा", "तुम्हारी", "तुम्हारे", "तेरे", "तेरी", "तेरा", "उनका", "उनकी", "उनके", "इनका", "इनकी", "इनके", "किसका", "किसकी", "किसके", "कॉपी", "ಖಾತೆ", "ನಿಮಗೆ",
+    "मुझे", "मुझको", "मुझसे", "हमें", "हमको", "हमारा", "हमारी", "हमारे", "मैं", "तू", "तुम", "आप", "कौन", "किसे", "किसको", "किसने", "किस", "सबका", "सबकी", "सबके", "सबको", "किसी", "किसिका", "दिखाओ", "दिखाइए", "बताइए", "बता", "दिखा", "लिस्ट", "बकाया", "देगा", "देंगे",
     # Kannada stopwords
     "ಗೆ", "ಇಂದ", "ರೂಪಾಯಿ", "ರೂ", "ಉದ್ರಿ", "ಉಧಾರ್", "ಜಮಾ", "ಬರೆ", "ಹಾಕಿ", "ಕೊಟ್ರು",
-    "ಕೊಟ್ಟ", "ಆಗಿದೆ", "ಆಯ್ತು", "ಇದೆ", "ಮಾಡಿದೆ", "ಖಾತೆ", "ಖಾತೆಗೆ", "ಖಾತೆಯಲ್ಲಿ", "ಲೆಕ್ಕ", "ಬ್ಯಾಲೆನ್ಸ್", "ಎಷ್ಟು", "ಸಾಲ", "ಮನ್ನಾ", "ರೈಟ್", "ಆಫ್", "ಹಿಂದಿನ", "ಮಾಡಿ"
+    "ಕೊಟ್ಟ", "ಆಗಿದೆ", "ಆಯ್ತು", "ಇದೆ", "ಮಾಡಿದೆ", "ಖಾತೆ", "ಖಾತೆಗೆ", "ಖಾತೆಯಲ್ಲಿ", "ಲೆಕ್ಕ", "ಬ್ಯಾಲೆನ್ಸ್", "ಎಷ್ಟು", "ಸಾಲ", "ಮನ್ನಾ", "ರೈಟ್", "ಆಫ್", "ಹಿಂದಿನ", "ಮಾಡಿ",
+    "ನನಗೆ", "ನಮಗೆ", "ನಮ್ಮ", "ನನ್ನ", "ಯಾರು", "ಯಾರಿಗೆ", "ಯಾರದು", "ಯಾರಾದ್ರೂ", "ಯಾರಾರಿಗೆ", "ಎಲ್ಲರ", "ಎಲ್ಲರಿಗೂ", "ಹೇಳಿ", "ತೋರಿಸಿ", "ಪಟ್ಟಿ", "ಕೊಡಬೇಕು"
 }
 
 
@@ -1017,7 +1039,7 @@ async def try_fast_path(
     # (e.g. "shyam ake pucha ki parleg lena hae 15 rupae ka", "Parle-G lena hai 15 ka")
     # Captures context into conversation cache and stays silent without premature drafting!
     # ---------------------------------------------------------
-    if is_inquiry and not (is_credit or is_payment or is_return or is_discount or is_advance or is_promise_rec or is_promise_query or CONFIRM_PATTERN.search(text)):
+    if is_inquiry and not (is_credit or is_payment or is_return or is_discount or is_advance or is_promise_rec or is_promise_query or DEBTORS_QUERY_PATTERN.search(text) or SUMMARY_PATTERN.search(text) or BALANCE_PATTERN.search(text) or CONFIRM_PATTERN.search(text)):
         c_name = " ".join(t.capitalize() for t in name_tokens[:2]) if name_tokens else None
         if cache:
             cache.set_inquiry(customer_name=c_name, product=detected_item, amount=amount)
@@ -1636,7 +1658,50 @@ async def try_fast_path(
                 return FastPathResult(handled=True, reply=msg)
 
     # ---------------------------------------------------------
-    # 10. SHOP SUMMARY QUERY ("Aaj kitna udhar gaya", "Total collection")
+    # 10.A DEBTORS & OUTSTANDING UDHAR QUERY ("Kitna kiska udhar hai", "Who owes how much", "Sabka baaki hisaab")
+    # ---------------------------------------------------------
+    if DEBTORS_QUERY_PATTERN.search(text):
+        async with SessionLocal() as s:
+            res = await tools.get_shop_summary(s, shop_id)
+            tot = res.get("total_outstanding", 0)
+            top_debts = res.get("top_debtors", [])
+            cnt = res.get("customer_count", 0)
+
+            ev = [{"type": "debtors_list", "total_outstanding": tot, "debtors": top_debts}]
+
+            if not top_debts or tot <= 0:
+                if lang.startswith("kn"):
+                    msg = "Dukaan-nalli yaaradu udhar baaki illa. Ella graahakara khate clear aagide."
+                elif lang.startswith("en"):
+                    msg = "No pending udhar. All customer accounts are completely clear."
+                else:
+                    msg = "Dukaan mein kisi ka bhi udhar baaki nahi hai. Sabhi customers ka hisaab clear hai."
+                return FastPathResult(handled=True, reply=msg, events=ev)
+
+            # Check if asking specifically who owes the most
+            if "the most" in lower or "sabse zyada" in lower or "jaasti" in lower or "सबसे ज्यादा" in text or "ಜಾಸ್ತಿ" in text:
+                top_3 = ", ".join(f"{d['name']} (₹{d['balance']:,.0f})" for d in top_debts[:3])
+                if lang.startswith("kn"):
+                    msg = f"Jaasti baaki: {top_3}."
+                elif lang.startswith("en"):
+                    msg = f"Top outstanding: {top_3}."
+                else:
+                    msg = f"Sabse zyada baaki: {top_3}."
+                return FastPathResult(handled=True, reply=msg, events=ev)
+
+            debtor_items = [f"{i}. {d['name']} (₹{d['balance']:,.0f})" for i, d in enumerate(top_debts[:5], 1)]
+            items_str = ", ".join(debtor_items)
+
+            if lang.startswith("kn"):
+                msg = f"Dukaan-nalli ottu ₹{tot:,.0f} udhar baaki ide. Baaki patti: {items_str}."
+            elif lang.startswith("en"):
+                msg = f"Total shop udhar is ₹{tot:,.0f} across {len(top_debts)} debtors. Top balances: {items_str}."
+            else:
+                msg = f"Dukaan mein kul ₹{tot:,.0f} udhar baaki hai. Udhari list: {items_str}."
+            return FastPathResult(handled=True, reply=msg, events=ev)
+
+    # ---------------------------------------------------------
+    # 10.B SHOP SUMMARY QUERY ("Aaj kitna udhar gaya", "Total collection")
     # ---------------------------------------------------------
     if SUMMARY_PATTERN.search(text):
         async with SessionLocal() as s:
@@ -1647,7 +1712,7 @@ async def try_fast_path(
             cnt = res.get("customer_count", 0)
             top_debts = res.get("top_debtors", [])
 
-            if "who owes the most" in lower or "sabse zyada" in lower:
+            if "who owes the most" in lower or "sabse zyada" in lower or "सबसे ज्यादा" in text:
                 if top_debts:
                     top_list = ", ".join(f"{d['name']} (₹{d['balance']:,.0f})" for d in top_debts[:3])
                     msg = f"Sabse zyada baaki: {top_list}."

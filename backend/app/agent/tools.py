@@ -811,7 +811,7 @@ async def get_shop_summary(s: AsyncSession, shop_id: str) -> dict:
                     join customer_balances b on b.customer_id = c.id
                     where c.shop_id = :shop and b.balance > 0
                     order by b.balance desc
-                    limit 5
+                    limit 10
                     """
                 ),
                 {"shop": str(sid)},
