@@ -144,6 +144,11 @@ async def get_current_shop_id(
 
 # -------------------- HEALTH & SHOP --------------------
 
+@app.get("/")
+async def root():
+    return {"ok": True, "service": "dukaan-backend", "status": "running"}
+
+
 @app.get("/health")
 async def health(s: AsyncSession = Depends(get_session)):
     db_ok = False
