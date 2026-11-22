@@ -22,7 +22,13 @@ class Settings(BaseSettings):
 
     @property
     def async_database_url(self) -> str:
-        url = self.database_url
+        url = (
+            os.getenv("DATABASE_URL")
+            or os.getenv("DATABASE_PUBLIC_URL")
+            or os.getenv("DATABASE_PRIVATE_URL")
+            or os.getenv("POSTGRES_URL")
+            or self.database_url
+        )
         if url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql+asyncpg://", 1)
         elif url.startswith("postgresql://") and not url.startswith("postgresql+asyncpg://"):

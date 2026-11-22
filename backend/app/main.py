@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import json
 import logging
@@ -41,11 +42,19 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(na
 log = logging.getLogger("dukaan.api")
 
 
+async def safe_init_db():
+    try:
+        # Run DB init with timeout so it never blocks the process if DB connection is delayed
+        await asyncio.wait_for(init_db(), timeout=15.0)
+    except Exception as e:
+        log.warning("Database init_db notice: %s", e)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Initialize database tables and seed defaults on startup
     log.info("Starting DukaanAI Backend...")
-    await init_db()
+    # Launch DB initialization in background so Uvicorn opens HTTP port immediately
+    asyncio.create_task(safe_init_db())
     yield
     log.info("Shutting down DukaanAI Backend...")
 
